@@ -3,54 +3,29 @@ import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: [true, 'Name is required'],
-      trim: true,
-    },
-    email: {
-      type: String,
-      required: [true, 'Email is required'],
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    mobile: {
-      type: String,
-      required: [true, 'Mobile number is required'],
-      unique: true,
-      trim: true,
-    },
-    password: {
-      type: String,
-      required: [true, 'Password is required'],
-      minlength: [6, 'Password must be at least 6 characters'],
-      select: false, // Prevents password from returning in standard queries
-    },
-    role: {
-      type: String,
-      enum: ['VISITOR', 'MEMBER', 'PREMIUM_MEMBER', 'ORGANIZER', 'ADMIN', 'SUPER_ADMIN'],
-      default: 'VISITOR',
-    },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    mobile: { type: String, required: true, unique: true },
+    password: { type: String, required: true, select: false },
+    role: { type: String, default: 'user' },
+    isVerified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
-// Pre-save Middleware: Hash password automatically before saving
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+// ✅ FIXED: Pure async/await pre-save hook (NO 'next' parameter!)
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) {
+    return;
+  }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
-// Instance Method: Compare password for login
+// Method to compare entered password with hashed password
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-export default mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+export default User;
