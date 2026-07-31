@@ -54,7 +54,7 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
-// Apply CORS middleware globally (handles preflight requests automatically)
+// Apply CORS middleware globally
 app.use(cors(corsOptions));
 
 // Security & Helmet Middleware
@@ -71,6 +71,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Serve Uploaded Files Statically
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
+// Base Root Endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({ success: true, message: 'BEGAINDIA API Server Running' });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/business', businessRoutes);
@@ -82,14 +87,14 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ success: true, message: 'BEGAINDIA API is online and healthy!' });
 });
 
-// 404 Handler (Notice the catch-all pattern updated for Express 5)
+// 404 Handler
 app.use((req, res, next) => {
   res.status(404).json({ success: false, message: `Route not found - ${req.originalUrl}` });
 });
 
-// Global Centralized Error Middleware
+// Global Centralized Error Middleware (Must have 4 arguments)
 app.use((err, req, res, next) => {
-  console.error(`❌ Global Error: ${err.stack}`);
+  console.error(`❌ Global Error: ${err.stack || err.message}`);
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   res.status(statusCode).json({
     success: false,

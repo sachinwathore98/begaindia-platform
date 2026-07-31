@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// ✅ FIXED: Pure async/await pre-save hook (NO 'next' parameter!)
+// Pure async pre-save hook for password hashing (no next callback parameter)
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) {
     return;
