@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Allow specific origins including production Vercel & local development
+// Clean allowed origins array
 const allowedOrigins = [
   'https://begaindia-platform.vercel.app',
   'https://begaindia.vercel.app',
@@ -32,23 +32,21 @@ const allowedOrigins = [
   'http://localhost:3000'
 ];
 
-if (process.env.CLIENT_URL) {
-  // Strip trailing slash if present
-  const cleanClientUrl = process.env.CLIENT_URL.replace(/\/$/, '');
-  if (!allowedOrigins.includes(cleanClientUrl)) {
-    allowedOrigins.push(cleanClientUrl);
-  }
-}
-
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like Postman, curl, or mobile apps)
+  origin: (origin, callback) => {
+    // Allow non-browser requests (Postman, curl, server-to-server)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      return callback(null, true);
-    } else {
-      return callback(null, true); // Fallback to accept request origin
+
+    const cleanOrigin = origin.trim().replace(/\/$/, '');
+
+    if (
+      allowedOrigins.includes(cleanOrigin) ||
+      (process.env.CLIENT_URL && cleanOrigin === process.env.CLIENT_URL.trim().replace(/\/$/, ''))
+    ) {
+      return callback(null, cleanOrigin);
     }
+
+    return callback(null, cleanOrigin);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -56,15 +54,13 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
-// Enable explicit preflight handling
-app.options('*', cors(corsOptions));
+// Apply CORS middleware globally (handles preflight requests automatically)
 app.use(cors(corsOptions));
 
-// Helmet with cross-origin policies configured to allow API calls from Vercel
+// Security & Helmet Middleware
 app.use(
   helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-    crossOriginOpenerPolicy: { policy: "unsafe-none" }
+    crossOriginResourcePolicy: { policy: "cross-origin" }
   })
 );
 
@@ -86,7 +82,7 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ success: true, message: 'BEGAINDIA API is online and healthy!' });
 });
 
-// 404 Handler
+// 404 Handler (Notice the catch-all pattern updated for Express 5)
 app.use((req, res, next) => {
   res.status(404).json({ success: false, message: `Route not found - ${req.originalUrl}` });
 });
