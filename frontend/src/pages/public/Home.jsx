@@ -450,53 +450,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ================= FOOTER ================= */}
-      <footer className="bg-slate-900 text-slate-400 text-xs py-12 px-4 sm:px-6 lg:px-8 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          <div className="space-y-3">
-            <div className="text-white font-extrabold text-lg flex items-center gap-2">
-              <span className="w-7 h-7 bg-[#F57C00] rounded-lg flex items-center justify-center text-white text-xs">
-                B
-              </span>
-              BEGAINDIA
-            </div>
-            <p className="text-slate-400 text-xs leading-relaxed">
-              India's premium subscription-based business networking and directory platform. Connecting entrepreneurs, traders, and enterprises.
-            </p>
-          </div>
-
-          <div>
-            <h4 className="text-white font-bold mb-3 text-xs uppercase tracking-wider">Quick Links</h4>
-            <ul className="space-y-2">
-              <li><Link to="/about" className="hover:text-white transition">About Us</Link></li>
-              <li><Link to="/membership" className="hover:text-white transition">Membership Plans</Link></li>
-              <li><Link to="/directory" className="hover:text-white transition">Business Directory</Link></li>
-              <li><Link to="/events" className="hover:text-white transition">Events Schedule</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-white font-bold mb-3 text-xs uppercase tracking-wider">Legal & Support</h4>
-            <ul className="space-y-2">
-              <li><Link to="/privacy" className="hover:text-white transition">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="hover:text-white transition">Terms & Conditions</Link></li>
-              <li><Link to="/contact" className="hover:text-white transition">Help & Support</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-white font-bold mb-3 text-xs uppercase tracking-wider">Contact Us</h4>
-            <p className="text-slate-400">BEGAINDIA Business Network</p>
-            <p className="text-slate-400">Chhatrapati Sambhajinagar, Maharashtra, India</p>
-            <p className="text-slate-400 mt-2">Email: support@begaindia.com</p>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto pt-6 border-t border-slate-800 text-center flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>© 2026 BEGAINDIA Platform. All Rights Reserved.</p>
-          <p className="text-slate-500">Developed by <span className="text-slate-400 font-semibold">SW Digital Hub</span></p>
-        </div>
-      </footer>
 
     </div>
   );
