@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Clean allowed origins array
+// Clean allowed origins
 const allowedOrigins = [
   'https://begaindia-platform.vercel.app',
   'https://begaindia.vercel.app',
@@ -34,19 +34,20 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow non-browser requests (Postman, curl, server-to-server)
+    // Allow non-browser requests (Postman, curl)
     if (!origin) return callback(null, true);
 
     const cleanOrigin = origin.trim().replace(/\/$/, '');
 
     if (
       allowedOrigins.includes(cleanOrigin) ||
+      cleanOrigin.endsWith('.vercel.app') ||
       (process.env.CLIENT_URL && cleanOrigin === process.env.CLIENT_URL.trim().replace(/\/$/, ''))
     ) {
-      return callback(null, cleanOrigin);
+      return callback(null, true);
     }
 
-    return callback(null, cleanOrigin);
+    return callback(null, true); // Fallback allow to avoid browser preflight blockage
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -54,8 +55,9 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
-// Apply CORS middleware globally
+// Apply CORS middleware globally before any routes
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Enable preflight across all routes
 
 // Security & Helmet Middleware
 app.use(
@@ -92,7 +94,7 @@ app.use((req, res, next) => {
   res.status(404).json({ success: false, message: `Route not found - ${req.originalUrl}` });
 });
 
-// Global Centralized Error Middleware (Must have 4 arguments)
+// Global Centralized Error Middleware
 app.use((err, req, res, next) => {
   console.error(`❌ Global Error: ${err.stack || err.message}`);
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;

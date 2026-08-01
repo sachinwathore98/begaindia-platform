@@ -5,7 +5,6 @@ import {
   Mail,
   Lock,
   Phone,
-  ShieldCheck,
   ArrowRight,
   CheckCircle2,
   AlertCircle,
@@ -50,14 +49,21 @@ export default function Register() {
 
     setLoading(true);
     setError('');
-    setInfoMessage('');
+    setInfoMessage('Waking up secure server & dispatching OTP email... Please wait.');
 
     try {
+      // Extended abort controller for Render cold starts
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
+
       const response = await fetch(`${API_BASE_URL}/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: formData.email }),
+        body: JSON.stringify({ email: formData.email.trim().toLowerCase() }),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       const data = await response.json();
 
@@ -68,7 +74,13 @@ export default function Register() {
       setInfoMessage(`Real-time OTP sent to ${formData.email}. Please check your inbox or spam folder.`);
       setStep('OTP');
     } catch (err) {
-      setError(err.message || 'Unable to send OTP. Please try again.');
+      if (err.name === 'AbortError') {
+        setError('Server cold start took longer than expected. Please click "Send OTP" once more.');
+      } else {
+        setError(err.message === 'Failed to fetch' 
+          ? 'Connecting to backend... Server is spinning up, please click "Send OTP" again.' 
+          : err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -89,7 +101,7 @@ export default function Register() {
       const response = await fetch(`${API_BASE_URL}/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: formData.email, otp: enteredOtp }),
+        body: JSON.stringify({ email: formData.email.trim().toLowerCase(), otp: enteredOtp.trim() }),
       });
 
       const data = await response.json();
@@ -100,6 +112,7 @@ export default function Register() {
 
       setIsVerified(true);
       setStep('SUCCESS');
+      setInfoMessage('');
     } catch (err) {
       setError(err.message || 'OTP verification failed.');
     } finally {
@@ -122,7 +135,7 @@ export default function Register() {
       const response = await fetch(`${API_BASE_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, email: formData.email.trim().toLowerCase() }),
       });
 
       const data = await response.json();
