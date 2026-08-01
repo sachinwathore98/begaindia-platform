@@ -1,6 +1,9 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import User from '../models/User.js';
 import { generateToken } from '../utils/generateToken.js';
+
+// Initialize Resend API client
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Helper to generate a 6-digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -8,7 +11,7 @@ const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString()
 // In-memory OTP store (email -> { otp, expiresAt, isVerified })
 const otpStore = new Map();
 
-// @desc    Send Registration OTP to Email
+// @desc    Send Registration OTP to Email (Instant via Resend API)
 // @route   POST /api/auth/send-otp
 // @access  Public
 export const sendRegistrationOtp = async (req, res, next) => {
@@ -33,48 +36,50 @@ export const sendRegistrationOtp = async (req, res, next) => {
       isVerified: false,
     });
 
-    // Configure Direct Gmail SMTP Port 465 (Bypasses Render SMTP Block)
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true, // Use SSL
-      auth: {
-        user: process.env.EMAIL_USER || 'begaindia559@gmail.com',
-        pass: process.env.EMAIL_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
-
-    const senderEmail = process.env.EMAIL_USER || 'begaindia559@gmail.com';
-
-    // Dispatch Email
-    await transporter.sendMail({
-      from: `"BEGAINDIA Network" <${senderEmail}>`,
-      to: cleanEmail,
-      subject: 'BEGAINDIA Registration OTP Verification Code',
+    // Dispatch email via Resend HTTP API (Delivers in ~1 second)
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM || 'BEGAINDIA Verification <onboarding@resend.dev>',
+      to: [cleanEmail],
+      subject: `${otp} is your BEGAINDIA Verification Code`,
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 500px; border: 1px solid #e2e8f0; border-radius: 12px;">
-          <h2 style="color: #0A3D91;">BEGAINDIA Business Network</h2>
-          <p>Your 6-digit account verification code is:</p>
-          <div style="font-size: 28px; font-weight: bold; color: #F57C00; letter-spacing: 6px; padding: 15px 0; text-align: center;">
-            ${otp}
+        <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b; max-width: 480px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+          <div style="margin-bottom: 20px;">
+            <span style="font-size: 20px; font-weight: 800; color: #0A3D91; letter-spacing: -0.5px;">BEGAINDIA</span>
+            <span style="font-size: 10px; font-weight: 700; color: #F57C00; text-transform: uppercase; margin-left: 6px;">Business Network</span>
           </div>
-          <p style="font-size: 12px; color: #64748b;">This code expires in 10 minutes. Do not share it with anyone.</p>
+          <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0;">Verify your email address</h3>
+          <p style="font-size: 13px; color: #475569; margin: 0 0 20px 0; line-height: 1.5;">
+            Use the 6-digit code below to complete your registration on BEGAINDIA.
+          </p>
+          <div style="background-color: #f8fafc; border: 1px border-dashed #cbd5e1; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 20px;">
+            <span style="font-size: 32px; font-weight: 800; color: #F57C00; letter-spacing: 8px; font-family: monospace;">
+              ${otp}
+            </span>
+          </div>
+          <p style="font-size: 11px; color: #94a3b8; margin: 0; text-align: center;">
+            This code expires in 10 minutes. If you didn't request this email, please ignore it.
+          </p>
         </div>
       `,
     });
+
+    if (error) {
+      console.error('[RESEND API ERROR]', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to dispatch email OTP: ' + error.message,
+      });
+    }
 
     return res.status(200).json({
       success: true,
       message: 'Verification OTP sent to email successfully',
     });
   } catch (error) {
-    console.error('[NODEMAILER ERROR]', error);
+    console.error('[SERVER ERROR]', error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to send email OTP: ' + (error.message || 'SMTP Timeout Error'),
+      message: 'Failed to send email OTP: ' + (error.message || 'Internal Server Error'),
     });
   }
 };
