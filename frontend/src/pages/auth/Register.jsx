@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import {
   User,
   Mail,
@@ -16,7 +15,6 @@ import {
 
 export default function Register() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   // Form Fields
   const [formData, setFormData] = useState({
@@ -29,21 +27,58 @@ export default function Register() {
 
   // OTP Verification States
   const [step, setStep] = useState('DETAILS'); // 'DETAILS' | 'OTP' | 'SUCCESS'
-  const [otpSent, setOtpSent] = useState(false);
   const [enteredOtp, setEnteredOtp] = useState('');
   const [isVerified, setIsVerified] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [infoMessage, setInfoMessage] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Step A: Request OTP to Email
+  // Active Render backend API URL
+  const API_BASE_URL = 'https://begaindia-api.onrender.com/api/auth';
+
+  // Step 1: Send Real Email OTP via Backend
   const handleSendOtp = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.name) {
-      setError('Please provide your full name and valid email address first.');
+      setError('Please provide your full name and valid email address.');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setInfoMessage('');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to dispatch OTP email.');
+      }
+
+      setInfoMessage(`Real-time OTP sent to ${formData.email}. Please check your inbox or spam folder.`);
+      setStep('OTP');
+    } catch (err) {
+      setError(err.message || 'Unable to send OTP. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 2: Verify Real OTP Code via Backend
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (!enteredOtp || enteredOtp.length !== 6) {
+      setError('Please enter the 6-digit OTP code sent to your email.');
       return;
     }
 
@@ -51,67 +86,56 @@ export default function Register() {
     setError('');
 
     try {
-      // API call to backend send-otp endpoint
-      // const res = await axios.post('/api/auth/send-otp', { email: formData.email });
-      
-      // Simulated OTP dispatch for instant feedback
-      setTimeout(() => {
-        setLoading(false);
-        setOtpSent(true);
-        setStep('OTP');
-      }, 1000);
-    } catch (err) {
-      setLoading(false);
-      setError(err?.response?.data?.message || 'Failed to send OTP to email. Try again.');
-    }
-  };
+      const response = await fetch(`${API_BASE_URL}/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email, otp: enteredOtp }),
+      });
 
-  // Step B: Verify OTP Code
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+      const data = await response.json();
 
-    try {
-      // API call to backend verify-otp endpoint
-      // const res = await axios.post('/api/auth/verify-otp', { email: formData.email, otp: enteredOtp });
-
-      // Demo validation (Accepts '123456' or any 6-digit number)
-      if (enteredOtp === '123456' || enteredOtp.length === 6) {
-        setLoading(false);
-        setIsVerified(true);
-        setStep('SUCCESS');
-      } else {
-        setLoading(false);
-        setError('Invalid OTP code. Please enter the 6-digit code sent to your email.');
+      if (!response.ok) {
+        throw new Error(data.message || 'Invalid or expired OTP code.');
       }
+
+      setIsVerified(true);
+      setStep('SUCCESS');
     } catch (err) {
+      setError(err.message || 'OTP verification failed.');
+    } finally {
       setLoading(false);
-      setError('Invalid OTP code or expired session.');
     }
   };
 
-  // Step C: Complete Business Registration
+  // Step 3: Complete Account Creation
   const handleCompleteRegistration = async (e) => {
     e.preventDefault();
     if (!isVerified) {
-      setError('Please verify your email address via OTP first.');
+      setError('Please complete email OTP verification first.');
       return;
     }
 
     setLoading(true);
+    setError('');
 
     try {
-      // Final registration API call
-      // const res = await axios.post('/api/auth/register', { ...formData, isEmailVerified: true });
-      
-      setTimeout(() => {
-        setLoading(false);
-        navigate('/login', { state: { registered: true } });
-      }, 1000);
+      const response = await fetch(`${API_BASE_URL}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed.');
+      }
+
+      navigate('/login', { state: { registered: true } });
     } catch (err) {
+      setError(err.message || 'Registration failed.');
+    } finally {
       setLoading(false);
-      setError(err?.response?.data?.message || 'Registration failed.');
     }
   };
 
@@ -119,7 +143,7 @@ export default function Register() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
       <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200/80 shadow-xl p-8 space-y-6">
         
-        {/* Header Logo & Title */}
+        {/* Header */}
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-2">
             <div className="w-10 h-10 bg-gradient-to-tr from-[#0A3D91] to-[#F57C00] rounded-xl flex items-center justify-center text-white font-extrabold text-lg shadow-md">
@@ -129,11 +153,11 @@ export default function Register() {
           </Link>
           <h1 className="text-xl font-extrabold text-slate-900 pt-1">Create Verified Business Account</h1>
           <p className="text-xs text-slate-500">
-            Email OTP verification is required to prevent fake accounts & spam.
+            Real-time email OTP verification is required to prevent fake accounts.
           </p>
         </div>
 
-        {/* Error Alert */}
+        {/* Alerts */}
         {error && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
@@ -141,7 +165,13 @@ export default function Register() {
           </div>
         )}
 
-        {/* STEP 1: Enter Business & Account Details */}
+        {infoMessage && (
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-2xl text-xs text-[#0A3D91] text-center font-medium">
+            {infoMessage}
+          </div>
+        )}
+
+        {/* STEP 1: Form Details */}
         {step === 'DETAILS' && (
           <form onSubmit={handleSendOtp} className="space-y-4">
             <div>
@@ -168,7 +198,7 @@ export default function Register() {
                   type="email"
                   name="email"
                   required
-                  placeholder="sachinwathore7698@gmail.com"
+                  placeholder="begaindia559@gmail.com"
                   value={formData.email}
                   onChange={handleChange}
                   className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:ring-2 focus:ring-[#0A3D91]"
@@ -242,13 +272,9 @@ export default function Register() {
           </form>
         )}
 
-        {/* STEP 2: Enter & Validate 6-Digit Email OTP */}
+        {/* STEP 2: Real OTP Code Verification */}
         {step === 'OTP' && (
           <form onSubmit={handleVerifyOtp} className="space-y-4">
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-2xl text-xs text-[#0A3D91] text-center">
-              We dispatched a 6-digit OTP code to <strong className="text-slate-900">{formData.email}</strong>. (Use code: <strong>123456</strong>)
-            </div>
-
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1 text-center">
                 Enter 6-Digit Email OTP
@@ -283,16 +309,16 @@ export default function Register() {
           </form>
         )}
 
-        {/* STEP 3: OTP Verified -> Final Submit */}
+        {/* STEP 3: Registration Completion */}
         {step === 'SUCCESS' && (
           <div className="space-y-4 text-center">
             <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto border border-emerald-200">
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">Email Verified Successfully!</h3>
+              <h3 className="text-base font-bold text-slate-900">Email Verified!</h3>
               <p className="text-xs text-slate-500 mt-1">
-                Your email <strong>{formData.email}</strong> has been authenticated. Complete your account creation below.
+                Click below to complete your account setup.
               </p>
             </div>
 
@@ -309,7 +335,7 @@ export default function Register() {
 
         <div className="text-center pt-2 border-t border-slate-100">
           <p className="text-xs text-slate-500">
-            Already have a registered account?{' '}
+            Already registered?{' '}
             <Link to="/login" className="text-[#0A3D91] font-bold hover:underline">
               Sign In
             </Link>

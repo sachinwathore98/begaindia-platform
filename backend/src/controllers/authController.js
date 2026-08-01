@@ -27,32 +27,32 @@ export const sendRegistrationOtp = async (req, res, next) => {
     const otp = generateOTP();
     otpStore.set(email, {
       otp,
-      expiresAt: Date.now() + 10 * 60 * 1000, // Valid for 10 minutes
+      expiresAt: Date.now() + 10 * 60 * 1000, // Valid 10 mins
       isVerified: false,
     });
 
-    // Configure Nodemailer Transporter
+    // Configure Transporter with your Google App Credentials
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER,
+        user: process.env.EMAIL_USER || 'begaindia559@gmail.com',
         pass: process.env.EMAIL_PASS,
       },
     });
 
-    // Send Email
+    // Dispatch Email
     await transporter.sendMail({
-      from: '"BEGAINDIA Business Network" <no-reply@begaindia.com>',
+      from: `"BEGAINDIA Network" <${process.env.EMAIL_USER || 'begaindia559@gmail.com'}>`,
       to: email,
-      subject: 'BEGAINDIA Registration OTP Code',
+      subject: 'BEGAINDIA Registration OTP Verification Code',
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-          <h2 style="color: #0A3D91;">BEGAINDIA Verification Code</h2>
-          <p>Your 6-digit registration OTP code is:</p>
-          <div style="font-size: 24px; font-weight: bold; color: #F57C00; letter-spacing: 4px; padding: 10px 0;">
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 500px; border: 1px solid #e2e8f0; rounded: 12px;">
+          <h2 style="color: #0A3D91;">BEGAINDIA Business Network</h2>
+          <p>Your 6-digit account verification code is:</p>
+          <div style="font-size: 28px; font-weight: bold; color: #F57C00; letter-spacing: 6px; padding: 15px 0; text-align: center;">
             ${otp}
           </div>
-          <p style="font-size: 12px; color: #777;">This code is valid for 10 minutes. Do not share it with anyone.</p>
+          <p style="font-size: 12px; color: #64748b;">This code expires in 10 minutes. Do not share it with anyone.</p>
         </div>
       `,
     });
@@ -62,7 +62,11 @@ export const sendRegistrationOtp = async (req, res, next) => {
       message: 'Verification OTP sent to email successfully',
     });
   } catch (error) {
-    return next(error);
+    console.error('[NODEMAILER ERROR]', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to send email OTP: ' + (error.message || 'SMTP Server Error'),
+    });
   }
 };
 
@@ -82,7 +86,7 @@ export const verifyRegistrationOtp = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Invalid or expired OTP code' });
     }
 
-    // Mark email as verified in store
+    // Mark email verified
     otpStore.set(email, { ...record, isVerified: true });
 
     return res.status(200).json({
@@ -94,19 +98,17 @@ export const verifyRegistrationOtp = async (req, res, next) => {
   }
 };
 
-// @desc    Register a new user (Enforces Verified Email OTP)
+// @desc    Register new user
 // @route   POST /api/auth/register
 // @access  Public
 export const registerUser = async (req, res, next) => {
   try {
     const { name, email, mobile, password } = req.body;
 
-    // Check required fields
     if (!name || !email || !mobile || !password) {
       return res.status(400).json({ success: false, message: 'Please provide all required fields' });
     }
 
-    // Verify if OTP was verified for this email
     const record = otpStore.get(email);
     if (!record || !record.isVerified) {
       return res.status(400).json({
@@ -115,7 +117,6 @@ export const registerUser = async (req, res, next) => {
       });
     }
 
-    // Check if user already exists
     const userExists = await User.findOne({ $or: [{ email }, { mobile }] });
     if (userExists) {
       return res.status(400).json({
@@ -124,7 +125,6 @@ export const registerUser = async (req, res, next) => {
       });
     }
 
-    // Create User
     const user = await User.create({
       name,
       email,
@@ -133,10 +133,8 @@ export const registerUser = async (req, res, next) => {
       isVerified: true,
     });
 
-    // Clean up OTP record
     otpStore.delete(email);
 
-    // Generate JWT token
     const token = generateToken(user);
 
     return res.status(201).json({
@@ -168,19 +166,16 @@ export const loginUser = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Please enter email and password' });
     }
 
-    // Find user and select password
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    // Verify password
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    // Generate JWT token
     const token = generateToken(user);
 
     return res.status(200).json({
