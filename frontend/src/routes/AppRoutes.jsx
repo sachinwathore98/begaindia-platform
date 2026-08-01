@@ -21,6 +21,12 @@ import Unauthorized from '../pages/auth/Unauthorized';
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 import Dashboard from '../pages/Dashboard';
 
+// Member Dashboard Modules
+import ProfileManagement from '../pages/dashboard/ProfileManagement';
+import EventModule from '../pages/dashboard/EventModule';
+import MembershipModule from '../pages/dashboard/MembershipModule';
+import NotificationModule from '../pages/dashboard/NotificationModule';
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -39,9 +45,14 @@ export default function AppRoutes() {
       <Route path="/register" element={<Register />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
-      {/* Protected Routes */}
+      {/* Protected Member Dashboard Routes */}
       <Route element={<ProtectedRoute allowedRoles={['user', 'admin']} />}>
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />}>
+          <Route path="profile" element={<ProfileManagement />} />
+          <Route path="events" element={<EventModule />} />
+          <Route path="membership" element={<MembershipModule />} />
+          <Route path="notifications" element={<NotificationModule />} />
+        </Route>
       </Route>
 
       {/* Catch All Fallback */}
