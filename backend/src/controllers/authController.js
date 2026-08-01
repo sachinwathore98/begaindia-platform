@@ -1,11 +1,10 @@
-import * as Brevo from '@getbrevo/brevo';
+import { TransactionalEmailsApi, SendSmtpEmail, TransactionalEmailsApiApiKeys } from '@getbrevo/brevo';
 import User from '../models/User.js';
 import { generateToken } from '../utils/generateToken.js';
 
-// Initialize Brevo API Client
-const apiInstance = new Brevo.TransactionalEmailsApi();
-const apiKey = apiInstance.authentications['apiKey'];
-apiKey.apiKey = process.env.BREVO_API_KEY;
+// Initialize Brevo Transactional Email API Instance
+const apiInstance = new TransactionalEmailsApi();
+apiInstance.setApiKey(TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 
 // Helper to generate a 6-digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -38,8 +37,8 @@ export const sendRegistrationOtp = async (req, res, next) => {
       isVerified: false,
     });
 
-    // Configure Brevo Email
-    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    // Configure Brevo SendSmtpEmail Object
+    const sendSmtpEmail = new SendSmtpEmail();
     sendSmtpEmail.subject = `${otp} is your BEGAINDIA Verification Code`;
     sendSmtpEmail.sender = { 
       name: "BEGAINDIA Business Network", 
