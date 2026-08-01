@@ -21,7 +21,7 @@ import Unauthorized from '../pages/auth/Unauthorized';
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 import Dashboard from '../pages/Dashboard';
 
-// Member Dashboard Modules
+// Dashboard Sub-Modules
 import ProfileManagement from '../pages/dashboard/ProfileManagement';
 import EventModule from '../pages/dashboard/EventModule';
 import MembershipModule from '../pages/dashboard/MembershipModule';
@@ -30,7 +30,7 @@ import NotificationModule from '../pages/dashboard/NotificationModule';
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Public Pages wrapped with Global Layout Header & Footer */}
+      {/* Public Pages */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -40,14 +40,14 @@ export default function AppRoutes() {
         <Route path="/contact" element={<Contact />} />
       </Route>
 
-      {/* Auth Standalone Pages */}
+      {/* Auth Pages */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
-      {/* Protected Member Dashboard Routes */}
+      {/* Dashboard Routes with Trailing Wildcard '*' */}
       <Route element={<ProtectedRoute allowedRoles={['user', 'admin']} />}>
-        <Route path="/dashboard" element={<Dashboard />}>
+        <Route path="/dashboard/*" element={<Dashboard />}>
           <Route path="profile" element={<ProfileManagement />} />
           <Route path="events" element={<EventModule />} />
           <Route path="membership" element={<MembershipModule />} />
@@ -55,7 +55,7 @@ export default function AppRoutes() {
         </Route>
       </Route>
 
-      {/* Catch All Fallback */}
+      {/* Catch-all fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
