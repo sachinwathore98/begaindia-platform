@@ -1,17 +1,5 @@
-import { createRequire } from 'module';
 import User from '../models/User.js';
 import { generateToken } from '../utils/generateToken.js';
-
-// Load Brevo cleanly via CJS require bridge (bypasses Node ESM export mismatches)
-const require = createRequire(import.meta.url);
-const Brevo = require('@getbrevo/brevo');
-
-// Initialize Transactional Emails API Client
-const apiInstance = new Brevo.TransactionalEmailsApi();
-apiInstance.setApiKey(
-  Brevo.TransactionalEmailsApiApiKeys.apiKey,
-  process.env.BREVO_API_KEY
-);
 
 // Helper to generate a 6-digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -19,7 +7,7 @@ const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString()
 // In-memory OTP store (email -> { otp, expiresAt, isVerified })
 const otpStore = new Map();
 
-// @desc    Send Registration OTP to Email (Instant via Brevo API)
+// @desc    Send Registration OTP to Email (Direct HTTP REST API Call)
 // @route   POST /api/auth/send-otp
 // @access  Public
 export const sendRegistrationOtp = async (req, res, next) => {
@@ -40,52 +28,67 @@ export const sendRegistrationOtp = async (req, res, next) => {
     const otp = generateOTP();
     otpStore.set(cleanEmail, {
       otp,
-      expiresAt: Date.now() + 10 * 60 * 1000, // Valid 10 mins
+      expiresAt: Date.now() + 10 * 60 * 1000, // Valid for 10 minutes
       isVerified: false,
     });
 
-    // Configure Email Payload (Using Plain JS Object to avoid class constructor errors)
-    const sendSmtpEmail = {
-      subject: `${otp} is your BEGAINDIA Verification Code`,
-      sender: {
-        name: "BEGAINDIA Business Network",
-        email: process.env.EMAIL_FROM || "begaindia559@gmail.com",
+    // Direct HTTP POST to Brevo v3 Transactional Email REST API
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json',
       },
-      to: [{ email: cleanEmail }],
-      htmlContent: `
-        <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b; max-width: 480px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
-          <div style="margin-bottom: 20px;">
-            <span style="font-size: 20px; font-weight: 800; color: #0A3D91; letter-spacing: -0.5px;">BEGAINDIA</span>
-            <span style="font-size: 10px; font-weight: 700; color: #F57C00; text-transform: uppercase; margin-left: 6px;">Business Network</span>
+      body: JSON.stringify({
+        sender: {
+          name: 'BEGAINDIA Business Network',
+          email: process.env.EMAIL_FROM || 'begaindia559@gmail.com',
+        },
+        to: [{ email: cleanEmail }],
+        subject: `${otp} is your BEGAINDIA Verification Code`,
+        htmlContent: `
+          <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b; max-width: 480px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+            <div style="margin-bottom: 20px;">
+              <span style="font-size: 20px; font-weight: 800; color: #0A3D91; letter-spacing: -0.5px;">BEGAINDIA</span>
+              <span style="font-size: 10px; font-weight: 700; color: #F57C00; text-transform: uppercase; margin-left: 6px;">Business Network</span>
+            </div>
+            <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0;">Verify your email address</h3>
+            <p style="font-size: 13px; color: #475569; margin: 0 0 20px 0; line-height: 1.5;">
+              Use the 6-digit code below to complete your business registration on BEGAINDIA.
+            </p>
+            <div style="background-color: #f8fafc; border: 1px border-dashed #cbd5e1; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 20px;">
+              <span style="font-size: 32px; font-weight: 800; color: #F57C00; letter-spacing: 8px; font-family: monospace;">
+                ${otp}
+              </span>
+            </div>
+            <p style="font-size: 11px; color: #94a3b8; margin: 0; text-align: center;">
+              This code expires in 10 minutes. If you didn't request this email, please ignore it.
+            </p>
           </div>
-          <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0;">Verify your email address</h3>
-          <p style="font-size: 13px; color: #475569; margin: 0 0 20px 0; line-height: 1.5;">
-            Use the 6-digit code below to complete your business registration on BEGAINDIA.
-          </p>
-          <div style="background-color: #f8fafc; border: 1px border-dashed #cbd5e1; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 20px;">
-            <span style="font-size: 32px; font-weight: 800; color: #F57C00; letter-spacing: 8px; font-family: monospace;">
-              ${otp}
-            </span>
-          </div>
-          <p style="font-size: 11px; color: #94a3b8; margin: 0; text-align: center;">
-            This code expires in 10 minutes. If you didn't request this email, please ignore it.
-          </p>
-        </div>
-      `,
-    };
+        `,
+      }),
+    });
 
-    // Send email via Brevo REST API
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('[BREVO REST ERROR]', data);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send OTP: ' + (data.message || 'Brevo API Error'),
+      });
+    }
 
     return res.status(200).json({
       success: true,
       message: 'Verification OTP sent to email successfully',
     });
   } catch (error) {
-    console.error('[BREVO API ERROR]', error?.response?.body || error);
+    console.error('[SERVER ERROR]', error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to send email OTP: ' + (error?.response?.body?.message || error.message || 'Email Service Error'),
+      message: 'Failed to send email OTP: ' + (error.message || 'Internal Server Error'),
     });
   }
 };
