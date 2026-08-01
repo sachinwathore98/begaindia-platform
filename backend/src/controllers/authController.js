@@ -1,10 +1,17 @@
-import { 
-  TransactionalEmailsApi, 
-  SendSmtpEmail, 
-  TransactionalEmailsApiApiKeys 
-} from '@getbrevo/brevo';
+import { createRequire } from 'module';
 import User from '../models/User.js';
 import { generateToken } from '../utils/generateToken.js';
+
+// Load Brevo cleanly via CJS require bridge (bypasses Node ESM export mismatches)
+const require = createRequire(import.meta.url);
+const Brevo = require('@getbrevo/brevo');
+
+// Initialize Transactional Emails API Client
+const apiInstance = new Brevo.TransactionalEmailsApi();
+apiInstance.setApiKey(
+  Brevo.TransactionalEmailsApiApiKeys.apiKey,
+  process.env.BREVO_API_KEY
+);
 
 // Helper to generate a 6-digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -33,45 +40,39 @@ export const sendRegistrationOtp = async (req, res, next) => {
     const otp = generateOTP();
     otpStore.set(cleanEmail, {
       otp,
-      expiresAt: Date.now() + 10 * 60 * 1000, // Valid for 10 minutes
+      expiresAt: Date.now() + 10 * 60 * 1000, // Valid 10 mins
       isVerified: false,
     });
 
-    // Initialize Brevo Transactional Email API Instance per-request (or globally)
-    const apiInstance = new TransactionalEmailsApi();
-    apiInstance.setApiKey(
-      TransactionalEmailsApiApiKeys.apiKey,
-      process.env.BREVO_API_KEY
-    );
-
-    // Configure Brevo SendSmtpEmail Payload
-    const sendSmtpEmail = new SendSmtpEmail();
-    sendSmtpEmail.subject = `${otp} is your BEGAINDIA Verification Code`;
-    sendSmtpEmail.sender = { 
-      name: "BEGAINDIA Business Network", 
-      email: process.env.EMAIL_FROM || "begaindia559@gmail.com" 
+    // Configure Email Payload (Using Plain JS Object to avoid class constructor errors)
+    const sendSmtpEmail = {
+      subject: `${otp} is your BEGAINDIA Verification Code`,
+      sender: {
+        name: "BEGAINDIA Business Network",
+        email: process.env.EMAIL_FROM || "begaindia559@gmail.com",
+      },
+      to: [{ email: cleanEmail }],
+      htmlContent: `
+        <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b; max-width: 480px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+          <div style="margin-bottom: 20px;">
+            <span style="font-size: 20px; font-weight: 800; color: #0A3D91; letter-spacing: -0.5px;">BEGAINDIA</span>
+            <span style="font-size: 10px; font-weight: 700; color: #F57C00; text-transform: uppercase; margin-left: 6px;">Business Network</span>
+          </div>
+          <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0;">Verify your email address</h3>
+          <p style="font-size: 13px; color: #475569; margin: 0 0 20px 0; line-height: 1.5;">
+            Use the 6-digit code below to complete your business registration on BEGAINDIA.
+          </p>
+          <div style="background-color: #f8fafc; border: 1px border-dashed #cbd5e1; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 20px;">
+            <span style="font-size: 32px; font-weight: 800; color: #F57C00; letter-spacing: 8px; font-family: monospace;">
+              ${otp}
+            </span>
+          </div>
+          <p style="font-size: 11px; color: #94a3b8; margin: 0; text-align: center;">
+            This code expires in 10 minutes. If you didn't request this email, please ignore it.
+          </p>
+        </div>
+      `,
     };
-    sendSmtpEmail.to = [{ email: cleanEmail }];
-    sendSmtpEmail.htmlContent = `
-      <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b; max-width: 480px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
-        <div style="margin-bottom: 20px;">
-          <span style="font-size: 20px; font-weight: 800; color: #0A3D91; letter-spacing: -0.5px;">BEGAINDIA</span>
-          <span style="font-size: 10px; font-weight: 700; color: #F57C00; text-transform: uppercase; margin-left: 6px;">Business Network</span>
-        </div>
-        <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0;">Verify your email address</h3>
-        <p style="font-size: 13px; color: #475569; margin: 0 0 20px 0; line-height: 1.5;">
-          Use the 6-digit code below to complete your business registration on BEGAINDIA.
-        </p>
-        <div style="background-color: #f8fafc; border: 1px border-dashed #cbd5e1; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 20px;">
-          <span style="font-size: 32px; font-weight: 800; color: #F57C00; letter-spacing: 8px; font-family: monospace;">
-            ${otp}
-          </span>
-        </div>
-        <p style="font-size: 11px; color: #94a3b8; margin: 0; text-align: center;">
-          This code expires in 10 minutes. If you didn't request this email, please ignore it.
-        </p>
-      </div>
-    `;
 
     // Send email via Brevo REST API
     await apiInstance.sendTransacEmail(sendSmtpEmail);
@@ -118,7 +119,7 @@ export const verifyRegistrationOtp = async (req, res, next) => {
   }
 };
 
-// @desc    Register new user (Enforces Verified Email OTP)
+// @desc    Register new user
 // @route   POST /api/auth/register
 // @access  Public
 export const registerUser = async (req, res, next) => {
