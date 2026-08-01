@@ -34,9 +34,7 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow non-browser requests (Postman, curl)
     if (!origin) return callback(null, true);
-
     const cleanOrigin = origin.trim().replace(/\/$/, '');
 
     if (
@@ -47,7 +45,7 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    return callback(null, true); // Fallback allow to avoid browser preflight blockage
+    return callback(null, true);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -55,9 +53,8 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
-// Apply CORS middleware globally before any routes
+// Apply CORS middleware globally (Do NOT use app.options('*'))
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Enable preflight across all routes
 
 // Security & Helmet Middleware
 app.use(
@@ -106,5 +103,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 BEGAINDIA Server running at http://localhost:${PORT}`);
+  console.log(`🚀 BEGAINDIA Server running on port ${PORT}`);
 });
