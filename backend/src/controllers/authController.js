@@ -1,4 +1,4 @@
-// backend/controllers/authController.js
+// backend/src/controllers/authController.js
 const nodemailer = require('nodemailer');
 
 // Helper to generate 6-digit OTP
