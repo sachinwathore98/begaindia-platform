@@ -9,12 +9,17 @@ import {
   CreditCard,
   Calendar,
   LogOut,
-  PlusCircle,
   QrCode,
-  TrendingUp,
-  FileText,
+  Lock,
+  Mail,
+  CheckCircle2,
   AlertCircle,
   ExternalLink,
+  MapPin,
+  Clock,
+  Zap,
+  ArrowRight,
+  PlusCircle,
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -22,20 +27,101 @@ export default function Dashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState('overview');
+  // Dashboard Sidebar Navigation State
+  const [activeTab, setActiveTab] = useState('events'); // Default active tab is Events & Passes
+
+  // Claimed Event Passes State
+  const [claimedPasses, setClaimedPasses] = useState(['EVT-101']); // Pre-claimed 1 pass for demo
+
+  // Business Profile Form State
+  const [companyName, setCompanyName] = useState('SW Digital Hub');
+  const [category, setCategory] = useState('Digital & IT');
+  const [mobile, setMobile] = useState('+91 8390876752');
+  const [city, setCity] = useState('Chhatrapati Sambhajinagar, MH');
+  const [description, setDescription] = useState('Full-service digital marketing agency, performance advertising, and software solutions.');
+  const [logoUrl, setLogoUrl] = useState('/logo.png');
+  const [profileSaved, setProfileSaved] = useState(false);
+
+  // Security & Password OTP State
+  const [otpSent, setOtpSent] = useState(false);
+  const [enteredOtp, setEnteredOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+
+  // Sample Upcoming Events Catalog inside Dashboard
+  const upcomingEvents = [
+    {
+      id: 'EVT-101',
+      title: 'National MSME Growth & Innovation Conclave 2026',
+      date: 'August 25, 2026',
+      time: '10:00 AM - 05:00 PM',
+      location: 'Chhatrapati Sambhajinagar, MH',
+      type: 'Summit & Conclave',
+      passCode: 'BEGA-2026-881',
+      description: 'Keynote panels with industrial leaders, B2B investor speed-networking, and startup pitch showcase.',
+    },
+    {
+      id: 'EVT-102',
+      title: 'B2B Founders & Traders Regional Meetup',
+      date: 'September 10, 2026',
+      time: '02:00 PM - 07:00 PM',
+      location: 'Mumbai, MH',
+      type: 'Networking Meet',
+      passCode: 'BEGA-2026-902',
+      description: 'Structured 1-on-1 business matching designed for manufacturers, suppliers, and regional distributors.',
+    },
+    {
+      id: 'EVT-103',
+      title: 'Digital Transformation & AI for Indian MSMEs',
+      date: 'September 18, 2026',
+      time: '04:00 PM - 06:00 PM',
+      location: 'Online Live Masterclass',
+      type: 'Webinar',
+      passCode: 'BEGA-2026-303',
+      description: 'Mastering digital growth funnels, automated customer acquisition, and modern technology adoption.',
+    },
+  ];
 
   const handleLogout = () => {
     dispatch(logout());
     navigate('/login');
   };
 
+  const handleClaimPass = (eventId) => {
+    if (!claimedPasses.includes(eventId)) {
+      setClaimedPasses([...claimedPasses, eventId]);
+    }
+  };
+
+  const handleSaveBusinessProfile = (e) => {
+    e.preventDefault();
+    setProfileSaved(true);
+    setTimeout(() => setProfileSaved(false), 4000);
+  };
+
+  const handleSendOtp = () => {
+    setOtpSent(true);
+  };
+
+  const handleVerifyAndChangePassword = (e) => {
+    e.preventDefault();
+    if (enteredOtp === '123456' || enteredOtp.length === 6) {
+      setPasswordSuccess(true);
+      setOtpSent(false);
+      setEnteredOtp('');
+      setNewPassword('');
+      setTimeout(() => setPasswordSuccess(false), 4000);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans flex flex-col md:flex-row">
+      
       {/* Sidebar Navigation */}
       <aside className="w-full md:w-64 bg-slate-900 text-slate-300 p-5 flex flex-col justify-between shrink-0 border-r border-slate-800">
         <div className="space-y-6">
-          {/* Logo / Platform Name */}
-          <Link to="/" className="flex items-center gap-2.5">
+          {/* Logo / Portal Branding */}
+          <Link to="/dashboard" className="flex items-center gap-2.5">
             <div className="w-9 h-9 bg-gradient-to-tr from-[#0A3D91] to-[#F57C00] rounded-xl flex items-center justify-center text-white font-extrabold text-sm shadow">
               B
             </div>
@@ -45,63 +131,74 @@ export default function Dashboard() {
             </div>
           </Link>
 
-          {/* Nav Menu Items */}
+          {/* Navigation Options */}
           <nav className="space-y-1.5 pt-4">
             <button
-              onClick={() => setActiveTab('overview')}
+              onClick={() => setActiveTab('events')}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
-                activeTab === 'overview'
-                  ? 'bg-[#0A3D91] text-white shadow-sm'
+                activeTab === 'events'
+                  ? 'bg-[#0A3D91] text-white shadow-sm font-bold'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-white'
               }`}
             >
-              <User className="w-4 h-4" /> Overview
-            </button>
-
-            <button
-              onClick={() => setActiveTab('business')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
-                activeTab === 'business'
-                  ? 'bg-[#0A3D91] text-white shadow-sm'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <Building2 className="w-4 h-4" /> Business Profile
+              <Calendar className="w-4 h-4 text-[#F57C00]" /> Events & Entry Passes
             </button>
 
             <button
               onClick={() => setActiveTab('membership')}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
                 activeTab === 'membership'
-                  ? 'bg-[#0A3D91] text-white shadow-sm'
+                  ? 'bg-[#0A3D91] text-white shadow-sm font-bold'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-white'
               }`}
             >
-              <CreditCard className="w-4 h-4" /> Subscription & Plan
+              <CreditCard className="w-4 h-4" /> Subscription Plans
             </button>
 
             <button
-              onClick={() => setActiveTab('events')}
+              onClick={() => setActiveTab('business')}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
-                activeTab === 'events'
-                  ? 'bg-[#0A3D91] text-white shadow-sm'
+                activeTab === 'business'
+                  ? 'bg-[#0A3D91] text-white shadow-sm font-bold'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-white'
               }`}
             >
-              <Calendar className="w-4 h-4" /> My Event Passes
+              <Building2 className="w-4 h-4" /> Business Profile & Directory
+            </button>
+
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+                activeTab === 'overview'
+                  ? 'bg-[#0A3D91] text-white shadow-sm font-bold'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+              }`}
+            >
+              <User className="w-4 h-4" /> Account Info
+            </button>
+
+            <button
+              onClick={() => setActiveTab('security')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+                activeTab === 'security'
+                  ? 'bg-[#0A3D91] text-white shadow-sm font-bold'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+              }`}
+            >
+              <Lock className="w-4 h-4" /> Security & Email OTP
             </button>
           </nav>
         </div>
 
-        {/* User Profile Footer & Logout */}
+        {/* Member Profile Footer & Logout */}
         <div className="pt-6 border-t border-slate-800 space-y-3">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-[#F57C00] text-white flex items-center justify-center font-bold text-xs uppercase shrink-0">
-              {user?.name?.charAt(0) || 'U'}
+              {user?.name?.charAt(0) || 'S'}
             </div>
             <div className="overflow-hidden">
-              <p className="text-xs font-bold text-white truncate">{user?.name || 'User'}</p>
-              <p className="text-[10px] text-slate-400 truncate">{user?.email}</p>
+              <p className="text-xs font-bold text-white truncate">{user?.name || 'SACHIN SUBHASH WATHORE'}</p>
+              <p className="text-[10px] text-slate-400 truncate">{user?.email || 'sachinwathore7698@gmail.com'}</p>
             </div>
           </div>
 
@@ -114,199 +211,149 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* Main Content Area */}
+      {/* Main Dashboard Content */}
       <main className="flex-1 p-6 md:p-8 space-y-6 max-w-6xl mx-auto w-full">
+        
         {/* Welcome Top Banner */}
         <div className="bg-gradient-to-r from-[#0A3D91] to-blue-900 text-white p-6 rounded-3xl shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <span className="px-3 py-1 bg-white/10 text-[#F57C00] rounded-full text-[10px] font-bold uppercase tracking-wider border border-white/20">
-              BEGAINDIA Member Dashboard
+              Logged-in Member Portal
             </span>
             <h1 className="text-xl sm:text-2xl font-extrabold mt-2">
-              Welcome back, {user?.name}!
+              Welcome back, {user?.name || 'SACHIN SUBHASH WATHORE'}!
             </h1>
             <p className="text-xs text-slate-200 mt-1">
-              Manage your business profile, networking subscriptions, and event access codes.
+              Enrol for upcoming summits, claim QR entry passes, upgrade subscription plans, and publish your company profile.
             </p>
           </div>
 
-          <span className="px-3.5 py-1.5 bg-[#F57C00] text-white font-extrabold rounded-full text-xs uppercase tracking-wider shrink-0 shadow-sm">
-            Role: {user?.role || 'User'}
-          </span>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold rounded-full text-xs">
+              Active Session
+            </span>
+          </div>
         </div>
 
-        {/* Dynamic Tab Views */}
-        {activeTab === 'overview' && (
-          <div className="space-y-6">
-            {/* Action Alert Banner */}
-            {!user?.isVerified && (
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between gap-4 text-xs text-amber-800">
-                <div className="flex items-center gap-2.5">
-                  <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
-                  <span>
-                    Your business profile verification is currently <strong>Pending</strong>. Complete your business details to publish on the public directory.
-                  </span>
-                </div>
-                <button
-                  onClick={() => setActiveTab('business')}
-                  className="px-3.5 py-1.5 bg-[#F57C00] hover:bg-[#e06f00] text-white font-bold rounded-xl shrink-0 transition"
-                >
-                  Complete Profile
-                </button>
-              </div>
-            )}
-
-            {/* Quick Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
-                <div className="flex items-center justify-between text-indigo-600">
-                  <span className="text-xs font-semibold text-slate-500">Account Details</span>
-                  <User className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900 truncate">{user?.email}</p>
-                  <p className="text-xs text-slate-500">{user?.mobile || 'No Mobile Registered'}</p>
-                </div>
-              </div>
-
-              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
-                <div className="flex items-center justify-between text-emerald-600">
-                  <span className="text-xs font-semibold text-slate-500">Verification Status</span>
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900">
-                    {user?.isVerified ? 'Verified Enterprise' : 'Pending Verification'}
-                  </p>
-                  <p className="text-xs text-slate-500">Requires Document Upload</p>
-                </div>
-              </div>
-
-              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
-                <div className="flex items-center justify-between text-[#F57C00]">
-                  <span className="text-xs font-semibold text-slate-500">Active Membership</span>
-                  <CreditCard className="w-5 h-5" />
-                </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-bold text-slate-900">Free Tier</p>
-                  <button
-                    onClick={() => setActiveTab('membership')}
-                    className="text-xs font-bold text-[#0A3D91] hover:underline flex items-center gap-1"
-                  >
-                    Upgrade <ExternalLink className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Recent Events Section */}
+        {/* TAB 1: EVENTS & ENTRY PASSES (Primary Focal Point) */}
+        {activeTab === 'events' && (
+          <div className="space-y-8">
+            
+            {/* My Active Entry Passes */}
             <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-[#0A3D91]" />
-                  Upcoming BEGAINDIA Summits
-                </h2>
-                <Link to="/events" className="text-xs font-bold text-[#F57C00] hover:underline">
-                  Browse All Events
-                </Link>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <QrCode className="w-5 h-5 text-[#0A3D91]" />
+                    My Active Event QR Passes ({claimedPasses.length})
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Present these digital passes at entry verification desks for instant event access.
+                  </p>
+                </div>
               </div>
 
-              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <span className="px-2.5 py-0.5 bg-blue-100 text-[#0A3D91] rounded-full text-[10px] font-bold uppercase">
-                    Summit
-                  </span>
-                  <h3 className="text-sm font-bold text-slate-900 mt-1">
-                    National MSME Growth & Innovation Conclave 2026
-                  </h3>
-                  <p className="text-xs text-slate-500">August 25, 2026 • Ch. Sambhajinagar, MH</p>
+              {claimedPasses.length === 0 ? (
+                <div className="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-300 text-xs text-slate-500">
+                  You haven't claimed any event passes yet. Browse the upcoming events schedule below to enrol instantly!
                 </div>
-                <Link
-                  to="/events"
-                  className="px-4 py-2 bg-[#0A3D91] hover:bg-[#083278] text-white text-xs font-bold rounded-xl shrink-0 transition"
-                >
-                  Get QR Pass
-                </Link>
-              </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {upcomingEvents
+                    .filter((evt) => claimedPasses.includes(evt.id))
+                    .map((evt) => (
+                      <div
+                        key={evt.id}
+                        className="p-5 bg-gradient-to-br from-slate-900 to-[#0A3D91] text-white rounded-2xl flex items-center justify-between gap-4 shadow-md"
+                      >
+                        <div className="space-y-1.5">
+                          <span className="px-2.5 py-0.5 bg-[#F57C00] text-white text-[9px] font-bold rounded-full uppercase">
+                            Pass Confirmed
+                          </span>
+                          <h3 className="text-sm font-bold text-white leading-tight">{evt.title}</h3>
+                          <p className="text-[11px] text-slate-300">{evt.date} • {evt.location}</p>
+                          <p className="text-[10px] font-mono text-amber-300 pt-1">Pass Code: {evt.passCode}</p>
+                        </div>
+
+                        <div className="w-20 h-20 bg-white p-1.5 rounded-xl flex flex-col items-center justify-center shrink-0 text-slate-900 shadow">
+                          <QrCode className="w-14 h-14" />
+                          <span className="text-[8px] font-bold font-mono">VERIFIED</span>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
             </div>
-          </div>
-        )}
 
-        {/* Business Profile Tab */}
-        {activeTab === 'business' && (
-          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-6">
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">Business Profile Registration</h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Enter your company information to publish your listing in the BEGAINDIA Business Directory.
-              </p>
-            </div>
-
-            <form className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Company / Business Name</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. SW Digital Hub"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#0A3D91]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Industry Category</label>
-                  <select className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#0A3D91]">
-                    <option>Digital & IT</option>
-                    <option>Manufacturing</option>
-                    <option>Real Estate</option>
-                    <option>Energy & Power</option>
-                    <option>Services & Consulting</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Business Mobile Number</label>
-                  <input
-                    type="tel"
-                    placeholder="+91 9876543210"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#0A3D91]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">City & Location</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Ch. Sambhajinagar, MH"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#0A3D91]"
-                  />
-                </div>
-              </div>
-
+            {/* Catalog of Upcoming Events */}
+            <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-6">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Company Description</label>
-                <textarea
-                  rows={3}
-                  placeholder="Describe your products, services, and target clientele..."
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#0A3D91]"
-                />
+                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-[#F57C00]" />
+                  Upcoming BEGAINDIA Summits & Meets
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Click <strong>"Get Pass"</strong> on any event to directly enrol and generate your entry pass into your dashboard.
+                </p>
               </div>
 
-              <button
-                type="button"
-                className="px-6 py-2.5 bg-[#F57C00] hover:bg-[#e06f00] text-white font-bold rounded-xl text-xs transition shadow"
-              >
-                Save Business Profile
-              </button>
-            </form>
+              <div className="space-y-4">
+                {upcomingEvents.map((evt) => {
+                  const isClaimed = claimedPasses.includes(evt.id);
+
+                  return (
+                    <div
+                      key={evt.id}
+                      className="p-5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-slate-300 transition"
+                    >
+                      <div className="space-y-2 max-w-2xl">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-0.5 bg-blue-100 text-[#0A3D91] text-[10px] font-bold rounded-full uppercase">
+                            {evt.type}
+                          </span>
+                          <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5" /> {evt.date}
+                          </span>
+                        </div>
+
+                        <h3 className="text-base font-bold text-slate-900">{evt.title}</h3>
+                        <p className="text-xs text-slate-600">{evt.description}</p>
+
+                        <p className="text-xs text-slate-500 flex items-center gap-1 pt-1">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400" /> {evt.location} ({evt.time})
+                        </p>
+                      </div>
+
+                      <div className="shrink-0">
+                        {isClaimed ? (
+                          <span className="px-4 py-2 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-xl flex items-center gap-1.5 border border-emerald-200">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            Pass Claimed
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => handleClaimPass(evt.id)}
+                            className="px-6 py-2.5 bg-[#F57C00] hover:bg-[#e06f00] text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-2"
+                          >
+                            <QrCode className="w-4 h-4" />
+                            Get Pass
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
           </div>
         )}
 
-        {/* Membership Subscription Tab */}
+        {/* TAB 2: SUBSCRIPTION PLANS */}
         {activeTab === 'membership' && (
           <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-6">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Upgrade Subscription Plan</h2>
+              <h2 className="text-lg font-bold text-slate-900">Subscription Plans & Upgrades</h2>
               <p className="text-xs text-slate-500 mt-1">
                 Select a membership tier to unlock B2B directory visibility, event passes, and lead generation.
               </p>
@@ -320,14 +367,14 @@ export default function Dashboard() {
                   <li>• Standard Directory Listing</li>
                   <li>• 1 General Event Pass</li>
                 </ul>
-                <button className="w-full py-2 bg-[#0A3D91] text-white text-xs font-bold rounded-xl transition">
-                  Subscribe Silver
+                <button className="w-full py-2 bg-slate-200 text-slate-700 text-xs font-bold rounded-xl">
+                  Standard Plan
                 </button>
               </div>
 
               <div className="p-5 bg-orange-50/50 rounded-2xl border border-[#F57C00] space-y-4 relative">
                 <span className="absolute -top-2.5 right-4 bg-[#F57C00] text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">
-                  Popular
+                  Active Member
                 </span>
                 <h3 className="text-base font-bold text-slate-900">Gold Tier</h3>
                 <p className="text-2xl font-extrabold text-[#F57C00]">₹2,499 <span className="text-xs font-normal text-slate-500">/mo</span></p>
@@ -336,8 +383,8 @@ export default function Dashboard() {
                   <li>• Priority Event Pass Code</li>
                   <li>• Direct B2B Matchmaking</li>
                 </ul>
-                <button className="w-full py-2 bg-[#F57C00] hover:bg-[#e06f00] text-white text-xs font-bold rounded-xl transition shadow">
-                  Subscribe Gold
+                <button className="w-full py-2 bg-[#F57C00] text-white text-xs font-bold rounded-xl shadow cursor-default">
+                  Active Plan
                 </button>
               </div>
 
@@ -349,40 +396,242 @@ export default function Dashboard() {
                   <li>• VIP Conclave Summits Pass</li>
                   <li>• Dedicated Relationship Manager</li>
                 </ul>
-                <button className="w-full py-2 bg-slate-900 text-white text-xs font-bold rounded-xl transition">
-                  Subscribe Platinum
+                <button className="w-full py-2 bg-[#0A3D91] hover:bg-[#083278] text-white text-xs font-bold rounded-xl transition">
+                  Upgrade to Platinum
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* My Event Passes Tab */}
-        {activeTab === 'events' && (
+        {/* TAB 3: BUSINESS PROFILE & PUBLIC DIRECTORY LISTING */}
+        {activeTab === 'business' && (
           <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-6">
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">My Registered Event QR Passes</h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Show your digital pass QR code at the event check-in desk for entry.
-              </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Company Profile & Directory Listing</h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  Updates saved here will automatically publish to the public BEGAINDIA Business Directory for everyone to view.
+                </p>
+              </div>
+              <Link
+                to="/directory"
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-[#0A3D91] text-xs font-bold rounded-xl transition flex items-center gap-1.5"
+              >
+                View Live Directory <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
             </div>
 
-            <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-6">
-              <div className="space-y-2 text-center sm:text-left">
-                <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 rounded-full text-[10px] font-bold uppercase">
-                  Pass Active
-                </span>
-                <h3 className="text-base font-bold text-slate-900">National MSME Growth & Innovation Conclave</h3>
-                <p className="text-xs text-slate-500">Date: Aug 25, 2026 | Location: Ch. Sambhajinagar</p>
+            {profileSaved && (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-800 flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <span>Business details and logo updated successfully! Your company is live on the public directory.</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveBusinessProfile} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Company / Business Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#0A3D91]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Industry Category</label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#0A3D91]"
+                  >
+                    <option>Digital & IT</option>
+                    <option>Manufacturing</option>
+                    <option>Real Estate</option>
+                    <option>Energy & Power</option>
+                    <option>Services & Consulting</option>
+                  </select>
+                </div>
               </div>
 
-              <div className="w-24 h-24 bg-white p-2 rounded-xl border border-slate-300 flex flex-col items-center justify-center shrink-0 shadow-xs">
-                <QrCode className="w-16 h-16 text-slate-800" />
-                <span className="text-[9px] font-mono text-slate-500 mt-1">BEGA-2026-88</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Business Contact Phone</label>
+                  <input
+                    type="tel"
+                    required
+                    value={mobile}
+                    onChange={(e) => setMobile(e.target.value)}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#0A3D91]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Location / City</label>
+                  <input
+                    type="text"
+                    required
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#0A3D91]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Company Logo URL / Asset Path</label>
+                <input
+                  type="text"
+                  placeholder="/logo.png or https://domain.com/logo.png"
+                  value={logoUrl}
+                  onChange={(e) => setLogoUrl(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#0A3D91]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Company Overview & Offerings</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#0A3D91]"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="px-6 py-2.5 bg-[#F57C00] hover:bg-[#e06f00] text-white font-bold rounded-xl text-xs transition shadow"
+              >
+                Publish & Save Company Details
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* TAB 4: ACCOUNT OVERVIEW */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                <div className="flex items-center justify-between text-indigo-600">
+                  <span className="text-xs font-semibold text-slate-500">Account Email</span>
+                  <User className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-slate-900 truncate">{user?.email || 'sachinwathore7698@gmail.com'}</p>
+                  <p className="text-xs text-slate-500">{user?.mobile || '+91 8390876752'}</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                <div className="flex items-center justify-between text-emerald-600">
+                  <span className="text-xs font-semibold text-slate-500">Verification Status</span>
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-slate-900">Active Member</p>
+                  <p className="text-xs text-emerald-600 font-semibold">Verified Profile</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                <div className="flex items-center justify-between text-[#F57C00]">
+                  <span className="text-xs font-semibold text-slate-500">Current Plan</span>
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-bold text-slate-900">Gold Tier</p>
+                  <button
+                    onClick={() => setActiveTab('membership')}
+                    className="text-xs font-bold text-[#0A3D91] hover:underline flex items-center gap-1"
+                  >
+                    Upgrade <ExternalLink className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
+
+        {/* TAB 5: SECURITY & EMAIL OTP */}
+        {activeTab === 'security' && (
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-6">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">Email OTP Verification & Security</h2>
+              <p className="text-xs text-slate-500 mt-1">
+                Request an OTP sent to your email address (<strong>{user?.email || 'sachinwathore7698@gmail.com'}</strong>) to update your login credentials.
+              </p>
+            </div>
+
+            {passwordSuccess && (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-800 flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <span>Password updated successfully! You can now use your new password for future sign-ins.</span>
+              </div>
+            )}
+
+            <div className="space-y-4 max-w-md">
+              {!otpSent ? (
+                <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                  <p className="text-xs text-slate-700 font-medium">
+                    Click below to dispatch a 6-digit OTP code to your registered email.
+                  </p>
+                  <button
+                    onClick={handleSendOtp}
+                    className="w-full py-2.5 bg-[#0A3D91] hover:bg-[#083278] text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2"
+                  >
+                    <Mail className="w-4 h-4 text-[#F57C00]" />
+                    Send OTP to Email
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleVerifyAndChangePassword} className="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-4">
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-[11px] text-[#0A3D91]">
+                    An OTP code has been sent to <strong>{user?.email || 'sachinwathore7698@gmail.com'}</strong>. (Use code: <strong>123456</strong>)
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Enter 6-Digit OTP</label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={6}
+                      placeholder="123456"
+                      value={enteredOtp}
+                      onChange={(e) => setEnteredOtp(e.target.value)}
+                      className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#0A3D91] font-mono tracking-widest text-center"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">New Password</label>
+                    <input
+                      type="password"
+                      required
+                      minLength={6}
+                      placeholder="Enter new strong password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#0A3D91]"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 bg-[#F57C00] hover:bg-[#e06f00] text-white font-bold text-xs rounded-xl transition shadow"
+                  >
+                    Verify OTP & Update Password
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        )}
+
       </main>
     </div>
   );
