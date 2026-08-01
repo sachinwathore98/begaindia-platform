@@ -1,13 +1,10 @@
-import Brevo from '@getbrevo/brevo';
+import { 
+  TransactionalEmailsApi, 
+  SendSmtpEmail, 
+  TransactionalEmailsApiApiKeys 
+} from '@getbrevo/brevo';
 import User from '../models/User.js';
 import { generateToken } from '../utils/generateToken.js';
-
-// Initialize Brevo Transactional Email API Instance safely for ESM
-const apiInstance = new Brevo.TransactionalEmailsApi();
-apiInstance.setApiKey(
-  Brevo.TransactionalEmailsApiApiKeys.apiKey,
-  process.env.BREVO_API_KEY
-);
 
 // Helper to generate a 6-digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -36,12 +33,19 @@ export const sendRegistrationOtp = async (req, res, next) => {
     const otp = generateOTP();
     otpStore.set(cleanEmail, {
       otp,
-      expiresAt: Date.now() + 10 * 60 * 1000, // Valid 10 mins
+      expiresAt: Date.now() + 10 * 60 * 1000, // Valid for 10 minutes
       isVerified: false,
     });
 
-    // Configure Brevo SendSmtpEmail Object
-    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    // Initialize Brevo Transactional Email API Instance per-request (or globally)
+    const apiInstance = new TransactionalEmailsApi();
+    apiInstance.setApiKey(
+      TransactionalEmailsApiApiKeys.apiKey,
+      process.env.BREVO_API_KEY
+    );
+
+    // Configure Brevo SendSmtpEmail Payload
+    const sendSmtpEmail = new SendSmtpEmail();
     sendSmtpEmail.subject = `${otp} is your BEGAINDIA Verification Code`;
     sendSmtpEmail.sender = { 
       name: "BEGAINDIA Business Network", 
@@ -69,7 +73,7 @@ export const sendRegistrationOtp = async (req, res, next) => {
       </div>
     `;
 
-    // Send via Brevo REST API
+    // Send email via Brevo REST API
     await apiInstance.sendTransacEmail(sendSmtpEmail);
 
     return res.status(200).json({
@@ -114,7 +118,7 @@ export const verifyRegistrationOtp = async (req, res, next) => {
   }
 };
 
-// @desc    Register new user
+// @desc    Register new user (Enforces Verified Email OTP)
 // @route   POST /api/auth/register
 // @access  Public
 export const registerUser = async (req, res, next) => {
