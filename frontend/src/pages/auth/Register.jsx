@@ -211,7 +211,7 @@ export default function Register() {
                   type="email"
                   name="email"
                   required
-                  placeholder="begaindia559@gmail.com"
+                  placeholder="abc@gmail.com"
                   value={formData.email}
                   onChange={handleChange}
                   className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:ring-2 focus:ring-[#0A3D91]"
@@ -227,7 +227,7 @@ export default function Register() {
                   type="text"
                   name="companyName"
                   required
-                  placeholder="e.g. SW Digital Hub"
+                  placeholder="e.g. abc"
                   value={formData.companyName}
                   onChange={handleChange}
                   className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:ring-2 focus:ring-[#0A3D91]"
@@ -243,7 +243,7 @@ export default function Register() {
                   type="tel"
                   name="mobile"
                   required
-                  placeholder="+91 8390876752"
+                  placeholder="+91 1234567890"
                   value={formData.mobile}
                   onChange={handleChange}
                   className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:ring-2 focus:ring-[#0A3D91]"
