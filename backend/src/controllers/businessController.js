@@ -1,108 +1,85 @@
-import BusinessProfile from '../models/BusinessProfile.js';
+import Business from '../models/Business.js';
+import User from '../models/User.js';
 
-// @desc    Create or update current user's business profile
-// @route   POST /api/business
+// @desc    Get or Create Logged-in User's Business Profile
+// @route   GET /api/business/me
 // @access  Private
-export const createOrUpdateBusinessProfile = async (req, res) => {
+export const getMyBusinessProfile = async (req, res, next) => {
   try {
-    const { companyName, category, gstNumber, city, state, description, website } = req.body;
+    let business = await Business.findOne({ user: req.user.id });
 
-    const profileFields = {
-      userId: req.user.id,
-      companyName,
-      category,
-      gstNumber,
-      city,
-      state,
-      description,
-      website,
-    };
-
-    // Attach logo path if file was uploaded
-    if (req.file) {
-      profileFields.logo = `/uploads/${req.file.filename}`;
-    }
-
-    let profile = await BusinessProfile.findOne({ userId: req.user.id });
-
-    if (profile) {
-      // Update existing profile
-      profile = await BusinessProfile.findOneAndUpdate(
-        { userId: req.user.id },
-        { $set: profileFields },
-        { new: true }
-      );
+    if (!business) {
+      // Return default draft profile if none exists
       return res.status(200).json({
         success: true,
-        message: 'Business profile updated successfully',
-        data: profile,
+        data: {
+          companyName: '',
+          designation: '',
+          gstNumber: '',
+          address: '',
+          description: '',
+          logo: '',
+          brochure: '',
+          gallery: [],
+          documents: [],
+        },
       });
     }
 
-    // Create new profile
-    profile = await BusinessProfile.create(profileFields);
-    res.status(201).json({
-      success: true,
-      message: 'Business profile submitted successfully',
-      data: profile,
-    });
+    return res.status(200).json({ success: true, data: business });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return next(error);
   }
 };
 
-// @desc    Get current user's business profile
-// @route   GET /api/business/me
+// @desc    Update Business Profile & Media Assets
+// @route   PUT /api/business/update
 // @access  Private
-export const getMyBusinessProfile = async (req, res) => {
+export const updateBusinessProfile = async (req, res, next) => {
   try {
-    const profile = await BusinessProfile.findOne({ userId: req.user.id });
-    if (!profile) {
-      return res.status(404).json({ success: false, message: 'No business profile found' });
+    const { companyName, designation, gstNumber, address, description, category } = req.body;
+
+    let business = await Business.findOne({ user: req.user.id });
+
+    const updatedData = {
+      user: req.user.id,
+      companyName,
+      designation,
+      gstNumber,
+      address,
+      description,
+      category,
+    };
+
+    // Process Files if Uploaded
+    if (req.files) {
+      if (req.files.logo?.[0]) {
+        updatedData.logo = `/uploads/${req.files.logo[0].filename}`;
+      }
+      if (req.files.brochure?.[0]) {
+        updatedData.brochure = `/uploads/${req.files.brochure[0].filename}`;
+      }
+      if (req.files.gallery) {
+        const newImages = req.files.gallery.map((file) => `/uploads/${file.filename}`);
+        updatedData.gallery = business?.gallery ? [...business.gallery, ...newImages] : newImages;
+      }
     }
-    res.status(200).json({ success: true, data: profile });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
 
-// @desc    Get all approved business profiles with search, filters & pagination
-// @route   GET /api/business
-// @access  Public
-export const getBusinesses = async (req, res) => {
-  try {
-    const { search, category, city, page = 1, limit = 9 } = req.query;
-
-    const query = { approvalStatus: 'APPROVED' };
-
-    if (search) {
-      query.$or = [
-        { companyName: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-      ];
+    if (business) {
+      business = await Business.findOneAndUpdate({ user: req.user.id }, updatedData, { new: true });
+    } else {
+      business = await Business.create(updatedData);
     }
 
-    if (category) query.category = category;
-    if (city) query.city = { $regex: city, $options: 'i' };
+    // Also sync user name/company if updated
+    await User.findByIdAndUpdate(req.user.id, { companyName });
 
-    const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10);
-    const skip = (pageNum - 1) * limitNum;
-
-    const total = await BusinessProfile.countDocuments(query);
-    const businesses = await BusinessProfile.find(query)
-      .skip(skip)
-      .limit(limitNum)
-      .sort({ createdAt: -1 });
-
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      count: businesses.length,
-      totalPages: Math.ceil(total / limitNum) || 1,
-      currentPage: pageNum,
-      data: businesses,
+      message: 'Business Profile updated successfully!',
+      data: business,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return next(error);
   }
 };

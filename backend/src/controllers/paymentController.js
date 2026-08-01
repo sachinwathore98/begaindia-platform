@@ -1,89 +1,133 @@
+import Razorpay from 'razorpay';
 import crypto from 'crypto';
-import { razorpayInstance } from '../config/razorpay.js';
-import Subscription from '../models/Subscription.js';
 import User from '../models/User.js';
 
-// @desc    Create Razorpay Order
-// @route   POST /api/payments/create-order
-// @access  Private
-export const createOrder = async (req, res) => {
-  try {
-    const { planName, amount } = req.body;
+// Initialize Razorpay Instance
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy_key',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'rzp_test_dummy_secret',
+});
 
-    if (!planName || !amount) {
-      return res.status(400).json({ success: false, message: 'Plan name and amount are required' });
+// Membership Plans Config
+const PLANS = {
+  basic: { name: 'Basic Membership', amount: 999 }, // In INR
+  premium: { name: 'Premium Membership', amount: 2999 },
+  corporate: { name: 'Corporate Membership', amount: 9999 },
+};
+
+// In-memory payment logs
+const paymentLogs = new Map();
+
+// @desc    Create Razorpay Order for Membership Subscription
+// @route   POST /api/payment/create-order
+// @access  Private
+export const createOrder = async (req, res, next) => {
+  try {
+    const { planKey, duration } = req.body; // duration: 'monthly' | 'quarterly' | 'yearly'
+    const plan = PLANS[planKey];
+
+    if (!plan) {
+      return res.status(400).json({ success: false, message: 'Invalid membership plan selected' });
     }
 
+    // Apply Duration Multiplier
+    let multiplier = 1;
+    if (duration === 'quarterly') multiplier = 2.7; // ~10% discount
+    if (duration === 'yearly') multiplier = 9.5;    // ~20% discount
+
+    const totalAmount = Math.round(plan.amount * multiplier);
+
     const options = {
-      amount: amount * 100, // Convert INR to paise
+      amount: totalAmount * 100, // Amount in paise
       currency: 'INR',
-      receipt: `receipt_${Date.now()}`,
+      receipt: `bgn_rcpt_${Date.now()}`,
       notes: {
         userId: req.user.id,
-        planName,
+        planName: plan.name,
+        duration,
       },
     };
 
-    const order = await razorpayInstance.orders.create(options);
+    const order = await razorpay.orders.create(options);
 
-    // Save pending subscription record
-    await Subscription.create({
-      userId: req.user.id,
-      planName,
-      amount,
-      razorpayOrderId: order.id,
-      status: 'PENDING',
-    });
-
-    res.status(201).json({
+    return res.status(200).json({
       success: true,
-      order,
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      key: process.env.RAZORPAY_KEY_ID,
+      planName: plan.name,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[RAZORPAY CREATE ORDER ERROR]', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to create payment order: ' + (error.message || 'Payment Service Error'),
+    });
   }
 };
 
-// @desc    Verify Razorpay Signature
-// @route   POST /api/payments/verify
+// @desc    Verify Razorpay Signature & Upgrade User Membership
+// @route   POST /api/payment/verify
 // @access  Private
-export const verifyPayment = async (req, res) => {
+export const verifyPayment = async (req, res, next) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, planName, duration, amount } = req.body;
 
     const body = razorpay_order_id + '|' + razorpay_payment_id;
     const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'secret_placeholder')
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'rzp_test_dummy_secret')
       .update(body.toString())
       .digest('hex');
 
     if (expectedSignature !== razorpay_signature) {
-      return res.status(400).json({ success: false, message: 'Invalid payment signature' });
+      return res.status(400).json({ success: false, message: 'Invalid payment signature. Transaction failed.' });
     }
 
-    const startDate = new Date();
-    const endDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 Year
+    // Update User Membership Status in Database
+    const user = await User.findById(req.user.id);
+    if (user) {
+      user.membership = {
+        plan: planName,
+        status: 'Active',
+        duration,
+        startDate: new Date(),
+        expiryDate: new Date(Date.now() + (duration === 'yearly' ? 365 : duration === 'quarterly' ? 90 : 30) * 24 * 60 * 60 * 1000),
+      };
+      await user.save();
+    }
 
-    const subscription = await Subscription.findOneAndUpdate(
-      { razorpayOrderId: razorpay_order_id },
-      {
-        razorpayPaymentId: razorpay_payment_id,
-        status: 'ACTIVE',
-        startDate,
-        endDate,
-      },
-      { new: true }
-    );
+    // Save to Payment History
+    const userHistory = paymentLogs.get(req.user.id) || [];
+    const record = {
+      id: razorpay_payment_id,
+      orderId: razorpay_order_id,
+      planName,
+      amount: amount / 100,
+      date: new Date().toLocaleDateString('en-IN'),
+      status: 'Success',
+    };
+    userHistory.unshift(record);
+    paymentLogs.set(req.user.id, userHistory);
 
-    // Upgrade user role
-    await User.findByIdAndUpdate(req.user.id, { role: 'PREMIUM_MEMBER' });
-
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: 'Payment verified and membership activated!',
-      data: subscription,
+      message: `Successfully upgraded to ${planName}!`,
+      membership: user?.membership,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return next(error);
+  }
+};
+
+// @desc    Get User Payment History
+// @route   GET /api/payment/history
+// @access  Private
+export const getPaymentHistory = async (req, res, next) => {
+  try {
+    const history = paymentLogs.get(req.user.id) || [];
+    return res.status(200).json({ success: true, data: history });
+  } catch (error) {
+    return next(error);
   }
 };

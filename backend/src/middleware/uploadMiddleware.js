@@ -1,34 +1,40 @@
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 
-// Storage configuration
+// Ensure uploads folder exists
+const uploadDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Storage Configuration
 const storage = multer.diskStorage({
-  destination(req, file, cb) {
+  destination: (req, file, cb) => {
     cb(null, 'uploads/');
   },
-  filename(req, file, cb) {
-    cb(
-      null,
-      `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`
-    );
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
   },
 });
 
-// File validation
+// File Filter for Images & PDFs
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|webp/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+  const allowedTypes = /jpeg|jpg|png|webp|pdf/;
+  const extName = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimeType = allowedTypes.test(file.mimetype);
 
-  if (extname && mimetype) {
+  if (extName && mimeType) {
     return cb(null, true);
   } else {
-    cb(new Error('Only image files (JPEG, JPG, PNG, WEBP) are allowed!'), false);
+    cb(new Error('Only JPEG, JPG, PNG, WEBP, and PDF files are allowed!'));
   }
 };
 
 export const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB Limit
   fileFilter,
 });
