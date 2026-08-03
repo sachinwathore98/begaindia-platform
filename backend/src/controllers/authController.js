@@ -7,6 +7,9 @@ const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString()
 // In-memory OTP store (email -> { otp, expiresAt, isVerified })
 const otpStore = new Map();
 
+// Official Admin Email
+const ADMIN_EMAIL = 'begaindia559@gmail.com';
+
 // @desc    Send Registration OTP to Email (Direct HTTP REST API Call)
 // @route   POST /api/auth/send-otp
 // @access  Public
@@ -151,11 +154,15 @@ export const registerUser = async (req, res, next) => {
       });
     }
 
+    // Automatically assign admin role if email matches begaindia559@gmail.com
+    const assignedRole = cleanEmail === ADMIN_EMAIL ? 'admin' : 'user';
+
     const user = await User.create({
-      name,
+      name: cleanEmail === ADMIN_EMAIL ? 'Bega India' : name,
       email: cleanEmail,
       mobile,
       password,
+      role: assignedRole,
       isVerified: true,
     });
 
@@ -201,6 +208,13 @@ export const loginUser = async (req, res, next) => {
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    // Automatically elevate begaindia559@gmail.com to Admin role
+    if (cleanEmail === ADMIN_EMAIL && user.role !== 'admin') {
+      user.role = 'admin';
+      user.name = 'Bega India';
+      await user.save();
     }
 
     const token = generateToken(user);
