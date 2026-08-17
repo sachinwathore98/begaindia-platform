@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const LanguageContext = createContext();
-
 export const translations = {
   en: {
     orgName: 'BEGA INDIA',
@@ -55,7 +53,7 @@ export const translations = {
       flagship: 'Flagship Initiative: ONE MONTH – ONE VILLAGE',
       target: 'Target: 12 Villages/Year • 60 Villages in 5 Years',
       desc: 'Measurable, sustainable grassroots development covering cleanliness, tree plantation, education aid, farmer guidance, and health awareness.',
-    }
+    },
   },
   mr: {
     orgName: 'बेगा इंडिया (BEGA INDIA)',
@@ -109,22 +107,41 @@ export const translations = {
       flagship: 'प्रमुख उपक्रम: एक महिना – एक गाव (One Month – One Village)',
       target: 'ध्येय: १ वर्षात १२ गावे • ५ वर्षात ६० गावे',
       desc: 'केवळ प्रतीकात्मक कार्यक्रम न करता ग्राम सर्वेक्षण, स्वच्छता मोहीम, वृक्षारोपण, विद्यार्थी सहाय्य आणि शेतकरी मार्गदर्शनातून शाश्वत ग्रामविकास.',
-    }
-  }
+    },
+  },
 };
 
+const defaultContextValue = {
+  lang: 'mr',
+  setLang: () => {},
+  toggleLanguage: () => {},
+  t: translations.mr,
+};
+
+const LanguageContext = createContext(defaultContextValue);
+
 export function LanguageProvider({ children }) {
-  const [lang, setLang] = useState(() => localStorage.getItem('bega_lang') || 'mr');
+  const [lang, setLang] = useState(() => {
+    try {
+      return localStorage.getItem('bega_lang') || 'mr';
+    } catch {
+      return 'mr';
+    }
+  });
 
   useEffect(() => {
-    localStorage.setItem('bega_lang', lang);
+    try {
+      localStorage.setItem('bega_lang', lang);
+    } catch {
+      // LocalStorage access restricted / private browsing
+    }
   }, [lang]);
 
   const toggleLanguage = () => {
     setLang((prev) => (prev === 'en' ? 'mr' : 'en'));
   };
 
-  const t = translations[lang];
+  const t = translations[lang] || translations.mr;
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, toggleLanguage, t }}>
@@ -133,4 +150,7 @@ export function LanguageProvider({ children }) {
   );
 }
 
-export const useLanguage = () => useContext(LanguageContext);
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  return context || defaultContextValue;
+};
