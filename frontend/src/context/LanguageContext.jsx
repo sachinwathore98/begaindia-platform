@@ -111,7 +111,6 @@ export const translations = {
   },
 };
 
-// Safe fallback definition to prevent undefined destructuring
 const defaultContextValue = {
   lang: 'mr',
   setLang: () => {},
