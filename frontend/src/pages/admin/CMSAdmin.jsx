@@ -55,7 +55,7 @@ export default function CMSAdmin() {
       }
     } catch (err) {
       alert('Failed to update content');
-    } font-sans finally {
+    } finally {
       setSaving(false);
     }
   };
