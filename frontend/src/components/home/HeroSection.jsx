@@ -1,33 +1,29 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage, translations } from '../../context/LanguageContext';
 import { ArrowRight, ShieldCheck, Users, TrendingUp, Building } from 'lucide-react';
 
 export default function HeroSection() {
-  const { t } = useLanguage();
+  const langContext = useLanguage() || {};
+  const t = langContext.t || translations.mr;
 
   return (
-    <div className="relative bg-gradient-to-b from-slate-900 via-[#0A3D91] to-slate-900 text-white py-16 sm:py-24 px-4 sm:px-8 overflow-hidden">
-      {/* Background Subtle Grid Texture */}
+    <div className="relative bg-gradient-to-b from-slate-900 via-[#0A3D91] to-slate-900 text-white py-16 sm:py-24 px-4 sm:px-8 overflow-hidden font-sans">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
 
       <div className="max-w-6xl mx-auto relative z-10 text-center space-y-6">
-        {/* Bilingual Header Badge */}
         <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-1.5 rounded-full backdrop-blur-md text-xs font-extrabold text-[#F57C00] uppercase tracking-wider">
           <span>{t.orgFullName}</span>
         </div>
 
-        {/* Hero Title */}
         <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight max-w-4xl mx-auto">
           {t.hero.title}
         </h1>
 
-        {/* Hero Subtitle */}
         <p className="text-xs sm:text-base text-slate-200 max-w-3xl mx-auto leading-relaxed font-normal">
           {t.hero.subtitle}
         </p>
 
-        {/* Action CTAs */}
         <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
           <Link
             to="/join"
@@ -49,27 +45,26 @@ export default function HeroSection() {
           </Link>
         </div>
 
-        {/* Highlights Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-10 border-t border-white/10 max-w-4xl mx-auto text-left">
           <div className="flex items-center gap-3">
             <TrendingUp className="w-6 h-6 text-[#F57C00] shrink-0" />
             <div>
               <p className="text-base font-extrabold">B2B Linkages</p>
-              <p className="text-[10px] text-slate-300">Supplier to Retailer Chain[cite: 7, 8]</p>
+              <p className="text-[10px] text-slate-300">Supplier to Retailer Chain</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <ShieldCheck className="w-6 h-6 text-[#F57C00] shrink-0" />
             <div>
               <p className="text-base font-extrabold">Business Support</p>
-              <p className="text-[10px] text-slate-300">Legal & GST Cell[cite: 7, 8]</p>
+              <p className="text-[10px] text-slate-300">Legal & GST Cell</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Building className="w-6 h-6 text-[#F57C00] shrink-0" />
             <div>
               <p className="text-base font-extrabold">Verified Directory</p>
-              <p className="text-[10px] text-slate-300">District & Taluka Search[cite: 1, 4]</p>
+              <p className="text-[10px] text-slate-300">District & Taluka Search</p>
             </div>
           </div>
           <div className="flex items-center gap-3">

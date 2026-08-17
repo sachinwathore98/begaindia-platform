@@ -1,21 +1,14 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { useLanguage } from '../../context/LanguageContext';
-import { 
-  Globe, 
-  Menu, 
-  X, 
-  User, 
-  Building2, 
-  LifeBuoy, 
-  Calendar, 
-  Award, 
-  HeartHandshake, 
-  Layers 
-} from 'lucide-react';
+import { useLanguage, translations } from '../../context/LanguageContext';
+import { Globe, Menu, X, User } from 'lucide-react';
 
 export default function Header() {
-  const { lang, toggleLanguage, t } = useLanguage();
+  const langContext = useLanguage() || {};
+  const lang = langContext.lang || 'mr';
+  const toggleLanguage = langContext.toggleLanguage || (() => {});
+  const t = langContext.t || translations.mr;
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -31,7 +24,7 @@ export default function Header() {
           </div>
 
           <div className="flex items-center gap-4 shrink-0">
-            {/* Language Switcher Button */}
+            {/* Language Switcher */}
             <button
               onClick={toggleLanguage}
               className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 px-2.5 py-0.5 rounded-full text-xs font-bold transition text-amber-300 border border-white/20"
@@ -54,7 +47,6 @@ export default function Header() {
 
       {/* Main Navbar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3 flex items-center justify-between gap-4">
-        {/* Brand Logo & Title */}
         <Link to="/" className="flex items-center gap-3 shrink-0">
           <div className="w-11 h-11 bg-gradient-to-tr from-[#0A3D91] to-[#F57C00] rounded-xl flex items-center justify-center text-white font-extrabold text-xl shadow-md border border-blue-900/20">
             B
@@ -94,7 +86,7 @@ export default function Header() {
           </NavLink>
         </nav>
 
-        {/* Header Right Action CTA */}
+        {/* Action Button */}
         <div className="hidden sm:flex items-center gap-3">
           <Link
             to="/join"
@@ -113,7 +105,7 @@ export default function Header() {
         </button>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-white border-b border-slate-200 px-6 py-4 space-y-3 shadow-xl">
           <div className="grid grid-cols-2 gap-2 text-xs font-bold text-slate-700">

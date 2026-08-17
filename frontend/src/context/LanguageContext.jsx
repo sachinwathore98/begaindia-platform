@@ -111,7 +111,7 @@ export const translations = {
   },
 };
 
-const defaultContextValue = {
+export const defaultContextValue = {
   lang: 'mr',
   setLang: () => {},
   toggleLanguage: () => {},
