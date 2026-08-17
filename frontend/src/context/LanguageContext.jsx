@@ -111,6 +111,7 @@ export const translations = {
   },
 };
 
+// Safe fallback definition to prevent undefined destructuring
 const defaultContextValue = {
   lang: 'mr',
   setLang: () => {},
@@ -133,7 +134,7 @@ export function LanguageProvider({ children }) {
     try {
       localStorage.setItem('bega_lang', lang);
     } catch {
-      // LocalStorage access restricted / private browsing
+      // Storage unavailable
     }
   }, [lang]);
 
