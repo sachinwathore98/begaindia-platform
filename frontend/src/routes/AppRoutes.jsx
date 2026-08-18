@@ -16,6 +16,7 @@ import Support from '../pages/public/Support';
 import Seva from '../pages/public/Seva';
 import Knowledge from '../pages/public/Knowledge';
 import VerifyMember from '../pages/public/VerifyMember';
+import Leadership from '../pages/public/Leadership';
 
 // Auth Pages
 import Login from '../pages/auth/Login';
@@ -31,6 +32,7 @@ import ProfileManagement from '../pages/dashboard/ProfileManagement';
 import EventModule from '../pages/dashboard/EventModule';
 import MembershipModule from '../pages/dashboard/MembershipModule';
 import NotificationModule from '../pages/dashboard/NotificationModule';
+
 
 // Admin Panel Pages
 import AdminDashboard from '../pages/admin/AdminDashboard';
@@ -50,6 +52,7 @@ export default function AppRoutes() {
         <Route path="/directory" element={<Directory />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/verify/:applicationNumber" element={<VerifyMember />} />
+        <Route path="/leadership" element={<Leadership />} />
 
         {/* Membership Onboarding & Helpdesk */}
         <Route path="/join" element={<Join />} />
