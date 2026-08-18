@@ -146,3 +146,19 @@ export const updateTicketStatus = async (req, res, next) => {
     return next(error);
   }
 };
+
+// @desc    Admin: Get All Support Tickets
+// @route   GET /api/support/tickets/all
+// @access  Private / Admin
+export const getAllTickets = async (req, res, next) => {
+  try {
+    const tickets = await SupportTicket.find().sort({ createdAt: -1 });
+    return res.status(200).json({
+      success: true,
+      count: tickets.length,
+      data: tickets,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};

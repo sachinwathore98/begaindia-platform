@@ -15,5 +15,6 @@ router.get('/tickets/:ticketId', getTicketStatus);
 
 // Admin-only ticket triage
 router.put('/tickets/:ticketId/status', protect, admin, updateTicketStatus);
+router.get('/tickets/all', protect, admin, getAllTickets);
 
 export default router;

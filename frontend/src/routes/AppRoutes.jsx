@@ -15,6 +15,7 @@ import Join from '../pages/public/Join';
 import Support from '../pages/public/Support';
 import Seva from '../pages/public/Seva';
 import Knowledge from '../pages/public/Knowledge';
+import VerifyMember from '../pages/public/VerifyMember';
 
 // Auth Pages
 import Login from '../pages/auth/Login';
@@ -36,6 +37,7 @@ import AdminDashboard from '../pages/admin/AdminDashboard';
 import DirectoryAndEventsAdmin from '../pages/admin/DirectoryAndEventsAdmin';
 import RevenueAdmin from '../pages/admin/RevenueAdmin';
 import CMSAdmin from '../pages/admin/CMSAdmin';
+import SupportAdmin from '../pages/admin/SupportAdmin';
 
 export default function AppRoutes() {
   return (
@@ -47,6 +49,7 @@ export default function AppRoutes() {
         <Route path="/membership" element={<Membership />} />
         <Route path="/directory" element={<Directory />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/verify/:applicationNumber" element={<VerifyMember />} />
 
         {/* Membership Onboarding & Helpdesk */}
         <Route path="/join" element={<Join />} />
@@ -87,6 +90,7 @@ export default function AppRoutes() {
         <Route path="/admin/directory" element={<DirectoryAndEventsAdmin />} />
         <Route path="/admin/revenue" element={<RevenueAdmin />} />
         <Route path="/admin/cms" element={<CMSAdmin />} />
+        <Route path="/admin/support" element={<SupportAdmin />} />
       </Route>
 
       {/* ----------------- Wildcard Catch-all ----------------- */}
