@@ -1,180 +1,179 @@
-import PDFDocument from 'pdfkit';
-import User from '../models/User.js';
+import Event from '../models/Event.js';
 
-// Mock/DB Event model simulation or database integration
-const sampleEvents = [
+// Seed Initial Signature Events if database is empty
+const initialEvents = [
   {
-    id: 'evt-101',
-    title: 'BEGAINDIA National Business Conclave 2026',
-    date: '2026-08-25',
-    time: '10:00 AM IST',
-    location: 'Chhatrapati Sambhajinagar Grand Hall, Maharashtra',
-    category: 'Networking',
-    description: 'An exclusive gathering of entrepreneurs, startup founders, and business leaders across Maharashtra.',
+    title: 'BEGA Mahaadhiveshan 2026',
+    eventType: 'BEGA Mahaadhiveshan',
+    theme: 'Empowered Businesses • Stronger Communities • Nation Building',
+    date: new Date('2026-11-15T09:30:00Z'),
+    endDate: new Date('2026-11-16T18:00:00Z'),
+    time: '09:30 AM - 06:00 PM',
+    venue: 'CIDCO Exhibition & Convention Centre, Chhatrapati Sambhajinagar',
+    district: 'Chhatrapati Sambhajinagar',
+    taluka: 'Aurangabad',
+    description: 'The premier annual gathering of Maharashtra entrepreneurs, MSME founders, startup innovators, and BEGA leadership.',
+    isFree: false,
+    registrationFee: 499,
+    bannerImage: '/events/mahaadhiveshan.jpg',
+    stalls: [
+      { stallNumber: 'A-101', category: 'Premium', price: 15000, isBooked: false },
+      { stallNumber: 'A-102', category: 'Premium', price: 15000, isBooked: false },
+      { stallNumber: 'B-201', category: 'Standard', price: 8000, isBooked: false },
+      { stallNumber: 'B-202', category: 'Standard', price: 8000, isBooked: false },
+    ],
   },
   {
-    id: 'evt-102',
-    title: 'Digital Growth & AI Strategy Workshop',
-    date: '2026-09-10',
-    time: '02:00 PM IST',
-    location: 'Online Webinar (Zoom)',
-    category: 'Workshop',
-    description: 'Learn how to leverage generative AI, automation, and funnel architecture for corporate scaling.',
-  }
+    title: 'BEGA Maharashtra Business Expo 2026',
+    eventType: 'BEGA Business Expo',
+    theme: 'B2B Opportunities • Market Linkage • Supply Chain Synergy',
+    date: new Date('2026-12-05T10:00:00Z'),
+    endDate: new Date('2026-12-07T19:00:00Z'),
+    time: '10:00 AM - 07:00 PM',
+    venue: 'Auto Cluster Exhibition Center, Pune',
+    district: 'Pune',
+    taluka: 'Haveli',
+    description: '3-day commercial expo connecting manufacturers, distributors, institutional buyers, and retail chains across India.',
+    isFree: true,
+    registrationFee: 0,
+    bannerImage: '/events/expo.jpg',
+    stalls: [
+      { stallNumber: 'EX-01', category: 'Corporate Pavilion', price: 25000, isBooked: false },
+      { stallNumber: 'EX-02', category: 'Premium', price: 18000, isBooked: false },
+      { stallNumber: 'EX-03', category: 'Standard', price: 10000, isBooked: false },
+    ],
+  },
+  {
+    title: 'District MSME & GST Compliance Workshop',
+    eventType: 'District Training',
+    theme: 'Tax Planning • E-Invoicing • Government Subsidy Schemes',
+    date: new Date('2026-09-20T14:00:00Z'),
+    time: '02:00 PM - 05:30 PM',
+    venue: 'MIDC Industrial Association Hall, Nashik',
+    district: 'Nashik',
+    taluka: 'Nashik',
+    description: 'Expert panel session with senior Chartered Accountants and GST officials to guide business owners on regulatory compliances.',
+    isFree: true,
+    registrationFee: 0,
+    stalls: [],
+  },
 ];
 
-// In-memory registration store (userId -> set of eventIds)
-const registrations = new Map();
-
-// @desc    Get All Upcoming Events
+// @desc    Get All Events & Filter by Type/District
 // @route   GET /api/events
 // @access  Public
 export const getEvents = async (req, res, next) => {
   try {
-    return res.status(200).json({ success: true, data: sampleEvents });
-  } catch (error) {
-    return next(error);
-  }
-};
+    const { eventType, district } = req.query;
+    let query = {};
 
-// @desc    Register Logged-in User for an Event
-// @route   POST /api/events/register
-// @access  Private
-export const registerForEvent = async (req, res, next) => {
-  try {
-    const { eventId } = req.body;
-    const userId = req.user.id;
-
-    if (!eventId) {
-      return res.status(400).json({ success: false, message: 'Event ID is required' });
+    if (eventType && eventType !== 'All') {
+      query.eventType = eventType;
+    }
+    if (district && district !== 'All') {
+      query.district = district;
     }
 
-    const event = sampleEvents.find((e) => e.id === eventId);
-    if (!event) {
-      return res.status(404).json({ success: false, message: 'Event not found' });
-    }
+    let events = await Event.find(query).sort({ date: 1 });
 
-    const userEvents = registrations.get(userId) || new Set();
-    userEvents.add(eventId);
-    registrations.set(userId, userEvents);
+    if (events.length === 0 && Object.keys(query).length === 0) {
+      events = await Event.insertMany(initialEvents);
+    }
 
     return res.status(200).json({
       success: true,
-      message: `Successfully registered for ${event.title}`,
-      eventId,
+      count: events.length,
+      data: events,
     });
   } catch (error) {
     return next(error);
   }
 };
 
-// @desc    Get User Registered Events & Attendance History
-// @route   GET /api/events/my-events
-// @access  Private
-export const getMyEvents = async (req, res, next) => {
+// @desc    Register Attendee for an Event & Generate Pass ID
+// @route   POST /api/events/:id/register
+// @access  Public / Member
+export const registerForEvent = async (req, res, next) => {
   try {
-    const userId = req.user.id;
-    const userEventIds = registrations.get(userId) || new Set();
+    const { fullName, email, mobile, companyName } = req.body;
+    const event = await Event.findById(req.params.id);
 
-    const myEvents = sampleEvents.filter((evt) => userEventIds.has(evt.id));
+    if (!event) {
+      return res.status(404).json({ success: false, message: 'Event not found.' });
+    }
 
-    return res.status(200).json({ success: true, data: myEvents });
+    const cleanEmail = email.trim().toLowerCase();
+    const alreadyRegistered = event.registeredAttendees.some((a) => a.email === cleanEmail);
+
+    if (alreadyRegistered) {
+      return res.status(400).json({ success: false, message: 'You have already registered for this event.' });
+    }
+
+    const year = new Date().getFullYear();
+    const randomCode = Math.floor(10000 + Math.random() * 90000);
+    const passId = `BEGA-PASS-${year}-${randomCode}`;
+
+    const attendee = {
+      fullName,
+      email: cleanEmail,
+      mobile,
+      companyName: companyName || 'Enterprise Delegate',
+      passId,
+    };
+
+    event.registeredAttendees.push(attendee);
+    await event.save();
+
+    return res.status(201).json({
+      success: true,
+      message: 'Registration confirmed! Your Delegate Pass is ready.',
+      pass: {
+        passId,
+        eventTitle: event.title,
+        venue: event.venue,
+        date: event.date,
+        time: event.time,
+        attendeeName: fullName,
+        companyName: attendee.companyName,
+      },
+    });
   } catch (error) {
     return next(error);
   }
 };
 
-// @desc    Download PDF Entry Pass for an Event
-// @route   GET /api/events/:eventId/pass
-// @access  Private
-export const downloadEventPass = async (req, res, next) => {
+// @desc    Book a Commercial Stall at an Expo
+// @route   POST /api/events/:id/book-stall
+// @access  Public / Member
+export const bookExpoStall = async (req, res, next) => {
   try {
-    const { eventId } = req.params;
-    const userId = req.user.id;
+    const { stallNumber, companyName, email } = req.body;
+    const event = await Event.findById(req.params.id);
 
-    const event = sampleEvents.find((e) => e.id === eventId);
     if (!event) {
-      return res.status(404).json({ success: false, message: 'Event not found' });
+      return res.status(404).json({ success: false, message: 'Expo event not found.' });
     }
 
-    const user = await User.findById(userId);
+    const stall = event.stalls.find((s) => s.stallNumber === stallNumber);
+    if (!stall) {
+      return res.status(404).json({ success: false, message: 'Stall not found.' });
+    }
 
-    // Create PDF Document
-    const doc = new PDFDocument({ size: 'A5', margin: 30 });
+    if (stall.isBooked) {
+      return res.status(400).json({ success: false, message: 'This stall is already reserved.' });
+    }
 
-    // Set HTTP Response Headers for PDF streaming
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename="BEGAINDIA-Pass-${eventId}.pdf"`
-    );
+    stall.isBooked = true;
+    stall.bookedByCompany = companyName;
+    stall.bookedByEmail = email.trim().toLowerCase();
 
-    doc.pipe(res);
+    await event.save();
 
-    // Card Header Banner
-    doc
-      .rect(0, 0, 420, 70)
-      .fill('#0A3D91');
-
-    doc
-      .fillColor('#FFFFFF')
-      .fontSize(20)
-      .font('Helvetica-Bold')
-      .text('BEGAINDIA', 30, 20)
-      .fontSize(10)
-      .fillColor('#F57C00')
-      .text('OFFICIAL DELEGATE PASS', 30, 44);
-
-    // Event Info Section
-    doc
-      .fillColor('#0F172A')
-      .fontSize(14)
-      .font('Helvetica-Bold')
-      .text(event.title, 30, 95);
-
-    doc
-      .fontSize(10)
-      .font('Helvetica')
-      .fillColor('#475569')
-      .text(`Date: ${event.date} | Time: ${event.time}`, 30, 120)
-      .text(`Location: ${event.location}`, 30, 135);
-
-    // Divider
-    doc
-      .moveTo(30, 160)
-      .lineTo(390, 160)
-      .strokeColor('#CBD5E1')
-      .stroke();
-
-    // Attendee Details
-    doc
-      .fontSize(11)
-      .font('Helvetica-Bold')
-      .fillColor('#0A3D91')
-      .text('DELEGATE DETAILS', 30, 175);
-
-    doc
-      .fontSize(10)
-      .font('Helvetica')
-      .fillColor('#1E293B')
-      .text(`Name: ${user?.name || 'Member'}`, 30, 195)
-      .text(`Email: ${user?.email || 'N/A'}`, 30, 210)
-      .text(`Mobile: ${user?.mobile || 'N/A'}`, 30, 225)
-      .text(`Registration ID: BGN-${userId.toString().slice(-6).toUpperCase()}`, 30, 240);
-
-    // Security Badge Box
-    doc
-      .rect(30, 270, 360, 40)
-      .fill('#F8FAFC')
-      .stroke('#E2E8F0');
-
-    doc
-      .fillColor('#0F172A')
-      .fontSize(9)
-      .font('Helvetica-Bold')
-      .text('VERIFIED ATTENDEE PASS', 40, 285, { align: 'center' });
-
-    doc.end();
+    return res.status(200).json({
+      success: true,
+      message: `Stall ${stallNumber} successfully reserved for ${companyName}.`,
+      stall,
+    });
   } catch (error) {
     return next(error);
   }
