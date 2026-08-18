@@ -17,6 +17,7 @@ import Seva from '../pages/public/Seva';
 import Knowledge from '../pages/public/Knowledge';
 import VerifyMember from '../pages/public/VerifyMember';
 import Leadership from '../pages/public/Leadership';
+import Policies from '../pages/public/Policies';
 
 // Auth Pages
 import Login from '../pages/auth/Login';
@@ -53,6 +54,11 @@ export default function AppRoutes() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/verify/:applicationNumber" element={<VerifyMember />} />
         <Route path="/leadership" element={<Leadership />} />
+        <Route path="/policies" element={<Policies />} />
+        <Route path="/terms" element={<Policies />} />
+        <Route path="/privacy" element={<Policies />} />
+        <Route path="/code-of-conduct" element={<Policies />} />
+        <Route path="/refund-policy" element={<Policies />} />
 
         {/* Membership Onboarding & Helpdesk */}
         <Route path="/join" element={<Join />} />
