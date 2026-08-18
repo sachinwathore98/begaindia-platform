@@ -13,6 +13,8 @@ import Events from '../pages/public/Events';
 import Contact from '../pages/public/Contact';
 import Join from '../pages/public/Join';
 import Support from '../pages/public/Support';
+import Seva from '../pages/public/Seva';
+import Knowledge from '../pages/public/Knowledge';
 
 // Auth Pages
 import Login from '../pages/auth/Login';
@@ -44,15 +46,24 @@ export default function AppRoutes() {
         <Route path="/about" element={<About />} />
         <Route path="/membership" element={<Membership />} />
         <Route path="/directory" element={<Directory />} />
-        <Route path="/events" element={<Events />} />
         <Route path="/contact" element={<Contact />} />
-        
-        {/* Onboarding, BSR Support & Social Wing */}
+
+        {/* Membership Onboarding & Helpdesk */}
         <Route path="/join" element={<Join />} />
         <Route path="/support" element={<Support />} />
-        <Route path="/seva" element={<Home />} /> {/* Link to BEGA Seva section / page */}
-        <Route path="/expo" element={<Events />} /> {/* BEGA Business Expo portal */}
-        <Route path="/mahaadhiveshan" element={<Events />} /> {/* BEGA Mahaadhiveshan portal */}
+
+        {/* BEGA Seva & Volunteer Wing */}
+        <Route path="/seva" element={<Seva />} />
+        <Route path="/volunteer" element={<Seva />} />
+
+        {/* Events, Expos & Mahaadhiveshan */}
+        <Route path="/events" element={<Events />} />
+        <Route path="/expo" element={<Events />} />
+        <Route path="/mahaadhiveshan" element={<Events />} />
+
+        {/* Knowledge Base, Schemes & Toolkit */}
+        <Route path="/knowledge" element={<Knowledge />} />
+        <Route path="/schemes" element={<Knowledge />} />
       </Route>
 
       {/* ----------------- Authentication Routes ----------------- */}
