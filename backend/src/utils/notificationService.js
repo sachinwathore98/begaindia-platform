@@ -1,17 +1,11 @@
-import nodemailer from 'nodemailer';
+import axios from 'axios';
 
-// Configure SMTP Transporter (Using Gmail / Hostinger / SendGrid)
-const transporter = nodemailer.createTransporter({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: process.env.SMTP_PORT || 587,
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER || 'support@begaindia.org',
-    pass: process.env.SMTP_PASS || '',
-  },
-});
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const SENDER_EMAIL = process.env.SENDER_EMAIL || 'support@begaindia.org';
+const SENDER_NAME = 'BEGA INDIA Secretariat';
 
-// @desc Send Membership Confirmation Email with Digital ID Links
+// @desc Send Membership Confirmation Email via Brevo API
 export const sendMembershipEmail = async ({
   toEmail,
   fullName,
@@ -20,9 +14,9 @@ export const sendMembershipEmail = async ({
   membershipPlan,
 }) => {
   try {
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      console.log(`[Notification Mock] Email dispatched to ${toEmail} with Member ID: ${applicationNumber}`);
-      return { success: true, mocked: true };
+    if (!BREVO_API_KEY) {
+      console.warn('[Notification] BREVO_API_KEY not configured. Email skipped.');
+      return { success: false, message: 'BREVO_API_KEY is not defined' };
     }
 
     const verificationUrl = `https://begaindia-platform.vercel.app/verify/${applicationNumber}`;
@@ -66,16 +60,32 @@ export const sendMembershipEmail = async ({
       </div>
     `;
 
-    const info = await transporter.sendMail({
-      from: `"BEGA INDIA Secretariat" <${process.env.SMTP_USER}>`,
-      to: toEmail,
+    const payload = {
+      sender: {
+        name: SENDER_NAME,
+        email: SENDER_EMAIL,
+      },
+      to: [
+        {
+          email: toEmail,
+          name: fullName,
+        },
+      ],
       subject: `Official Membership Confirmation — ${applicationNumber} | BEGA INDIA`,
-      html: htmlContent,
+      htmlContent,
+    };
+
+    const response = await axios.post(BREVO_API_URL, payload, {
+      headers: {
+        accept: 'application/json',
+        'api-key': BREVO_API_KEY,
+        'content-type': 'application/json',
+      },
     });
 
-    return { success: true, messageId: info.messageId };
+    return { success: true, messageId: response.data?.messageId };
   } catch (error) {
-    console.error('Email dispatch error:', error);
-    return { success: false, error: error.message };
+    console.error('Brevo API Error:', error.response?.data || error.message);
+    return { success: false, error: error.response?.data || error.message };
   }
 };
