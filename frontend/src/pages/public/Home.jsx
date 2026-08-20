@@ -1,101 +1,129 @@
 import React from 'react';
-import HeroSection from '../../components/home/HeroSection';
-import QuickButtonsGrid from '../../components/home/QuickButtonsGrid';
-import { useLanguage } from '../../context/LanguageContext';
-import { 
-  TrendingUp, 
-  ShieldCheck, 
-  Landmark, 
-  HelpCircle, 
-  Briefcase, 
-  Rocket, 
-  Trees, 
-  HeartHandshake, 
-  ArrowRight 
-} from 'lucide-react';
 import { Link } from 'react-router-dom';
+import {
+  Building2,
+  ShieldCheck,
+  TrendingUp,
+  Users,
+  Award,
+  ArrowRight,
+  Sparkles,
+  Calendar,
+  CheckCircle2,
+  Store,
+  LifeBuoy,
+  FileCheck2,
+} from 'lucide-react';
 
 export default function Home() {
-  const { t } = useLanguage();
-
-  const sixPillars = [
-    { title: t.pillars.growth, desc: 'Training, marketing awareness, networking, B2B opportunities, and scaling support.', icon: TrendingUp },
-    { title: t.pillars.protection, desc: 'Legal awareness, documentation guidance, fraud awareness, and expert referrals.', icon: ShieldCheck },
-    { title: t.pillars.govConnect, desc: 'MSME schemes, licences, permissions, compliance assistance, and administrative representation.', icon: Landmark },
-    { title: t.pillars.resolution, desc: 'Structured support request cell, mediation, and specialist guidance for business disputes.', icon: HelpCircle },
-    { title: t.pillars.opportunity, desc: 'BEGA Expo, buyer-seller meetings, market linkages, and corporate supply-chain integration.', icon: Briefcase },
-    { title: t.pillars.development, desc: 'Startup incubation, women and young entrepreneur mentorship, and digital transformation.', icon: Rocket },
-  ];
-
   return (
-    <div className="space-y-0 font-sans">
-      {/* 1. Hero Section */}
-      <HeroSection />
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans space-y-16 py-10 px-4 sm:px-8">
+      <div className="max-w-7xl mx-auto space-y-16">
 
-      {/* 2. 11 Primary Quick Action Buttons Grid */}
-      <QuickButtonsGrid />
+        {/* HERO BANNER */}
+        <div className="text-center space-y-6 max-w-4xl mx-auto pt-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[#F57C00] text-xs font-black uppercase tracking-widest">
+            <Sparkles className="w-4 h-4" /> State Business Empowerment & Growth Network
+          </div>
 
-      {/* 3. Six Core Pillars Section */}
-      <section className="py-16 px-4 sm:px-8 max-w-7xl mx-auto space-y-8">
-        <div className="text-center space-y-2 max-w-2xl mx-auto">
-          <span className="text-xs font-extrabold uppercase tracking-widest text-[#F57C00] bg-orange-50 px-3 py-1 rounded-full border border-orange-200">
-            Core Foundation
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-            {t.pillars.title}
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sixPillars.map((p, idx) => {
-            const Icon = p.icon;
-            return (
-              <div key={idx} className="p-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-[#0A3D91] hover:shadow-md transition space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0A3D91] flex items-center justify-center font-bold">
-                  <Icon className="w-5 h-5" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">{p.title}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">{p.desc}</p>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 4. BEGA Seva Flagship Banner: One Month - One Village */}
-      <section className="bg-gradient-to-br from-emerald-900 via-slate-900 to-emerald-950 text-white py-14 px-4 sm:px-8">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="space-y-3 max-w-2xl">
-            <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold uppercase tracking-wider rounded-full border border-emerald-500/30">
-              {t.seva.title}[cite: 7]
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight tracking-tight">
+            Connecting Enterprises.<br />
+            <span className="bg-gradient-to-r from-blue-400 via-amber-300 to-[#F57C00] bg-clip-text text-transparent">
+              Empowering Sustainable Growth.
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-              {t.seva.flagship}[cite: 1, 7]
-            </h2>
-            <p className="text-xs text-emerald-200 font-semibold">
-              {t.seva.target}[cite: 7]
-            </p>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              {t.seva.desc}[cite: 7]
-            </p>
+          </h1>
+
+          <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
+            Business Empowerment and Growth Association (BEGA India) connects business growth, legal protection, B2B matchmaking, training, and grassroots social transformation.
+          </p>
+
+          <div className="text-xs font-black text-amber-400 tracking-widest uppercase">
+            Growth • Trust • Success
           </div>
 
-          <div className="shrink-0 flex flex-col sm:flex-row gap-3">
+          {/* Primary Action Buttons Grid */}
+          <div className="flex flex-wrap justify-center gap-3 pt-4">
             <Link
-              to="/seva"
-              className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs rounded-xl shadow transition text-center"
+              to="/join"
+              className="px-7 py-3.5 bg-[#F57C00] hover:bg-[#e06f00] text-slate-950 font-black text-xs rounded-xl shadow-xl transition flex items-center gap-2"
             >
-              View Village Impact Scorecards[cite: 1, 7]
+              JOIN BEGA <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              to="/volunteer"
-              className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl border border-white/20 text-center"
+              to="/membership"
+              className="px-6 py-3.5 bg-[#0A3D91] hover:bg-[#083278] text-white font-extrabold text-xs rounded-xl shadow-xl transition"
             >
-              Join as Volunteer[cite: 7, 8]
+              MEMBERSHIP PLANS
+            </Link>
+            <Link
+              to="/directory"
+              className="px-6 py-3.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-extrabold text-xs rounded-xl transition"
+            >
+              BUSINESS DIRECTORY
+            </Link>
+            <Link
+              to="/support"
+              className="px-6 py-3.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-extrabold text-xs rounded-xl transition"
+            >
+              REGISTER BUSINESS ISSUE
             </Link>
           </div>
         </div>
-      </section>
+
+        {/* 11 PRIMARY QUICK NAVIGATION TILES */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          {[
+            { title: 'JOIN BEGA', link: '/join', color: 'border-orange-500/30 bg-orange-500/10 text-[#F57C00]' },
+            { title: 'MEMBERSHIP', link: '/membership', color: 'border-blue-500/30 bg-blue-500/10 text-blue-400' },
+            { title: 'DIRECTORY', link: '/directory', color: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400' },
+            { title: 'SUPPORT DESK', link: '/support', color: 'border-rose-500/30 bg-rose-500/10 text-rose-400' },
+            { title: 'BEGA SEVA', link: '/seva', color: 'border-amber-500/30 bg-amber-500/10 text-amber-400' },
+            { title: 'BUSINESS EXPO', link: '/expo', color: 'border-purple-500/30 bg-purple-500/10 text-purple-400' },
+            { title: 'CONCLAVE', link: '/expo', color: 'border-cyan-500/30 bg-cyan-500/10 text-cyan-400' },
+            { title: 'EVENTS', link: '/events', color: 'border-indigo-500/30 bg-indigo-500/10 text-indigo-400' },
+            { title: 'TRAINING', link: '/training', color: 'border-teal-500/30 bg-teal-500/10 text-teal-400' },
+            { title: 'AWARDS', link: '/awards', color: 'border-yellow-500/30 bg-yellow-500/10 text-yellow-400' },
+            { title: 'SCHEMES', link: '/schemes', color: 'border-green-500/30 bg-green-500/10 text-green-400' },
+            { title: 'LEADERSHIP', link: '/leadership', color: 'border-slate-700 bg-slate-900 text-slate-300' },
+          ].map((btn, i) => (
+            <Link
+              key={i}
+              to={btn.link}
+              className={`p-4 rounded-2xl border text-center font-black text-xs transition hover:scale-105 shadow-md flex items-center justify-center ${btn.color}`}
+            >
+              {btn.title}
+            </Link>
+          ))}
+        </div>
+
+        {/* CORE PILLARS SECTION */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+          <div className="p-8 bg-slate-900 border border-slate-800 rounded-3xl space-y-3 shadow-lg">
+            <TrendingUp className="w-8 h-8 text-[#F57C00]" />
+            <h3 className="text-lg font-black text-white">Business Development</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Structured B2B matchmaking, buyer-seller conclaves, state trade expos, and export readiness workshops for MSMEs and startups.
+            </p>
+          </div>
+
+          <div className="p-8 bg-slate-900 border border-slate-800 rounded-3xl space-y-3 shadow-lg">
+            <ShieldCheck className="w-8 h-8 text-blue-400" />
+            <h3 className="text-lg font-black text-white">Business Support (BSR)</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Dedicated grievance resolution cell addressing delayed payments, municipal licences, GST awareness, and administrative representation.
+            </p>
+          </div>
+
+          <div className="p-8 bg-slate-900 border border-slate-800 rounded-3xl space-y-3 shadow-lg">
+            <Building2 className="w-8 h-8 text-emerald-400" />
+            <h3 className="text-lg font-black text-white">BEGA Seva (Social Wing)</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Flagship "One Month – One Village" rural transformation initiative covering smart classrooms, health camps, and 500-tree sanctuaries.
+            </p>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }
