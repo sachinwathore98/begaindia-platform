@@ -1,4 +1,4 @@
-export const OBJECTIVES_DATA = [
+export const BEGA_OBJECTIVES = [
   {
     id: 1,
     title: 'Protection of Business Interests',
@@ -168,3 +168,7 @@ export const OBJECTIVES_DATA = [
     category: 'Business Opportunities',
   },
 ];
+
+// Alias export for backward compatibility
+export const OBJECTIVES_DATA = BEGA_OBJECTIVES;
+export default BEGA_OBJECTIVES;
