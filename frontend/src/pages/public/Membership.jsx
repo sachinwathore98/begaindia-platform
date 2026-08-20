@@ -1,140 +1,172 @@
-// frontend/src/pages/public/Membership.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Check, X, ArrowRight, ShieldCheck, HelpCircle } from 'lucide-react';
+import {
+  ShieldCheck,
+  Check,
+  Sparkles,
+  ArrowRight,
+  User,
+  Building2,
+  Award,
+  Crown,
+  HelpCircle,
+} from 'lucide-react';
+
+const MEMBERSHIP_PLANS = [
+  {
+    id: 'Basic',
+    name: 'Basic Membership',
+    price: '₹999',
+    period: '/year',
+    popular: false,
+    badge: 'Starter Tier',
+    description: 'For emerging entrepreneurs, traders, and small business operators joining Maharashtra\'s premier network.',
+    benefits: [
+      'Official Member Digital ID Badge with QR verification',
+      'Entry to district-level networking and buyer-seller meets',
+      'Regular regulatory, taxation, and MSME scheme alerts',
+      'Access to standard Business Support Request (BSR) ticketing',
+      'Discounted entry to state seminars and training workshops',
+    ],
+    cta: 'Apply for Basic',
+    btnColor: 'bg-slate-800 hover:bg-slate-900 text-white',
+    cardBorder: 'border-slate-200 bg-white shadow-sm',
+  },
+  {
+    id: 'Business',
+    name: 'Business Membership',
+    price: '₹2,499',
+    period: '/year',
+    popular: true,
+    badge: 'Most Popular & Best Value',
+    description: 'For established MSMEs, manufacturers, and service firms seeking high directory visibility and B2B leads.',
+    benefits: [
+      'Verified Listing on the State Business Directory with contact & catalog',
+      'Direct B2B referral matchmaker & procurement inquiry routing',
+      'Dedicated case handling by Expert Panel (CA, Advocates, Tax advisors)',
+      'VIP delegate pass & priority stall bookings at BEGA Business Expo',
+      'Eligibility for Taluka, District & State Business Excellence Awards',
+      'Direct participation in "One Month – One Village" CSR initiatives',
+    ],
+    cta: 'Get Business Membership',
+    btnColor: 'bg-gradient-to-r from-[#F57C00] to-amber-500 hover:from-[#e06f00] hover:to-amber-600 text-white font-black shadow-md',
+    cardBorder: 'border-2 border-[#F57C00] bg-white shadow-xl ring-4 ring-orange-500/10',
+  },
+  {
+    id: 'Lifetime',
+    name: 'Lifetime Membership',
+    price: '₹9,999',
+    period: 'one-time',
+    popular: false,
+    badge: 'Permanent Status',
+    description: 'For established industrialists, corporate founders, and business leaders seeking permanent representation.',
+    benefits: [
+      'Permanent Lifetime Verified Badge on the digital directory',
+      'VIP Stage Access & Delegate Entry for all future state events',
+      'Highest priority resolution routing in the Business Grievance Desk',
+      'Exclusive invitation to annual Business Leaders Roundtables',
+      'Prominent corporate recognition in annual publications & reports',
+    ],
+    cta: 'Claim Lifetime Status',
+    btnColor: 'bg-[#0A3D91] hover:bg-[#083278] text-white font-extrabold shadow-md',
+    cardBorder: 'border-slate-200 bg-white shadow-sm',
+  },
+  {
+    id: 'Executive',
+    name: 'Executive Membership',
+    price: 'By Appointment',
+    period: 'Term Based',
+    popular: false,
+    badge: 'Leadership Role',
+    description: 'For appointed committee chairs, taluka/district leaders, and industry federation representatives.',
+    benefits: [
+      'Official committee appointment credentials & administrative authority',
+      'Voting rights and agenda formulation in leadership councils',
+      'Direct coordination with local administration & government bodies',
+      'Leadership oversight for taluka-level BEGA Seva village adoption drives',
+    ],
+    cta: 'Apply for Executive Role',
+    btnColor: 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-extrabold',
+    cardBorder: 'border-amber-200 bg-amber-50/30 shadow-sm',
+  },
+];
 
 export default function Membership() {
-  const [billingCycle, setBillingCycle] = useState('monthly');
-
-  const comparison = [
-    { feature: 'Directory Listing', silver: 'Standard', gold: 'Featured', platinum: 'VIP Top-Tier' },
-    { feature: 'B2B Networking Meets Access', silver: 'General Meets', gold: 'Priority Passes', platinum: 'VIP Pass & Summits' },
-    { feature: 'Direct Business Matchmaking', silver: false, gold: true, platinum: true },
-    { feature: 'Dedicated Relationship Manager', silver: false, gold: false, platinum: true },
-    { feature: 'Banner & Social Promotions', silver: false, gold: '1 Campaign/mo', platinum: '3 Campaigns/mo' },
-    { feature: 'Event QR Pass Allocation', silver: '1 Pass/Event', gold: '2 Passes/Event', platinum: '5 Passes/Event' },
-    { feature: 'Investor & Partner Connect Sessions', silver: false, gold: false, platinum: true },
-  ];
-
   return (
-    <div className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-16">
-      
-      {/* Header */}
-      <div className="text-center space-y-4 max-w-3xl mx-auto">
-        <span className="px-3 py-1 bg-orange-100 text-[#F57C00] rounded-full text-xs font-bold uppercase tracking-widest">
-          Subscription Tiers
-        </span>
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
-          Unlock the Full Power of BEGAINDIA
-        </h1>
-        <p className="text-slate-600 text-sm leading-relaxed">
-          Choose a tier that matches your business objectives. Scale up anytime as your network and revenue grow.
-        </p>
-
-        {/* Toggle */}
-        <div className="pt-6 flex items-center justify-center gap-3">
-          <span className={`text-xs font-semibold ${billingCycle === 'monthly' ? 'text-slate-900' : 'text-slate-400'}`}>
-            Monthly Billing
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans py-12 px-4 sm:px-8 space-y-16">
+      <div className="max-w-7xl mx-auto space-y-16">
+        
+        {/* Header */}
+        <div className="text-center space-y-4 max-w-3xl mx-auto">
+          <span className="px-3.5 py-1 bg-orange-50 text-[#F57C00] border border-orange-200 text-xs font-black rounded-full uppercase tracking-wider">
+            Membership Architecture
           </span>
-          <button
-            onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'annually' : 'monthly')}
-            className="w-12 h-6 bg-slate-200 rounded-full p-1 relative transition"
-          >
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 leading-tight">
+            BEGA India Membership Plans
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+            Join thousands of verified business owners across Maharashtra. Select the membership structure that fits your enterprise scaling goals.
+          </p>
+        </div>
+
+        {/* Pricing Matrix */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+          {MEMBERSHIP_PLANS.map((plan) => (
             <div
-              className={`w-4 h-4 bg-[#F57C00] rounded-full transition-transform ${
-                billingCycle === 'annually' ? 'translate-x-6' : 'translate-x-0'
-              }`}
-            />
-          </button>
-          <span className={`text-xs font-semibold ${billingCycle === 'annually' ? 'text-slate-900' : 'text-slate-400'}`}>
-            Annual Billing <span className="text-[#F57C00] font-bold">(Save 20%)</span>
+              key={plan.id}
+              className={`p-7 rounded-3xl border transition-all flex flex-col justify-between space-y-6 ${plan.cardBorder}`}
+            >
+              <div className="space-y-4">
+                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border bg-slate-100 text-slate-600 border-slate-200">
+                  {plan.badge}
+                </span>
+
+                <div className="space-y-1">
+                  <h3 className="text-xl font-black text-slate-900">{plan.name}</h3>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl sm:text-4xl font-black text-slate-900">{plan.price}</span>
+                    <span className="text-xs text-slate-500 font-bold">{plan.period}</span>
+                  </div>
+                  <p className="text-xs text-slate-600 pt-1 leading-relaxed">{plan.description}</p>
+                </div>
+
+                <div className="space-y-2 pt-4 border-t border-slate-100 text-xs">
+                  <p className="font-extrabold text-slate-800 uppercase text-[10px]">Included Benefits:</p>
+                  <ul className="space-y-2 text-slate-700">
+                    {plan.benefits.map((b, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-[11px] leading-snug">
+                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                        <span>{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <Link
+                to="/join"
+                className={`w-full py-3.5 rounded-xl text-xs text-center shadow transition block ${plan.btnColor}`}
+              >
+                {plan.cta}
+              </Link>
+            </div>
+          ))}
+        </div>
+
+        {/* Member Service Promise Banner */}
+        <div className="bg-[#0A3D91] text-white p-8 sm:p-12 rounded-3xl space-y-4 shadow-xl text-center">
+          <span className="text-xs font-black uppercase text-amber-300 tracking-wider">
+            Our Service Promise
           </span>
+          <h2 className="text-2xl sm:text-3xl font-black">
+            Value • Relationship • Opportunity
+          </h2>
+          <p className="text-xs sm:text-sm text-blue-100 max-w-3xl mx-auto leading-relaxed">
+            BEGA India membership is designed to create genuine commercial and professional value: Network, Knowledge, Promotion, Opportunity, Guidance, and Institutional Representation.
+          </p>
         </div>
+
       </div>
-
-      {/* Comparison Table */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[600px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/50">
-                <th className="p-5 text-xs font-bold text-slate-900 uppercase">Features & Benefits</th>
-                <th className="p-5 text-center text-sm font-bold text-slate-800">
-                  Silver <br />
-                  <span className="text-xs font-normal text-slate-500">
-                    {billingCycle === 'monthly' ? '₹999/mo' : '₹9,999/yr'}
-                  </span>
-                </th>
-                <th className="p-5 text-center text-sm font-bold text-[#F57C00] bg-orange-50/50">
-                  Gold (Popular) <br />
-                  <span className="text-xs font-normal text-slate-500">
-                    {billingCycle === 'monthly' ? '₹2,499/mo' : '₹24,999/yr'}
-                  </span>
-                </th>
-                <th className="p-5 text-center text-sm font-bold text-[#0A3D91]">
-                  Platinum <br />
-                  <span className="text-xs font-normal text-slate-500">
-                    {billingCycle === 'monthly' ? '₹4,999/mo' : '₹49,999/yr'}
-                  </span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
-              {comparison.map((row, idx) => (
-                <tr key={idx} className="hover:bg-slate-50/50 transition">
-                  <td className="p-4 font-semibold text-slate-800">{row.feature}</td>
-                  
-                  {/* Silver */}
-                  <td className="p-4 text-center">
-                    {typeof row.silver === 'boolean' ? (
-                      row.silver ? <Check className="w-4 h-4 text-emerald-500 mx-auto" /> : <X className="w-4 h-4 text-slate-300 mx-auto" />
-                    ) : (
-                      <span className="text-slate-700 font-medium">{row.silver}</span>
-                    )}
-                  </td>
-
-                  {/* Gold */}
-                  <td className="p-4 text-center bg-orange-50/20 font-medium text-[#F57C00]">
-                    {typeof row.gold === 'boolean' ? (
-                      row.gold ? <Check className="w-4 h-4 text-[#F57C00] mx-auto" /> : <X className="w-4 h-4 text-slate-300 mx-auto" />
-                    ) : (
-                      <span>{row.gold}</span>
-                    )}
-                  </td>
-
-                  {/* Platinum */}
-                  <td className="p-4 text-center font-medium text-[#0A3D91]">
-                    {typeof row.platinum === 'boolean' ? (
-                      row.platinum ? <Check className="w-4 h-4 text-[#0A3D91] mx-auto" /> : <X className="w-4 h-4 text-slate-300 mx-auto" />
-                    ) : (
-                      <span>{row.platinum}</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-              <tr>
-                <td className="p-4"></td>
-                <td className="p-4 text-center">
-                  <Link to="/register" className="inline-block px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold transition">
-                    Select Silver
-                  </Link>
-                </td>
-                <td className="p-4 text-center bg-orange-50/20">
-                  <Link to="/register" className="inline-block px-4 py-2 bg-[#F57C00] hover:bg-[#e06f00] text-white rounded-xl font-bold transition shadow-md">
-                    Select Gold
-                  </Link>
-                </td>
-                <td className="p-4 text-center">
-                  <Link to="/register" className="inline-block px-4 py-2 bg-[#0A3D91] hover:bg-[#083278] text-white rounded-xl font-bold transition">
-                    Select Platinum
-                  </Link>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
     </div>
   );
 }

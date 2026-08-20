@@ -1,116 +1,67 @@
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'https://begaindia-api.onrender.com';
-
-const getAuthHeader = () => {
-  const token = localStorage.getItem('token');
-  return { headers: { Authorization: `Bearer ${token}` } };
-};
+import apiClient from './apiClient';
 
 export const getAdminStats = async () => {
-  const res = await axios.get(`${API_URL}/api/admin/stats`, getAuthHeader());
-  return res.data;
+  return await apiClient.get('/admin/stats');
 };
 
 export const getAllUsers = async (search = '', status = '') => {
-  const res = await axios.get(
-    `${API_URL}/api/admin/users?search=${search}&status=${status}`,
-    getAuthHeader()
-  );
-  return res.data;
+  return await apiClient.get(`/admin/users?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}`);
 };
 
 export const createAdminUser = async (userData) => {
-  const res = await axios.post(`${API_URL}/api/admin/users`, userData, getAuthHeader());
-  return res.data;
+  return await apiClient.post('/admin/users', userData);
 };
 
 export const updateAdminUser = async (id, userData) => {
-  const res = await axios.put(`${API_URL}/api/admin/users/${id}`, userData, getAuthHeader());
-  return res.data;
+  return await apiClient.put(`/admin/users/${id}`, userData);
 };
 
 export const toggleBlockUser = async (id) => {
-  const res = await axios.put(`${API_URL}/api/admin/users/${id}/block`, {}, getAuthHeader());
-  return res.data;
+  return await apiClient.put(`/admin/users/${id}/block`, {});
 };
 
 export const approveMembership = async (id, planName) => {
-  const res = await axios.put(
-    `${API_URL}/api/admin/users/${id}/approve-membership`,
-    { planName },
-    getAuthHeader()
-  );
-  return res.data;
+  return await apiClient.put(`/admin/users/${id}/approve-membership`, { planName });
 };
 
 export const deleteUser = async (id) => {
-  const res = await axios.delete(`${API_URL}/api/admin/users/${id}`, getAuthHeader());
-  return res.data;
+  return await apiClient.delete(`/admin/users/${id}`);
 };
-// --- Business Directory Moderation ---
+
 export const getAdminDirectory = async (search = '', status = '') => {
-  const res = await axios.get(
-    `${API_URL}/api/admin/directory?search=${search}&status=${status}`,
-    getAuthHeader()
-  );
-  return res.data;
+  return await apiClient.get(`/admin/directory?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}`);
 };
 
 export const updateDirectoryStatus = async (id, status, rejectionReason = '') => {
-  const res = await axios.put(
-    `${API_URL}/api/admin/directory/${id}/status`,
-    { status, rejectionReason },
-    getAuthHeader()
-  );
-  return res.data;
+  return await apiClient.put(`/admin/directory/${id}/status`, { status, rejectionReason });
 };
 
 export const toggleFeaturedCompany = async (id) => {
-  const res = await axios.put(`${API_URL}/api/admin/directory/${id}/feature`, {}, getAuthHeader());
-  return res.data;
+  return await apiClient.put(`/admin/directory/${id}/feature`, {});
 };
 
-// --- Event Management ---
 export const getAdminEvents = async () => {
-  const res = await axios.get(`${API_URL}/api/admin/events`, getAuthHeader());
-  return res.data;
+  return await apiClient.get('/admin/events');
 };
 
 export const createAdminEvent = async (eventData) => {
-  const res = await axios.post(`${API_URL}/api/admin/events`, eventData, getAuthHeader());
-  return res.data;
+  return await apiClient.post('/admin/events', eventData);
 };
 
 export const updateAdminEvent = async (id, eventData) => {
-  const res = await axios.put(`${API_URL}/api/admin/events/${id}`, eventData, getAuthHeader());
-  return res.data;
+  return await apiClient.put(`/admin/events/${id}`, eventData);
 };
 
 export const deleteAdminEvent = async (id) => {
-  const res = await axios.delete(`${API_URL}/api/admin/events/${id}`, getAuthHeader());
-  return res.data;
+  return await apiClient.delete(`/admin/events/${id}`);
 };
-// --- Revenue Management & Reports ---
+
 export const getRevenueStats = async () => {
-  const res = await axios.get(`${API_URL}/api/admin/revenue/stats`, getAuthHeader());
-  return res.data;
+  return await apiClient.get('/admin/revenue/stats');
 };
 
 export const getAdminTransactions = async (search = '', status = '', plan = '') => {
-  const res = await axios.get(
-    `${API_URL}/api/admin/revenue/transactions?search=${search}&status=${status}&plan=${plan}`,
-    getAuthHeader()
+  return await apiClient.get(
+    `/admin/revenue/transactions?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}&plan=${encodeURIComponent(plan)}`
   );
-  return res.data;
-};
-// --- CMS Management ---
-export const getCMSContent = async () => {
-  const res = await axios.get(`${API_URL}/api/admin/cms`);
-  return res.data;
-};
-
-export const updateCMSContent = async (cmsData) => {
-  const res = await axios.put(`${API_URL}/api/admin/cms`, cmsData, getAuthHeader());
-  return res.data;
 };

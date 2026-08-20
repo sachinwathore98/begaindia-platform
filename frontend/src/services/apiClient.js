@@ -1,16 +1,17 @@
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://begaindia-api.onrender.com';
+
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+  baseURL: API_BASE_URL.endsWith('/api') ? API_BASE_URL : `${API_BASE_URL.replace(/\/$/, '')}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request Interceptor: Automatically attach Bearer Token if available
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -19,18 +20,15 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Extract data and handle global 401 unauthorized errors
 apiClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    const message = error.response?.data?.message || 'Something went wrong';
-    
-    // Auto-logout if token is expired or invalid
+    const message = error.response?.data?.message || error.message || 'Server connection error';
     if (error.response?.status === 401) {
+      localStorage.removeItem('token');
       localStorage.removeItem('accessToken');
       localStorage.removeItem('user');
     }
-    
     return Promise.reject(new Error(message));
   }
 );

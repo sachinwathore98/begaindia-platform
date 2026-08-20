@@ -28,17 +28,18 @@ import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 import Unauthorized from '../pages/auth/Unauthorized';
 
-// Protected Route Guard
+// Route Guards
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 
-// Member Dashboard Pages & Sub-Modules
+// Member Portal
 import Dashboard from '../pages/Dashboard';
 import ProfileManagement from '../pages/dashboard/ProfileManagement';
 import EventModule from '../pages/dashboard/EventModule';
 import MembershipModule from '../pages/dashboard/MembershipModule';
 import NotificationModule from '../pages/dashboard/NotificationModule';
+import B2BInbox from '../pages/dashboard/B2BInbox';
 
-// Admin Panel Pages
+// Admin Portal
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import DirectoryAndEventsAdmin from '../pages/admin/DirectoryAndEventsAdmin';
 import RevenueAdmin from '../pages/admin/RevenueAdmin';
@@ -48,42 +49,29 @@ import SupportAdmin from '../pages/admin/SupportAdmin';
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* ----------------- Public Layout Routes ----------------- */}
+      {/* Public Pages */}
       <Route element={<PublicLayout />}>
-        {/* Core Institutional Pages */}
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/objectives" element={<Objectives />} />
         <Route path="/why-bega" element={<Objectives />} />
         <Route path="/leadership" element={<Leadership />} />
-
-        {/* Membership & Verification */}
         <Route path="/membership" element={<Membership />} />
         <Route path="/join" element={<Join />} />
         <Route path="/verify/:applicationNumber" element={<VerifyMember />} />
-
-        {/* Business Directory & Commercial Support */}
         <Route path="/directory" element={<Directory />} />
         <Route path="/support" element={<Support />} />
-
-        {/* Expo, Mahaadhiveshan & Events (Deduplicated) */}
         <Route path="/expo" element={<Expo />} />
         <Route path="/mahaadhiveshan" element={<Expo />} />
         <Route path="/events" element={<Events />} />
-
-        {/* Social Development Wing & CSR */}
         <Route path="/seva" element={<Seva />} />
         <Route path="/volunteer" element={<Seva />} />
         <Route path="/sponsorship" element={<Sponsorship />} />
-
-        {/* Knowledge Base, Media & Success Stories */}
         <Route path="/knowledge" element={<Knowledge />} />
         <Route path="/schemes" element={<Knowledge />} />
         <Route path="/news" element={<NewsAndMedia />} />
         <Route path="/media" element={<NewsAndMedia />} />
         <Route path="/success-stories" element={<NewsAndMedia />} />
-
-        {/* Governance & Contact */}
         <Route path="/contact" element={<Contact />} />
         <Route path="/policies" element={<Policies />} />
         <Route path="/terms" element={<Policies />} />
@@ -92,23 +80,24 @@ export default function AppRoutes() {
         <Route path="/refund-policy" element={<Policies />} />
       </Route>
 
-      {/* ----------------- Authentication Routes ----------------- */}
+      {/* Auth */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
-      {/* ----------------- Member Dashboard Routes ----------------- */}
-      <Route element={<ProtectedRoute allowedRoles={['user', 'admin']} />}>
+      {/* Member Dashboard Sub-Routes */}
+      <Route element={<ProtectedRoute allowedRoles={['user', 'admin', 'premium_member']} />}>
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<MembershipModule />} />
           <Route path="profile" element={<ProfileManagement />} />
           <Route path="events" element={<EventModule />} />
+          <Route path="inbox" element={<B2BInbox />} />
           <Route path="membership" element={<MembershipModule />} />
           <Route path="notifications" element={<NotificationModule />} />
         </Route>
       </Route>
 
-      {/* ----------------- Admin Panel Routes ----------------- */}
+      {/* Admin Panel Sub-Routes */}
       <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/directory" element={<DirectoryAndEventsAdmin />} />
@@ -117,7 +106,7 @@ export default function AppRoutes() {
         <Route path="/admin/support" element={<SupportAdmin />} />
       </Route>
 
-      {/* ----------------- Wildcard Catch-all ----------------- */}
+      {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
