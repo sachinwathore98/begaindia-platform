@@ -1,8 +1,7 @@
-// src/pages/public/BusinessDirectory.jsx
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { Search, MapPin, Building2, ExternalLink, RotateCcw, AlertCircle, Loader2 } from 'lucide-react';
+import { Search, MapPin, Building2, Phone, Mail, ExternalLink, RotateCcw, AlertCircle, Loader2, ShieldCheck, Star } from 'lucide-react';
 
 const API_BASE = (import.meta.env.VITE_API_URL || 'https://begaindia-api.onrender.com').replace(/\/$/, '');
 
@@ -16,7 +15,7 @@ const CATEGORIES = [
   'Services & Professional Consulting',
 ];
 
-const CITIES = ['Chhatrapati Sambhajinagar', 'Mumbai', 'Pune', 'Nashik', 'Nagpur', 'Jalna'];
+const CITIES = ['Chhatrapati Sambhajinagar', 'Mumbai', 'Pune', 'Nashik', 'Nagpur', 'Jalna', 'Thane'];
 
 export default function BusinessDirectory() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -45,11 +44,9 @@ export default function BusinessDirectory() {
       });
 
       try {
-        // Primary route: /api/business
         const res = await axios.get(`${API_BASE}/api/business?${params.toString()}`);
         return res.data?.data || [];
       } catch (err) {
-        // Fallback route if backend uses /api/directory/search
         try {
           const resFallback = await axios.get(`${API_BASE}/api/directory/search?${params.toString()}`);
           return resFallback.data?.data || [];
@@ -70,28 +67,33 @@ export default function BusinessDirectory() {
   const businesses = Array.isArray(data) ? data : [];
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-7xl mx-auto space-y-8">
-        <div className="text-center space-y-3">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            BEGAINDIA Business Directory
+        
+        {/* Header Title */}
+        <div className="text-center space-y-3 max-w-3xl mx-auto">
+          <span className="px-3.5 py-1 bg-blue-50 text-[#0A3D91] text-xs font-extrabold rounded-full uppercase tracking-wider border border-blue-200">
+            Verified Commercial Network
+          </span>
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+            BEGA India Business Directory
           </h1>
-          <p className="text-slate-600 max-w-2xl mx-auto text-xs sm:text-sm">
-            Connect with verified businesses, explore trusted suppliers, and expand your network across Maharashtra.
+          <p className="text-slate-600 text-xs sm:text-sm font-medium">
+            Connect directly with verified manufacturers, suppliers, distributors, and service providers across Maharashtra.
           </p>
         </div>
 
-        {/* Filter Bar */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
+        {/* Filter Controls Bar */}
+        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200/90 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative md:col-span-2">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Search company name, product or keyword..."
+                placeholder="Search company name, product or service keyword..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0A3D91] text-slate-800 text-xs"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0A3D91] text-slate-800 text-xs font-medium"
               />
             </div>
 
@@ -99,7 +101,7 @@ export default function BusinessDirectory() {
               <select
                 value={selectedCategory}
                 onChange={(e) => { setSelectedCategory(e.target.value); setPage(1); }}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-xs outline-none focus:ring-2 focus:ring-[#0A3D91]"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-xs font-semibold outline-none focus:ring-2 focus:ring-[#0A3D91]"
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>{cat === 'All' ? 'All Industry Sectors' : cat}</option>
@@ -111,7 +113,7 @@ export default function BusinessDirectory() {
               <select
                 value={selectedCity}
                 onChange={(e) => { setSelectedCity(e.target.value); setPage(1); }}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-xs outline-none focus:ring-2 focus:ring-[#0A3D91]"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-xs font-semibold outline-none focus:ring-2 focus:ring-[#0A3D91]"
               >
                 <option value="">All Districts</option>
                 {CITIES.map((city) => (
@@ -134,14 +136,14 @@ export default function BusinessDirectory() {
           )}
         </div>
 
-        {/* Directory Output */}
+        {/* Directory Listings Grid */}
         {isLoading ? (
-          <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 space-y-3">
+          <div className="p-16 text-center bg-white rounded-3xl border border-slate-200 space-y-3 shadow-sm">
             <Loader2 className="w-8 h-8 animate-spin text-[#0A3D91] mx-auto" />
-            <p className="text-xs font-semibold text-slate-500">Loading business directory...</p>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Loading verified businesses...</p>
           </div>
         ) : isError ? (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center space-y-3">
+          <div className="bg-red-50 border border-red-200 rounded-3xl p-8 text-center space-y-3">
             <AlertCircle className="w-8 h-8 text-red-500 mx-auto" />
             <h3 className="text-sm font-semibold text-red-800">{error?.message || 'Failed to load directory'}</h3>
             <button
@@ -152,11 +154,11 @@ export default function BusinessDirectory() {
             </button>
           </div>
         ) : businesses.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-3">
-            <Building2 className="w-10 h-10 text-slate-300 mx-auto" />
-            <h3 className="text-base font-semibold text-slate-800">No Business Profiles Found</h3>
+          <div className="bg-white border border-slate-200 rounded-3xl p-16 text-center space-y-3 shadow-sm">
+            <Building2 className="w-12 h-12 text-slate-300 mx-auto" />
+            <h3 className="text-base font-bold text-slate-800">No Business Profiles Found</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              No verified company listings match your query. Try clearing some filters.
+              No verified company profiles match your current search query. Try resetting filters.
             </p>
           </div>
         ) : (
@@ -166,51 +168,69 @@ export default function BusinessDirectory() {
               return (
                 <div
                   key={biz._id || biz.id}
-                  className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-[#0A3D91] transition-all flex flex-col justify-between space-y-4"
+                  className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-[#0A3D91] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between space-y-5"
                 >
-                  <div className="space-y-3">
+                  <div className="space-y-3.5">
                     <div className="flex items-start justify-between gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
+                      <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
                         {logoSrc ? (
                           <img src={logoSrc} alt={biz.companyName} className="w-full h-full object-cover" />
                         ) : (
                           <Building2 className="w-6 h-6 text-slate-400" />
                         )}
                       </div>
-                      <span className="px-2.5 py-1 bg-blue-50 text-[#0A3D91] font-bold text-[10px] rounded-full border border-blue-100">
+                      <span className="px-3 py-1 bg-blue-50 text-[#0A3D91] font-extrabold text-[10px] rounded-full border border-blue-100 uppercase tracking-wider">
                         {biz.category}
                       </span>
                     </div>
 
                     <div>
-                      <h3 className="text-base font-bold text-slate-900 line-clamp-1">{biz.companyName}</h3>
-                      <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
-                        <MapPin className="w-3.5 h-3.5 text-[#F57C00]" /> {biz.taluka ? `${biz.taluka}, ` : ''}{biz.district || biz.city}
+                      <h3 className="text-lg font-black text-slate-900 line-clamp-1">{biz.companyName}</h3>
+                      <p className="text-xs text-slate-500 font-semibold flex items-center gap-1 mt-1">
+                        <MapPin className="w-3.5 h-3.5 text-[#F57C00] shrink-0" />
+                        <span>{biz.taluka ? `${biz.taluka}, ` : ''}{biz.district || biz.city}</span>
                       </p>
                     </div>
 
                     {biz.description && (
-                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed font-medium">
                         {biz.description}
                       </p>
                     )}
                   </div>
 
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 text-[10px]">
-                      Verified Member
-                    </span>
-                    {biz.mobile && (
-                      <a href={`tel:${biz.mobile}`} className="font-bold text-[#0A3D91] hover:underline flex items-center gap-1">
-                        Contact <ExternalLink className="w-3 h-3" />
-                      </a>
-                    )}
+                  <div className="pt-4 border-t border-slate-100 space-y-3 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 text-[10px] flex items-center gap-1">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Verified Member
+                      </span>
+                    </div>
+
+                    <div className="flex gap-2">
+                      {biz.mobile && (
+                        <a
+                          href={`tel:${biz.mobile}`}
+                          className="w-1/2 py-2 bg-[#0A3D91] hover:bg-[#083278] text-white font-bold text-center text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-1.5"
+                        >
+                          <Phone className="w-3.5 h-3.5" /> Call
+                        </a>
+                      )}
+                      {biz.email && (
+                        <a
+                          href={`mailto:${biz.email}`}
+                          className="w-1/2 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-center text-xs rounded-xl transition flex items-center justify-center gap-1.5"
+                        >
+                          <Mail className="w-3.5 h-3.5 text-slate-500" /> Email
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
         )}
+
       </div>
     </div>
   );
