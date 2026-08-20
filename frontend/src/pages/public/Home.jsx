@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   TrendingUp,
@@ -22,18 +22,12 @@ import {
   GraduationCap,
   Trees,
   CheckCircle2,
+  Lock,
+  ChevronRight,
+  Flame,
+  ArrowUpRight,
+  Layers,
 } from 'lucide-react';
-
-const QUICK_PORTALS = [
-  { label: 'Join BEGA', path: '/join', icon: Sparkles, color: 'bg-orange-50 text-[#F57C00] border-orange-200 hover:bg-orange-100' },
-  { label: 'Membership Plans', path: '/membership', icon: Award, color: 'bg-blue-50 text-[#0A3D91] border-blue-200 hover:bg-blue-100' },
-  { label: 'Business Directory', path: '/directory', icon: Building2, color: 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100' },
-  { label: 'Grievance Desk', path: '/support', icon: LifeBuoy, color: 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100' },
-  { label: 'BEGA Seva (CSR)', path: '/seva', icon: Trees, color: 'bg-amber-50 text-amber-900 border-amber-200 hover:bg-amber-100' },
-  { label: 'Business Expo', path: '/expo', icon: Store, color: 'bg-purple-50 text-purple-800 border-purple-200 hover:bg-purple-100' },
-  { label: 'Events & Seminars', path: '/events', icon: Calendar, color: 'bg-indigo-50 text-indigo-800 border-indigo-200 hover:bg-indigo-100' },
-  { label: 'Schemes & Guides', path: '/knowledge', icon: BookOpen, color: 'bg-teal-50 text-teal-900 border-teal-200 hover:bg-teal-100' },
-];
 
 const MEMBERSHIP_PLANS = [
   {
@@ -51,7 +45,7 @@ const MEMBERSHIP_PLANS = [
       'Standard Access to BSR Grievance Redressal Desk',
       'Discounted Entry Passes for Seminars & Masterclasses',
     ],
-    cta: 'Get Basic Membership',
+    cta: 'Select Basic Plan',
     btnClass: 'bg-slate-900 hover:bg-slate-800 text-white',
     cardClass: 'border-slate-200 bg-white hover:shadow-md',
   },
@@ -61,7 +55,7 @@ const MEMBERSHIP_PLANS = [
     price: '₹2,499',
     period: '/year',
     popular: true,
-    badge: 'Most Popular & Best Value',
+    badge: 'Most Popular & Best ROI',
     tagline: 'High-visibility directory placement, active B2B matchmaking & priority dispute routing.',
     benefits: [
       'Verified Listing in the State Business Directory with Catalog',
@@ -73,7 +67,7 @@ const MEMBERSHIP_PLANS = [
     ],
     cta: 'Join as Business Member',
     btnClass: 'bg-gradient-to-r from-[#F57C00] to-amber-500 hover:from-[#e06f00] hover:to-amber-600 text-white font-black shadow-lg shadow-orange-500/20',
-    cardClass: 'border-2 border-[#F57C00] bg-white ring-4 ring-orange-500/10 shadow-xl',
+    cardClass: 'border-2 border-[#F57C00] bg-gradient-to-b from-orange-50/40 via-white to-white ring-4 ring-orange-500/10 shadow-2xl scale-[1.02] md:-translate-y-2',
   },
   {
     id: 'Lifetime',
@@ -114,39 +108,102 @@ const MEMBERSHIP_PLANS = [
   },
 ];
 
-const ELEVEN_REASONS = [
-  { title: 'Business Growth', desc: 'Structured scaling roadmaps, market expansion masterclasses, and revenue acceleration support.' },
-  { title: 'Business Networking', desc: 'Build direct connections with 15,000+ verified entrepreneurs, OEM buyers, and bulk distributors.' },
-  { title: 'Expert Guidance', desc: 'Direct access to experienced Chartered Accountants, Corporate Advocates, and Senior Bankers.' },
-  { title: 'Training & Mentorship', desc: '14+ specialized training tracks spanning Digital Marketing, Export, Compliance, and Finance.' },
-  { title: 'Government Schemes', desc: 'End-to-end guidance in claiming capital subsidies and incentives under PMEGP, CGTMSE, and PSI.' },
-  { title: 'Legal & Dispute Protection', desc: 'Institutional representation against unfair trade pressure, false complaints, and regulatory delays.' },
-  { title: 'BSR Grievance Cell', desc: 'Fast-track institutional resolution desk for delayed commercial payments, licences, and NOCs.' },
-  { title: 'Market & B2B Linkages', desc: 'Direct supply-chain matchmaking connecting manufacturers with retailers and procurement teams.' },
-  { title: 'State Expos & Conclaves', desc: 'Showcase machines and products to over 15,000 trade visitors at the annual BEGA Business Expo.' },
-  { title: 'Social Impact (BEGA Seva)', desc: 'Channel your CSR contribution transparently through the "One Month – One Village" rural initiative.' },
-  { title: 'State Recognition', desc: 'Compete for prestigious Taluka, District, and Maharashtra State Business Excellence Awards.' },
+const BENEFIT_TABS = [
+  {
+    id: 'b2b',
+    title: 'B2B Trade & Growth',
+    icon: TrendingUp,
+    badge: 'Revenue Expansion',
+    heading: 'Expand Your Supplier & Buyer Pipeline Across 36 Districts',
+    description:
+      'BEGA India provides a verified B2B matchmaker engine. Connect your tools, forged components, agricultural produce, or IT services directly with bulk procurement teams without middleman commissions.',
+    points: [
+      'Verified digital directory placement with clickable catalog links',
+      'Priority matchmaking at quarterly regional buyer-seller meets',
+      'Exclusive access to the annual BEGA Business Expo with 15,000+ trade buyers',
+    ],
+    highlight: 'Over ₹18 Crore in business contracts facilitated in regional clusters.',
+  },
+  {
+    id: 'protection',
+    title: 'Legal & Dispute Redressal',
+    icon: ShieldCheck,
+    badge: 'BSR Cell',
+    heading: 'Institutional Defense Against Payment Defaults & Undue Pressure',
+    description:
+      'Never fight bureaucratic delays or vendor payment defaults alone. The BEGA Business Support Request (BSR) Cell assigns dedicated Advocates and Chartered Accountants to represent your interests.',
+    points: [
+      'Fast-track legal representation under MSME SAMADHAAN (45-day payment recovery)',
+      'Guidance on false workplace complaints, labor disputes, and contract arbitration',
+      'Direct representation before local municipal bodies, DIC, and licensing authorities',
+    ],
+    highlight: '100% legal & constitutional dispute resolution process.',
+  },
+  {
+    id: 'subsidies',
+    title: 'Govt Schemes & Subsidies',
+    icon: Scale,
+    badge: 'Capital Unlocking',
+    heading: 'Claim Central & Maharashtra State Industrial Subsidies',
+    description:
+      'Our dedicated government scheme liaison desk helps micro and small businesses claim capital subsidies, interest concessions, and collateral-free banking credit.',
+    points: [
+      'PMEGP 15%–35% capital subsidy facilitation on new manufacturing & service units',
+      'CGTMSE collateral-free credit guarantees up to ₹5 Crore with SIDBI partner banks',
+      'Maharashtra Package Scheme of Incentives (PSI): Gross SGST refunds & power tariff waivers',
+    ],
+    highlight: '₹4.2 Crore+ in state subsidies already facilitated for member units.',
+  },
+  {
+    id: 'training',
+    title: 'Training & Recognition',
+    icon: Award,
+    badge: 'Skill & Prestige',
+    heading: 'Executive Masterclasses, Digital Automation & State Awards',
+    description:
+      'Upskill your business operations with hands-on masterclasses covering digital funnels, automated invoicing, export logistics, and compete for prestigious state awards.',
+    points: [
+      'Hands-on training in digital marketing funnels, GST compliance, and HR systems',
+      'Eligibility for annual Taluka, District, and Maharashtra State Business Excellence Awards',
+      'Networking with industry pioneers and venture leaders at annual conclaves',
+    ],
+    highlight: 'Official credential badges and state-wide press release recognition.',
+  },
+];
+
+const DIRECTORY_CATEGORIES = [
+  { name: 'Manufacturing & Industrial', count: '1,420+ Units', icon: Building2, color: 'text-blue-700 bg-blue-50 border-blue-100' },
+  { name: 'Digital & IT Solutions', count: '850+ Agencies', icon: Zap, color: 'text-amber-700 bg-amber-50 border-amber-100' },
+  { name: 'Agro & Food Processing', count: '940+ Hubs', icon: Globe2, color: 'text-emerald-700 bg-emerald-50 border-emerald-100' },
+  { name: 'Heavy Engineering & Auto', count: '620+ Plants', icon: Briefcase, color: 'text-rose-700 bg-rose-50 border-rose-100' },
 ];
 
 export default function Home() {
+  const [activeBenefit, setActiveBenefit] = useState('b2b');
+  const selectedTab = BENEFIT_TABS.find((t) => t.id === activeBenefit) || BENEFIT_TABS[0];
+  const TabIcon = selectedTab.icon;
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-[#F57C00] selection:text-white space-y-16 py-8">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-[#F57C00] selection:text-white space-y-24 py-6 overflow-x-hidden">
       
-      {/* 1. HERO SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8 space-y-8">
-        <div className="text-center space-y-5 max-w-4xl mx-auto pt-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-[#0A3D91] text-xs font-black uppercase tracking-widest shadow-xs">
+      {/* 1. HERO SECTION WITH GRAPHIC ACCENTS */}
+      <section className="relative pt-6 pb-12 px-4 sm:px-8 max-w-7xl mx-auto">
+        {/* Soft Background Mesh Light */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gradient-to-tr from-blue-200/40 via-orange-100/40 to-transparent blur-[120px] pointer-events-none -z-0"></div>
+
+        <div className="relative z-10 space-y-8 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-[#0A3D91] text-xs font-black uppercase tracking-widest shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-[#F57C00]" /> Business Empowerment and Growth Association
           </div>
 
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-slate-900 leading-tight tracking-tight">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-slate-900 leading-[1.15] tracking-tight max-w-4xl mx-auto">
             Protecting Your Business Rights.<br />
-            <span className="text-[#0A3D91]">
+            <span className="bg-gradient-to-r from-[#0A3D91] via-blue-700 to-[#F57C00] bg-clip-text text-transparent">
               Empowering Enterprise Growth Across Maharashtra.
             </span>
           </h1>
 
-          <p className="text-xs sm:text-sm md:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed font-medium">
+          <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed font-medium">
             Join 15,000+ verified entrepreneurs, manufacturers, and MSMEs across 36 districts. Get verified digital credentials, access B2B matchmaking, unlock state subsidies, and resolve regulatory hurdles fast.
           </p>
 
@@ -158,87 +215,154 @@ export default function Home() {
           <div className="flex flex-wrap justify-center items-center gap-3 pt-2">
             <Link
               to="/join"
-              className="px-7 py-3.5 bg-[#F57C00] hover:bg-[#e06f00] text-white font-black text-xs sm:text-sm rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center gap-2"
+              className="px-8 py-4 bg-gradient-to-r from-[#F57C00] to-amber-500 hover:from-[#e06f00] hover:to-amber-600 text-white font-black text-xs sm:text-sm rounded-2xl shadow-xl shadow-orange-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2"
             >
               JOIN BEGA NOW <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               to="/membership"
-              className="px-6 py-3.5 bg-[#0A3D91] hover:bg-[#083278] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md transition"
+              className="px-6 py-4 bg-[#0A3D91] hover:bg-[#083278] text-white font-extrabold text-xs sm:text-sm rounded-2xl shadow-lg hover:shadow-blue-900/20 transition-all hover:scale-[1.02]"
             >
               VIEW MEMBERSHIP PLANS
             </Link>
             <Link
               to="/directory"
-              className="px-6 py-3.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 font-extrabold text-xs sm:text-sm rounded-xl shadow-xs transition flex items-center gap-1.5"
+              className="px-6 py-4 bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 font-extrabold text-xs sm:text-sm rounded-2xl shadow-xs transition-all hover:scale-[1.02] flex items-center gap-1.5"
             >
               <Search className="w-4 h-4 text-[#0A3D91]" /> EXPLORE DIRECTORY
             </Link>
             <Link
               to="/support"
-              className="px-5 py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs sm:text-sm rounded-xl transition flex items-center gap-1.5"
+              className="px-5 py-4 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs sm:text-sm rounded-2xl transition flex items-center gap-1.5"
             >
               <LifeBuoy className="w-4 h-4 text-rose-600" /> REGISTER ISSUE
             </Link>
           </div>
-        </div>
 
-        {/* 2. QUICK ACCESS PORTALS GRID (IN-HERO) */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm space-y-3">
-          <div className="flex justify-between items-center px-1">
-            <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider">
-              Quick Direct Portals
-            </span>
-            <span className="text-[11px] font-bold text-[#0A3D91]">
-              Access All Digital Wings
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
-            {QUICK_PORTALS.map((portal, idx) => {
-              const Icon = portal.icon;
-              return (
-                <Link
-                  key={idx}
-                  to={portal.path}
-                  className={`p-3 rounded-2xl border text-center transition flex flex-col items-center justify-center gap-1.5 shadow-xs hover:shadow-sm ${portal.color}`}
-                >
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span className="text-[11px] font-extrabold leading-tight">{portal.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* 3. KEY METRICS COUNTERS */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
-          <div className="bg-white border border-slate-200 p-5 rounded-2xl text-center space-y-1 shadow-xs">
-            <p className="text-3xl font-black text-[#0A3D91]">36</p>
-            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Districts Covered</p>
-          </div>
-          <div className="bg-white border border-slate-200 p-5 rounded-2xl text-center space-y-1 shadow-xs">
-            <p className="text-3xl font-black text-[#F57C00]">15,000+</p>
-            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Business Network</p>
-          </div>
-          <div className="bg-white border border-slate-200 p-5 rounded-2xl text-center space-y-1 shadow-xs">
-            <p className="text-3xl font-black text-emerald-700">₹4.2 Cr+</p>
-            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Subsidies Unlocked</p>
-          </div>
-          <div className="bg-white border border-slate-200 p-5 rounded-2xl text-center space-y-1 shadow-xs">
-            <p className="text-3xl font-black text-purple-700">60</p>
-            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Villages / 5-Yr Target</p>
+          {/* Key Metrics Strip */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-8 max-w-5xl mx-auto">
+            <div className="bg-white/90 backdrop-blur-sm border border-slate-200 p-6 rounded-3xl text-center space-y-1 shadow-xs hover:shadow-md transition">
+              <p className="text-3xl sm:text-4xl font-black text-[#0A3D91]">36</p>
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Districts Covered</p>
+            </div>
+            <div className="bg-white/90 backdrop-blur-sm border border-slate-200 p-6 rounded-3xl text-center space-y-1 shadow-xs hover:shadow-md transition">
+              <p className="text-3xl sm:text-4xl font-black text-[#F57C00]">15,000+</p>
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Business Network</p>
+            </div>
+            <div className="bg-white/90 backdrop-blur-sm border border-slate-200 p-6 rounded-3xl text-center space-y-1 shadow-xs hover:shadow-md transition">
+              <p className="text-3xl sm:text-4xl font-black text-emerald-700">₹4.2 Cr+</p>
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Subsidies Unlocked</p>
+            </div>
+            <div className="bg-white/90 backdrop-blur-sm border border-slate-200 p-6 rounded-3xl text-center space-y-1 shadow-xs hover:shadow-md transition">
+              <p className="text-3xl sm:text-4xl font-black text-purple-700">60</p>
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Villages / 5-Yr Target</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 4. MEMBERSHIP TIERS */}
+      {/* 2. INTERACTIVE VALUE PROPOSITION MATRIX (TABBED FEATURE SHOWCASE) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 space-y-10">
+        <div className="text-center space-y-3 max-w-3xl mx-auto">
+          <span className="px-3.5 py-1 bg-blue-50 border border-blue-200 text-[#0A3D91] text-xs font-black rounded-full uppercase tracking-wider">
+            Why Businesses Join BEGA
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900">
+            Real Commercial Solutions for Daily Enterprise Hurdles
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600 font-medium">
+            Click across the core pillars below to explore how membership accelerates sales and provides legal defense.
+          </p>
+        </div>
+
+        {/* Tab Buttons */}
+        <div className="flex flex-wrap justify-center gap-2">
+          {BENEFIT_TABS.map((tab) => {
+            const Icon = tab.icon;
+            const isSelected = activeBenefit === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveBenefit(tab.id)}
+                className={`px-5 py-3 rounded-2xl text-xs font-black transition-all duration-200 flex items-center gap-2 ${
+                  isSelected
+                    ? 'bg-[#0A3D91] text-white shadow-lg shadow-blue-900/20 scale-105'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${isSelected ? 'text-amber-400' : 'text-slate-400'}`} />
+                <span>{tab.title}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Tab Content Display Card */}
+        <div className="bg-white border border-slate-200/90 rounded-3xl p-8 sm:p-12 shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-7 space-y-5">
+            <span className="px-3 py-1 bg-orange-50 text-[#F57C00] border border-orange-200 rounded-full text-[10px] font-black uppercase tracking-wider">
+              {selectedTab.badge}
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
+              {selectedTab.heading}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+              {selectedTab.description}
+            </p>
+
+            <ul className="space-y-2.5 pt-2 text-xs text-slate-700 font-semibold">
+              {selectedTab.points.map((pt, i) => (
+                <li key={i} className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>{pt}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="pt-4 flex items-center gap-4">
+              <Link
+                to="/join"
+                className="px-6 py-3 bg-[#F57C00] hover:bg-[#e06f00] text-white font-black text-xs rounded-xl shadow-md transition flex items-center gap-1.5"
+              >
+                Unlock This Benefit <ArrowRight className="w-4 h-4" />
+              </Link>
+              <span className="text-[11px] font-bold text-slate-500 italic">
+                {selectedTab.highlight}
+              </span>
+            </div>
+          </div>
+
+          <div className="lg:col-span-5 bg-gradient-to-br from-slate-900 via-[#0A3D91] to-slate-950 text-white rounded-3xl p-8 shadow-2xl flex flex-col justify-between space-y-6">
+            <div className="flex justify-between items-start">
+              <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-amber-400">
+                <TabIcon className="w-6 h-6" />
+              </div>
+              <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] font-bold rounded-full border border-emerald-400/30">
+                VERIFIED ECOSYSTEM
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">Institutional Advantage</p>
+              <h4 className="text-xl font-black text-white">{selectedTab.title}</h4>
+              <p className="text-xs text-slate-300 leading-relaxed font-normal">{selectedTab.highlight}</p>
+            </div>
+
+            <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 flex justify-between items-center text-xs">
+              <span className="font-bold text-amber-300">All 36 Districts</span>
+              <span className="text-slate-200">100% Transparent</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. MEMBERSHIP TIERS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 space-y-10">
         <div className="text-center space-y-3 max-w-3xl mx-auto">
           <span className="px-3.5 py-1 bg-orange-50 border border-orange-200 text-[#F57C00] text-xs font-black rounded-full uppercase tracking-wider">
             Membership Architecture
           </span>
-          <h2 className="text-2xl sm:text-4xl font-black text-slate-900">
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900">
             Choose the Right Membership for Your Enterprise
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 font-medium">
@@ -250,18 +374,20 @@ export default function Home() {
           {MEMBERSHIP_PLANS.map((plan) => (
             <div
               key={plan.id}
-              className={`p-6 sm:p-7 rounded-3xl border transition-all flex flex-col justify-between space-y-6 ${plan.cardClass}`}
+              className={`p-7 rounded-3xl border transition-all flex flex-col justify-between space-y-6 ${plan.cardClass}`}
             >
               <div className="space-y-4">
-                <span
-                  className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${
-                    plan.popular
-                      ? 'bg-orange-100 text-[#F57C00] border-orange-200'
-                      : 'bg-slate-100 text-slate-600 border-slate-200'
-                  }`}
-                >
-                  {plan.badge}
-                </span>
+                <div className="flex justify-between items-start">
+                  <span
+                    className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${
+                      plan.popular
+                        ? 'bg-orange-100 text-[#F57C00] border-orange-200'
+                        : 'bg-slate-100 text-slate-600 border-slate-200'
+                    }`}
+                  >
+                    {plan.badge}
+                  </span>
+                </div>
 
                 <div className="space-y-1">
                   <h3 className="text-xl font-black text-slate-900">{plan.name}</h3>
@@ -269,7 +395,7 @@ export default function Home() {
                     <span className="text-3xl sm:text-4xl font-black text-slate-900">{plan.price}</span>
                     <span className="text-xs text-slate-500 font-bold">{plan.period}</span>
                   </div>
-                  <p className="text-xs text-slate-600 pt-1 leading-relaxed">{plan.tagline}</p>
+                  <p className="text-xs text-slate-600 pt-1 leading-relaxed font-medium">{plan.tagline}</p>
                 </div>
 
                 <div className="space-y-2 pt-4 border-t border-slate-100 text-xs">
@@ -296,101 +422,47 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. WHY JOIN BEGA? (11 ADVANTAGES) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8 space-y-10">
-        <div className="text-center space-y-3 max-w-3xl mx-auto">
-          <span className="px-3.5 py-1 bg-blue-50 border border-blue-200 text-[#0A3D91] text-xs font-black rounded-full uppercase tracking-wider">
-            Enterprise Advantages
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-black text-slate-900">
-            Why Business Owners Choose BEGA India
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600">
-            A comprehensive ecosystem built to resolve daily commercial hurdles while unlocking new trade avenues.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {ELEVEN_REASONS.map((reason, idx) => (
-            <div
-              key={idx}
-              className="p-6 bg-white border border-slate-200 rounded-3xl space-y-2 hover:shadow-md transition"
-            >
-              <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center font-black text-[#0A3D91] text-xs">
-                {idx + 1}
-              </div>
-              <h3 className="text-base font-black text-slate-900">{reason.title}</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">{reason.desc}</p>
+      {/* 4. VERIFIED DIRECTORY PREVIEW */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 space-y-8">
+        <div className="bg-white border border-slate-200 p-8 sm:p-12 rounded-3xl space-y-8 shadow-sm">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-100 pb-6">
+            <div className="space-y-2">
+              <span className="text-xs font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                B2B Marketplace & Directory
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-black text-slate-900">Find Verified Suppliers & Buyers</h2>
+              <p className="text-xs text-slate-600 font-medium">Explore manufacturers, distributors, and certified MSMEs across Maharashtra.</p>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 6. SIX CORE PILLARS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8 space-y-10">
-        <div className="text-center space-y-3 max-w-3xl mx-auto">
-          <span className="px-3.5 py-1 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-black rounded-full uppercase tracking-wider">
-            Foundational Matrix
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-black text-slate-900">
-            The Six Core Pillars of BEGA India
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="p-7 bg-white border border-slate-200 rounded-3xl space-y-3 shadow-xs">
-            <TrendingUp className="w-8 h-8 text-[#F57C00]" />
-            <h3 className="text-lg font-black text-slate-900">1. Business Growth</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Training, marketing awareness, networking, B2B opportunities, and commercial development across all 36 districts of Maharashtra.
-            </p>
+            <Link
+              to="/directory"
+              className="px-5 py-2.5 bg-[#0A3D91] hover:bg-[#083278] text-white text-xs font-extrabold rounded-xl shadow transition flex items-center gap-1.5 shrink-0"
+            >
+              Browse All 36 Districts <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
 
-          <div className="p-7 bg-white border border-slate-200 rounded-3xl space-y-3 shadow-xs">
-            <ShieldCheck className="w-8 h-8 text-[#0A3D91]" />
-            <h3 className="text-lg font-black text-slate-900">2. Business Protection</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Legal awareness, proper documentation guidance, fraud alerts, and institutional representation against unlawful harassment.
-            </p>
-          </div>
-
-          <div className="p-7 bg-white border border-slate-200 rounded-3xl space-y-3 shadow-xs">
-            <Scale className="w-8 h-8 text-emerald-600" />
-            <h3 className="text-lg font-black text-slate-900">3. Government Connect</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Unlocking MSME capital subsidies, PMEGP, CGTMSE credit guarantees, industrial licences, and administrative representations.
-            </p>
-          </div>
-
-          <div className="p-7 bg-white border border-slate-200 rounded-3xl space-y-3 shadow-xs">
-            <LifeBuoy className="w-8 h-8 text-rose-600" />
-            <h3 className="text-lg font-black text-slate-900">4. Problem Resolution</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Structured BSR grievance ticketing, commercial mediation, delayed payment recovery, and verified Expert Panel referrals.
-            </p>
-          </div>
-
-          <div className="p-7 bg-white border border-slate-200 rounded-3xl space-y-3 shadow-xs">
-            <Handshake className="w-8 h-8 text-purple-600" />
-            <h3 className="text-lg font-black text-slate-900">5. Business Opportunities</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              BEGA Business Expo, buyer-seller conclaves, state trade expos, procurement matching, and verified supplier networks.
-            </p>
-          </div>
-
-          <div className="p-7 bg-white border border-slate-200 rounded-3xl space-y-3 shadow-xs">
-            <Globe2 className="w-8 h-8 text-cyan-600" />
-            <h3 className="text-lg font-black text-slate-900">6. Grassroots Development</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Startup mentorship, women entrepreneurship cell, youth innovation, and the flagship "One Month – One Village" social movement.
-            </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {DIRECTORY_CATEGORIES.map((cat, idx) => {
+              const Icon = cat.icon;
+              return (
+                <Link
+                  key={idx}
+                  to="/directory"
+                  className={`p-6 rounded-2xl border transition hover:shadow-md hover:scale-[1.02] group ${cat.color}`}
+                >
+                  <Icon className="w-7 h-7 mb-3" />
+                  <h3 className="text-sm font-black text-slate-900 group-hover:text-[#0A3D91] transition">{cat.name}</h3>
+                  <p className="text-xs text-slate-600 font-bold mt-0.5">{cat.count}</p>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* 7. BEGA SEVA: ONE MONTH ONE VILLAGE BLUEPRINT */}
+      {/* 5. BEGA SEVA IMPACT SHOWCASE */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8">
-        <div className="bg-gradient-to-br from-[#0A3D91] via-blue-900 to-slate-950 text-white rounded-3xl p-8 sm:p-12 shadow-xl space-y-8">
+        <div className="bg-gradient-to-br from-[#0A3D91] via-blue-900 to-slate-950 text-white rounded-3xl p-8 sm:p-12 shadow-2xl space-y-8">
           <div className="max-w-3xl space-y-3">
             <span className="px-3.5 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-black rounded-full uppercase tracking-wider border border-emerald-500/30">
               Flagship Social Movement
@@ -404,17 +476,17 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-bold pt-2">
-            <div className="p-5 bg-white/10 rounded-2xl border border-white/15 space-y-1">
+            <div className="p-5 bg-white/10 rounded-2xl border border-white/15 space-y-1 backdrop-blur-md">
               <p className="text-amber-300 uppercase text-[10px]">Monthly Commitment</p>
               <p className="text-xl font-black text-white">1 Month = 1 Village</p>
-              <p className="text-[11px] text-slate-300">Needs survey, water & health delivery</p>
+              <p className="text-[11px] text-slate-300">Surveys, health camps & school aid</p>
             </div>
-            <div className="p-5 bg-white/10 rounded-2xl border border-white/15 space-y-1">
-              <p className="text-emerald-300 uppercase text-[10px]">Annual Impact</p>
+            <div className="p-5 bg-white/10 rounded-2xl border border-white/15 space-y-1 backdrop-blur-md">
+              <p className="text-emerald-300 uppercase text-[10px]">Annual Target</p>
               <p className="text-xl font-black text-white">12 Months = 12 Villages</p>
               <p className="text-[11px] text-slate-300">Documented before/after impact scorecards</p>
             </div>
-            <div className="p-5 bg-white/10 rounded-2xl border border-white/15 space-y-1">
+            <div className="p-5 bg-white/10 rounded-2xl border border-white/15 space-y-1 backdrop-blur-md">
               <p className="text-blue-300 uppercase text-[10px]">Five-Year Goal</p>
               <p className="text-xl font-black text-white">5 Years = 60 Villages</p>
               <p className="text-[11px] text-slate-300">State-wide rural transformation blueprint</p>
@@ -438,9 +510,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. FINAL ENROLLMENT CALL TO ACTION */}
+      {/* 6. CALL TO ACTION BANNER */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 pb-8">
-        <div className="bg-slate-900 text-white rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-xl">
+        <div className="bg-slate-900 text-white rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-2xl">
           <div className="max-w-2xl mx-auto space-y-2">
             <h2 className="text-3xl sm:text-4xl font-black text-white">
               Ready to Accelerate Your Enterprise?
