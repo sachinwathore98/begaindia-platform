@@ -5,16 +5,14 @@ import DigitalIDCard from '../../components/membership/DigitalIDCard';
 import {
   User,
   Building2,
-  FileCheck,
   CheckCircle2,
   ArrowRight,
   ArrowLeft,
-  UploadCloud,
   CreditCard,
-  Sparkles,
 } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://begaindia-api.onrender.com';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://begaindia-api.onrender.com';
+const API_URL = API_BASE.replace(/\/$/, '');
 
 const MEMBERSHIP_TIERS = [
   { id: 'Basic', name: 'Basic Membership', fee: '₹999/yr', desc: 'Entry-level, digital ID, networking meets, and updates.' },
@@ -42,8 +40,8 @@ export default function Join() {
 
     // Step 2: Business Info
     businessName: '',
-    category: 'Digital & IT',
-    businessType: 'Private Limited / Proprietorship',
+    category: 'Digital & IT Solutions',
+    businessType: 'Proprietorship',
     gstNumber: '',
     description: '',
 
@@ -84,17 +82,24 @@ export default function Join() {
       setLoading(true);
       const res = await axios.post(`${API_URL}/api/membership/apply`, formData);
 
-      if (res.data.success) {
-        setRegisteredData({
+      if (res.data?.success) {
+        const memberPayload = {
           name: formData.fullName,
           email: formData.email,
           mobile: formData.mobile,
           applicationNumber: res.data.applicationNumber,
           district: formData.district,
           taluka: formData.taluka,
-          companyName: formData.businessName,
+          companyName: formData.businessName || `${formData.fullName} Enterprises`,
           membershipPlan: `${formData.membershipType} Membership`,
-        });
+          membershipStatus: 'Active',
+          validTill: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+        };
+
+        // Cache user session locally for instant dashboard preview
+        localStorage.setItem('user', JSON.stringify(memberPayload));
+
+        setRegisteredData(memberPayload);
         setApplicationCompleted(true);
       }
     } catch (err) {
@@ -111,13 +116,13 @@ export default function Join() {
         {/* Header */}
         <div className="text-center space-y-2">
           <span className="px-3 py-1 bg-blue-100 text-[#0A3D91] text-xs font-extrabold rounded-full uppercase tracking-wider">
-            Online Membership Onboarding[cite: 5, 7]
+            Online Membership Onboarding
           </span>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-            Join BEGA India — Empower Your Enterprise[cite: 7]
+            Join BEGA India — Empower Your Enterprise
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto">
-            Complete the 3-step application form to receive your verified Application Number and Digital Identity Card[cite: 2, 4, 7].
+            Complete the 3-step application form to receive your verified Application Number and Digital Identity Card.
           </p>
         </div>
 
@@ -136,7 +141,7 @@ export default function Join() {
                 <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs ${currentStep >= 1 ? 'bg-[#0A3D91] text-white' : 'bg-slate-200 text-slate-500'}`}>
                   1
                 </div>
-                <span className="text-[10px] font-bold uppercase">Personal Details[cite: 2, 4]</span>
+                <span className="text-[10px] font-bold uppercase">Personal Details</span>
               </div>
 
               {/* Step 2 */}
@@ -152,7 +157,7 @@ export default function Join() {
                 <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs ${currentStep >= 3 ? 'bg-[#0A3D91] text-white' : 'bg-slate-200 text-slate-500'}`}>
                   3
                 </div>
-                <span className="text-[10px] font-bold uppercase">Plan & Review[cite: 6, 7]</span>
+                <span className="text-[10px] font-bold uppercase">Plan & Review</span>
               </div>
             </div>
           </div>
@@ -167,10 +172,10 @@ export default function Join() {
 
             <div className="space-y-1">
               <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">
-                Application Submitted Successfully![cite: 7]
+                Application Submitted Successfully!
               </h2>
               <p className="text-xs text-slate-500">
-                Your application has been registered with BEGA India. You can now use your Digital Identity Card[cite: 7].
+                Your application has been registered with BEGA India. You can now use your Digital Identity Card.
               </p>
             </div>
 
@@ -185,7 +190,7 @@ export default function Join() {
               <form onSubmit={handleNext} className="space-y-4">
                 <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b pb-3">
                   <User className="w-5 h-5 text-[#0A3D91]" />
-                  Step 1: Personal & Contact Information[cite: 2, 4]
+                  Step 1: Personal & Contact Information
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -296,7 +301,7 @@ export default function Join() {
               <form onSubmit={handleNext} className="space-y-4">
                 <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b pb-3">
                   <Building2 className="w-5 h-5 text-[#F57C00]" />
-                  Step 2: Enterprise & Business Profile[cite: 4, 7]
+                  Step 2: Enterprise & Business Profile
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -391,7 +396,7 @@ export default function Join() {
               <form onSubmit={handleSubmitApplication} className="space-y-6">
                 <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b pb-3">
                   <CreditCard className="w-5 h-5 text-emerald-600" />
-                  Step 3: Select Membership Tier & Declaration[cite: 7]
+                  Step 3: Select Membership Tier & Declaration
                 </h3>
 
                 {/* Tier Selection Grid */}
@@ -410,8 +415,8 @@ export default function Join() {
                       >
                         <div className="flex justify-between items-start">
                           <div>
-                            <h4 className="text-xs font-extrabold text-slate-900">{tier.name}[cite: 7]</h4>
-                            <p className="text-[11px] text-slate-500">{tier.desc}[cite: 7]</p>
+                            <h4 className="text-xs font-extrabold text-slate-900">{tier.name}</h4>
+                            <p className="text-[11px] text-slate-500">{tier.desc}</p>
                           </div>
                           <span className="text-xs font-extrabold text-[#0A3D91] bg-white px-2 py-0.5 rounded-lg border border-slate-200 shadow-sm">
                             {tier.fee}
@@ -444,7 +449,7 @@ export default function Join() {
                       className="mt-1 accent-[#0A3D91] shrink-0"
                     />
                     <label htmlFor="declaration" className="text-xs text-slate-600 leading-relaxed">
-                      I hereby apply for membership in <strong>BEGA INDIA (व्यवसाय सक्षमीकरण व विकास संघटना)</strong>[cite: 7]. I confirm that the information provided is accurate and agree to adhere to the organization's Constitution, Code of Conduct, and Organizational Discipline[cite: 7].
+                      I hereby apply for membership in <strong>BEGA INDIA (व्यवसाय सक्षमीकरण व विकास संघटना)</strong>. I confirm that the information provided is accurate and agree to adhere to the organization's Constitution, Code of Conduct, and Organizational Discipline.
                     </label>
                   </div>
                 </div>
@@ -462,7 +467,7 @@ export default function Join() {
                     disabled={loading}
                     className="px-8 py-3 bg-[#F57C00] hover:bg-[#e06f00] text-white text-xs font-extrabold rounded-xl shadow-lg transition flex items-center gap-2 disabled:opacity-50"
                   >
-                    {loading ? 'Generating Application...' : 'Submit Application & Get Digital ID'}[cite: 7]
+                    {loading ? 'Generating Application...' : 'Submit Application & Get Digital ID'}
                   </button>
                 </div>
               </form>

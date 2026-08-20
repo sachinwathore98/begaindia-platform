@@ -6,14 +6,14 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { connectDB } from './config/db.js';
 
-// Route Imports (Deduplicated)
+// Route Imports
 import authRoutes from './routes/authRoutes.js';
 import businessRoutes from './routes/businessRoutes.js';
+import membershipRoutes from './routes/membershipRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
-
 
 dotenv.config();
 
@@ -32,7 +32,7 @@ const allowedOrigins = [
   'https://begaindia-platform.vercel.app',
   'https://begaindia.vercel.app',
   'http://localhost:5173',
-  'http://localhost:3000'
+  'http://localhost:3000',
 ];
 
 const corsOptions = {
@@ -53,7 +53,7 @@ const corsOptions = {
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
 };
 
 // Apply CORS middleware globally
@@ -62,7 +62,7 @@ app.use(cors(corsOptions));
 // Security & Helmet Middleware
 app.use(
   helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
   })
 );
 
@@ -78,19 +78,20 @@ app.get('/', (req, res) => {
   res.status(200).json({ success: true, message: 'BEGAINDIA API Server Running' });
 });
 
-// API Routes Mounted
-app.use('/api/auth', authRoutes);
-app.use('/api/business', businessRoutes);
-app.use('/api/payment', paymentRoutes);
-app.use('/api/payments', paymentRoutes); // Support both singular & plural endpoint conventions
-app.use('/api/admin', adminRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/events', eventRoutes);
-
 // Base Health Check
 app.get('/api/health', (req, res) => {
   res.status(200).json({ success: true, message: 'BEGAINDIA API is online and healthy!' });
 });
+
+// API Routes Mounted
+app.use('/api/membership', membershipRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/business', businessRoutes);
+app.use('/api/payment', paymentRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/events', eventRoutes);
 
 // 404 Handler
 app.use((req, res, next) => {

@@ -29,14 +29,22 @@ export const submitMembershipApplication = async (req, res, next) => {
       description,
     } = req.body;
 
-    const cleanEmail = email ? email.trim().toLowerCase() : '';
+    if (!fullName || !email || !mobile) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide full name, email, and mobile number.',
+      });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanMobile = mobile.trim();
 
     // Check existing application/user
-    const userExists = await User.findOne({ $or: [{ email: cleanEmail }, { mobile }] });
+    const userExists = await User.findOne({ $or: [{ email: cleanEmail }, { mobile: cleanMobile }] });
     if (userExists) {
       return res.status(400).json({
         success: false,
-        message: 'An application or account with this email or mobile already exists.',
+        message: 'An application or account with this email or mobile number already exists.',
       });
     }
 
@@ -44,18 +52,18 @@ export const submitMembershipApplication = async (req, res, next) => {
 
     // Create Member User Account
     const user = await User.create({
-      name: fullName,
+      name: fullName.trim(),
       email: cleanEmail,
-      mobile,
+      mobile: cleanMobile,
       password: password || 'BegaMember@2026',
       role: 'user',
       applicationNumber,
-      district,
-      taluka,
-      address,
+      district: district || 'Chhatrapati Sambhajinagar',
+      taluka: taluka || 'Aurangabad',
+      address: address || '',
       isVerified: true,
       membership: {
-        plan: `${membershipType} Membership`,
+        plan: `${membershipType || 'Business'} Membership`,
         status: 'Active',
         startDate: new Date(),
         expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
@@ -65,16 +73,16 @@ export const submitMembershipApplication = async (req, res, next) => {
     // Create Corresponding Business Profile
     const business = await Business.create({
       user: user._id,
-      companyName: businessName,
-      category,
-      businessType: businessType || 'Private Enterprise',
-      gstNumber: gstNumber || '',
+      companyName: businessName?.trim() || `${fullName.trim()} Enterprises`,
+      category: category || 'Manufacturing & Industrial',
+      businessType: businessType || 'Proprietorship',
+      gstNumber: gstNumber ? gstNumber.trim().toUpperCase() : '',
       description: description || 'Registered BEGA India Member Business',
-      mobile,
+      mobile: cleanMobile,
       email: cleanEmail,
-      district,
-      taluka,
-      address,
+      district: district || 'Chhatrapati Sambhajinagar',
+      taluka: taluka || 'Aurangabad',
+      address: address || '',
       status: 'Approved',
       isFeatured: membershipType === 'Lifetime' || membershipType === 'Executive',
     });
@@ -88,7 +96,7 @@ export const submitMembershipApplication = async (req, res, next) => {
         name: user.name,
         email: user.email,
         mobile: user.mobile,
-        applicationNumber,
+        applicationNumber: user.applicationNumber,
         district: user.district,
         taluka: user.taluka,
         membership: user.membership,
@@ -100,6 +108,7 @@ export const submitMembershipApplication = async (req, res, next) => {
       },
     });
   } catch (error) {
+    console.error('Membership Application Error:', error);
     return next(error);
   }
 };
@@ -111,7 +120,7 @@ export const verifyMemberCard = async (req, res, next) => {
   try {
     const { applicationNumber } = req.params;
 
-    const user = await User.findOne({ applicationNumber }).select('-password');
+    const user = await User.findOne({ applicationNumber: applicationNumber?.trim() }).select('-password');
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -127,8 +136,8 @@ export const verifyMemberCard = async (req, res, next) => {
       member: {
         name: user.name,
         applicationNumber: user.applicationNumber,
-        membershipPlan: user.membership?.plan,
-        membershipStatus: user.membership?.status,
+        membershipPlan: user.membership?.plan || 'Business Membership',
+        membershipStatus: user.membership?.status || 'Active',
         district: user.district,
         taluka: user.taluka,
         companyName: business?.companyName || 'Individual Member',

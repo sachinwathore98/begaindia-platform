@@ -6,8 +6,10 @@ import {
 
 const router = express.Router();
 
-// Public Onboarding & QR Verification
+// Onboarding submission endpoint
 router.post('/apply', submitMembershipApplication);
+
+// Digital ID QR verification endpoint
 router.get('/verify/:applicationNumber', verifyMemberCard);
 
 export default router;
