@@ -20,6 +20,7 @@ import Leadership from '../pages/public/Leadership';
 import Policies from '../pages/public/Policies';
 import Objectives from '../pages/public/Objectives';
 import Expo from '../pages/public/Expo';
+import Sponsorship from '../pages/public/Sponsorship';
 
 // Auth Pages
 import Login from '../pages/auth/Login';
@@ -65,6 +66,7 @@ export default function AppRoutes() {
         <Route path="/why-bega" element={<Objectives />} />
         <Route path="/expo" element={<Expo />} />
         <Route path="/mahaadhiveshan" element={<Expo />} />
+        <Route path="/sponsorship" element={<Sponsorship />} />
 
         {/* Membership Onboarding & Helpdesk */}
         <Route path="/join" element={<Join />} />
