@@ -24,10 +24,7 @@ import {
   Trees,
   CheckCircle2,
   Flame,
-  ArrowUpRight,
-  Layers,
   MapPin,
-  Lock,
 } from 'lucide-react';
 
 const LIVE_NOTICES = [
@@ -296,7 +293,6 @@ export default function Home() {
           <div className="lg:col-span-5 flex justify-center">
             <div className="w-full max-w-sm bg-gradient-to-br from-slate-900 via-[#0A3D91] to-slate-950 text-white rounded-3xl p-6 sm:p-7 shadow-2xl border-2 border-amber-400/40 relative overflow-hidden space-y-5">
               
-              {/* Floating Hologram Accents */}
               <div className="absolute top-0 right-0 w-36 h-36 bg-[#F57C00]/20 rounded-full blur-2xl pointer-events-none"></div>
               
               <div className="flex justify-between items-center border-b border-white/10 pb-3">
@@ -389,14 +385,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. INTERACTIVE VALUE MATRIX (TABBED BENEFIT EXPERIENCE) */}
+      {/* 4. INTERACTIVE VALUE MATRIX */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 space-y-8">
         <div className="text-center space-y-2 max-w-2xl mx-auto">
-          <span className="px-3 py-1 bg-blue-50 border border-blue-200 text-[#0A3D91] text-xs font-black rounded-full uppercase tracking-wider">
+          <span className="px-3.5 py-1 bg-blue-50 border border-blue-200 text-[#0A3D91] text-xs font-black rounded-full uppercase tracking-wider">
             Commercial Advantages
           </span>
           <h2 className="text-2xl sm:text-4xl font-black text-slate-900">
-            Why Business Owners Join BEGA India
+            Why Business Owners Choose BEGA India
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 font-medium">
             Explore the actionable commercial solutions provided to registered enterprises.
@@ -484,7 +480,7 @@ export default function Home() {
       {/* 5. MEMBERSHIP TIERS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 space-y-8">
         <div className="text-center space-y-2 max-w-2xl mx-auto">
-          <span className="px-3 py-1 bg-orange-50 border border-orange-200 text-[#F57C00] text-xs font-black rounded-full uppercase tracking-wider">
+          <span className="px-3.5 py-1 bg-orange-50 border border-orange-200 text-[#F57C00] text-xs font-black rounded-full uppercase tracking-wider">
             Membership Architecture
           </span>
           <h2 className="text-2xl sm:text-4xl font-black text-slate-900">
@@ -536,7 +532,7 @@ export default function Home() {
 
               <Link
                 to="/join"
-                className={`w-full py-3.5 rounded-xl text-xs text-center transition block font-bold ${plan.btnClass}`}
+                className={`w-full py-3.5 rounded-xl text-xs text-center shadow transition block font-bold ${plan.btnClass}`}
               >
                 {plan.cta}
               </Link>
@@ -602,7 +598,7 @@ export default function Home() {
             <div className="p-5 bg-white/10 rounded-2xl border border-white/15 space-y-1 backdrop-blur-md">
               <p className="text-amber-300 uppercase text-[10px]">Monthly Commitment</p>
               <p className="text-xl font-black text-white">1 Month = 1 Village</p>
-              <p className="text-[11px] text-slate-300">Needs survey, water & health delivery</p>
+              <p className="text-[11px] text-slate-300">Surveys, health camps & school aid</p>
             </div>
             <div className="p-5 bg-white/10 rounded-2xl border border-white/15 space-y-1 backdrop-blur-md">
               <p className="text-emerald-300 uppercase text-[10px]">Annual Impact</p>
