@@ -1,21 +1,13 @@
+// src/components/layout/Navbar.jsx
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Menu,
   X,
   User,
-  ShieldCheck,
-  Building2,
-  Calendar,
-  Store,
-  HeartHandshake,
   LifeBuoy,
   Sparkles,
-  Award,
-  ArrowRight,
   Flame,
-  ChevronDown,
-  Globe2,
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -25,8 +17,8 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 font-sans shadow-sm bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all">
-      {/* 1. TOP ANNOUNCEMENT STRIP */}
+    <header className="sticky top-0 z-50 font-sans shadow-sm bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all">
+      {/* 1. SLIM TOP ANNOUNCEMENT STRIP */}
       <div className="bg-[#0A3D91] text-white py-1.5 px-4 sm:px-8 text-xs font-semibold flex justify-between items-center">
         <div className="flex items-center gap-2 overflow-hidden">
           <span className="px-2 py-0.5 bg-[#F57C00] text-white font-black text-[10px] rounded-full uppercase tracking-wider shrink-0 flex items-center gap-1 shadow-sm animate-pulse">
@@ -45,10 +37,25 @@ export default function Navbar() {
       </div>
 
       {/* 2. MAIN NAVIGATION */}
-      <nav className="max-w-7xl mx-auto px-4 sm:px-8 py-3.5 flex justify-between items-center">
-        {/* Brand Logo */}
+      <nav className="max-w-7xl mx-auto px-4 sm:px-8 py-3 flex justify-between items-center">
+        
+        {/* Brand Logo & Name */}
         <Link to="/" className="flex items-center gap-3 group shrink-0">
-          <div className="w-10 h-10 bg-gradient-to-tr from-[#0A3D91] via-blue-700 to-[#F57C00] rounded-xl flex items-center justify-center font-black text-white text-lg shadow-md group-hover:scale-105 transition-transform duration-300">
+          <img
+            src="/logo.png"
+            alt="BEGAINDIA Logo"
+            className="h-11 w-auto max-w-[160px] object-contain transition-transform group-hover:scale-105"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              const fallback = e.currentTarget.nextSibling;
+              if (fallback) fallback.style.display = 'flex';
+            }}
+          />
+          {/* Fallback Icon Box if logo.png is missing */}
+          <div
+            className="w-11 h-11 bg-gradient-to-tr from-[#0A3D91] via-blue-700 to-[#F57C00] rounded-xl text-white font-black text-xl shadow-md shrink-0 items-center justify-center"
+            style={{ display: 'none' }}
+          >
             B
           </div>
           <div>
