@@ -1,16 +1,14 @@
 import User from '../models/User.js';
 import Business from '../models/Business.js';
+import { sendMembershipEmail } from '../utils/notificationService.js';
 
-// Helper to generate a unique Application Number: BEGA-YEAR-RANDOM
+// Helper to generate unique Application Number
 const generateApplicationNumber = () => {
   const year = new Date().getFullYear();
   const randomDigits = Math.floor(100000 + Math.random() * 900000);
   return `BEGA-${year}-${randomDigits}`;
 };
 
-// @desc    Submit Multi-Step Online Membership Application
-// @route   POST /api/membership/apply
-// @access  Public
 export const submitMembershipApplication = async (req, res, next) => {
   try {
     const {
@@ -39,7 +37,6 @@ export const submitMembershipApplication = async (req, res, next) => {
     const cleanEmail = email.trim().toLowerCase();
     const cleanMobile = mobile.trim();
 
-    // Check existing application/user
     const userExists = await User.findOne({ $or: [{ email: cleanEmail }, { mobile: cleanMobile }] });
     if (userExists) {
       return res.status(400).json({
@@ -50,7 +47,6 @@ export const submitMembershipApplication = async (req, res, next) => {
 
     const applicationNumber = generateApplicationNumber();
 
-    // Create Member User Account
     const user = await User.create({
       name: fullName.trim(),
       email: cleanEmail,
@@ -70,7 +66,6 @@ export const submitMembershipApplication = async (req, res, next) => {
       },
     });
 
-    // Create Corresponding Business Profile
     const business = await Business.create({
       user: user._id,
       companyName: businessName?.trim() || `${fullName.trim()} Enterprises`,
@@ -86,6 +81,15 @@ export const submitMembershipApplication = async (req, res, next) => {
       status: 'Approved',
       isFeatured: membershipType === 'Lifetime' || membershipType === 'Executive',
     });
+
+    // Fire automated email receipt (non-blocking)
+    sendMembershipEmail({
+      toEmail: cleanEmail,
+      fullName: user.name,
+      companyName: business.companyName,
+      applicationNumber: user.applicationNumber,
+      membershipPlan: user.membership.plan,
+    }).catch((e) => console.error('Background email worker error:', e));
 
     return res.status(201).json({
       success: true,
@@ -109,43 +113,6 @@ export const submitMembershipApplication = async (req, res, next) => {
     });
   } catch (error) {
     console.error('Membership Application Error:', error);
-    return next(error);
-  }
-};
-
-// @desc    Verify Member Digital ID via QR Scan
-// @route   GET /api/membership/verify/:applicationNumber
-// @access  Public
-export const verifyMemberCard = async (req, res, next) => {
-  try {
-    const { applicationNumber } = req.params;
-
-    const user = await User.findOne({ applicationNumber: applicationNumber?.trim() }).select('-password');
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'Invalid Membership Card. Application record not found.',
-      });
-    }
-
-    const business = await Business.findOne({ user: user._id });
-
-    return res.status(200).json({
-      success: true,
-      valid: true,
-      member: {
-        name: user.name,
-        applicationNumber: user.applicationNumber,
-        membershipPlan: user.membership?.plan || 'Business Membership',
-        membershipStatus: user.membership?.status || 'Active',
-        district: user.district,
-        taluka: user.taluka,
-        companyName: business?.companyName || 'Individual Member',
-        category: business?.category || 'General',
-        validTill: user.membership?.expiryDate,
-      },
-    });
-  } catch (error) {
     return next(error);
   }
 };
