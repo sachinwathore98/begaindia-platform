@@ -34,23 +34,22 @@ export default function HeroSlider() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 py-3">
-      {/* Responsive natural height container */}
-      <div className="relative w-full rounded-3xl overflow-hidden shadow-lg border border-slate-200 bg-white group flex items-center justify-center">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 my-2">
+      <div className="relative w-full rounded-2xl overflow-hidden shadow-md border border-slate-200/90 bg-white group flex items-center justify-center">
         
-        {/* Slides Track */}
-        <div className="relative w-full flex items-center justify-center min-h-[180px] sm:min-h-[300px] md:min-h-[380px] max-h-[460px]">
+        {/* Slides Track with Natural Height Wrapping */}
+        <div className="relative w-full flex items-center justify-center">
           {slides.map((slide, index) => (
             <div
               key={slide.id}
-              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease-in-out ${
-                index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+              className={`w-full flex items-center justify-center transition-opacity duration-700 ease-in-out ${
+                index === currentIndex ? 'opacity-100 relative z-10 block' : 'opacity-0 absolute inset-0 hidden pointer-events-none'
               }`}
             >
               <img
                 src={slide.src}
                 alt={slide.alt}
-                className="w-full h-full max-h-[460px] object-contain rounded-3xl"
+                className="w-full h-auto max-h-[460px] object-cover sm:object-contain rounded-2xl"
               />
             </div>
           ))}
@@ -59,29 +58,29 @@ export default function HeroSlider() {
         {/* Left Arrow */}
         <button
           onClick={prevSlide}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center shadow transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+          className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center shadow transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
           aria-label="Previous Slide"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-4 h-4" />
         </button>
 
         {/* Right Arrow */}
         <button
           onClick={nextSlide}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center shadow transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+          className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center shadow transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
           aria-label="Next Slide"
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-4 h-4" />
         </button>
 
         {/* Dots Indicator */}
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full">
+        <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full">
           {slides.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentIndex(idx)}
               className={`h-1.5 rounded-full transition-all duration-300 ${
-                currentIndex === idx ? 'w-5 bg-[#F57C00]' : 'w-1.5 bg-white/60 hover:bg-white'
+                currentIndex === idx ? 'w-4 bg-[#F57C00]' : 'w-1.5 bg-white/60 hover:bg-white'
               }`}
               aria-label={`Go to slide ${idx + 1}`}
             />
