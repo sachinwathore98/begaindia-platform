@@ -17,6 +17,7 @@ const slides = [
 export default function HeroSlider() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Auto-advance slides every 5 seconds
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
@@ -33,42 +34,48 @@ export default function HeroSlider() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 py-2">
-      <div className="relative h-[220px] sm:h-[350px] md:h-[420px] lg:h-[480px] w-full rounded-3xl overflow-hidden shadow-xl border border-slate-200 bg-slate-900 group">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 py-3">
+      {/* Responsive natural height container */}
+      <div className="relative w-full rounded-3xl overflow-hidden shadow-lg border border-slate-200 bg-white group flex items-center justify-center">
         
-        {slides.map((slide, index) => (
-          <div
-            key={slide.id}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
-            }`}
-          >
-            <img
-              src={slide.src}
-              alt={slide.alt}
-              className="w-full h-full object-cover object-center transform scale-105 group-hover:scale-100 transition-transform duration-700"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent"></div>
-          </div>
-        ))}
+        {/* Slides Track */}
+        <div className="relative w-full flex items-center justify-center min-h-[180px] sm:min-h-[300px] md:min-h-[380px] max-h-[460px]">
+          {slides.map((slide, index) => (
+            <div
+              key={slide.id}
+              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease-in-out ${
+                index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+              }`}
+            >
+              <img
+                src={slide.src}
+                alt={slide.alt}
+                className="w-full h-full max-h-[460px] object-contain rounded-3xl"
+              />
+            </div>
+          ))}
+        </div>
 
+        {/* Left Arrow */}
         <button
           onClick={prevSlide}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-slate-900 flex items-center justify-center shadow-md transition-all opacity-0 group-hover:opacity-100"
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center shadow transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
           aria-label="Previous Slide"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
 
+        {/* Right Arrow */}
         <button
           onClick={nextSlide}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-slate-900 flex items-center justify-center shadow-md transition-all opacity-0 group-hover:opacity-100"
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center shadow transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
           aria-label="Next Slide"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
 
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-black/30 backdrop-blur-md px-3 py-1 rounded-full">
+        {/* Dots Indicator */}
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full">
           {slides.map((_, idx) => (
             <button
               key={idx}
