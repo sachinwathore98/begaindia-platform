@@ -38,7 +38,6 @@ import EventModule from '../pages/dashboard/EventModule';
 import MembershipModule from '../pages/dashboard/MembershipModule';
 import NotificationModule from '../pages/dashboard/NotificationModule';
 
-
 // Admin Panel Pages
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import DirectoryAndEventsAdmin from '../pages/admin/DirectoryAndEventsAdmin';
@@ -51,43 +50,46 @@ export default function AppRoutes() {
     <Routes>
       {/* ----------------- Public Layout Routes ----------------- */}
       <Route element={<PublicLayout />}>
+        {/* Core Institutional Pages */}
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/membership" element={<Membership />} />
-        <Route path="/directory" element={<Directory />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/verify/:applicationNumber" element={<VerifyMember />} />
+        <Route path="/objectives" element={<Objectives />} />
+        <Route path="/why-bega" element={<Objectives />} />
         <Route path="/leadership" element={<Leadership />} />
+
+        {/* Membership & Verification */}
+        <Route path="/membership" element={<Membership />} />
+        <Route path="/join" element={<Join />} />
+        <Route path="/verify/:applicationNumber" element={<VerifyMember />} />
+
+        {/* Business Directory & Commercial Support */}
+        <Route path="/directory" element={<Directory />} />
+        <Route path="/support" element={<Support />} />
+
+        {/* Expo, Mahaadhiveshan & Events (Deduplicated) */}
+        <Route path="/expo" element={<Expo />} />
+        <Route path="/mahaadhiveshan" element={<Expo />} />
+        <Route path="/events" element={<Events />} />
+
+        {/* Social Development Wing & CSR */}
+        <Route path="/seva" element={<Seva />} />
+        <Route path="/volunteer" element={<Seva />} />
+        <Route path="/sponsorship" element={<Sponsorship />} />
+
+        {/* Knowledge Base, Media & Success Stories */}
+        <Route path="/knowledge" element={<Knowledge />} />
+        <Route path="/schemes" element={<Knowledge />} />
+        <Route path="/news" element={<NewsAndMedia />} />
+        <Route path="/media" element={<NewsAndMedia />} />
+        <Route path="/success-stories" element={<NewsAndMedia />} />
+
+        {/* Governance & Contact */}
+        <Route path="/contact" element={<Contact />} />
         <Route path="/policies" element={<Policies />} />
         <Route path="/terms" element={<Policies />} />
         <Route path="/privacy" element={<Policies />} />
         <Route path="/code-of-conduct" element={<Policies />} />
         <Route path="/refund-policy" element={<Policies />} />
-        <Route path="/objectives" element={<Objectives />} />
-        <Route path="/why-bega" element={<Objectives />} />
-        <Route path="/expo" element={<Expo />} />
-        <Route path="/mahaadhiveshan" element={<Expo />} />
-        <Route path="/sponsorship" element={<Sponsorship />} />
-        <Route path="/news" element={<NewsAndMedia />} />
-        <Route path="/media" element={<NewsAndMedia />} />
-        <Route path="/success-stories" element={<NewsAndMedia />} />
-
-        {/* Membership Onboarding & Helpdesk */}
-        <Route path="/join" element={<Join />} />
-        <Route path="/support" element={<Support />} />
-
-        {/* BEGA Seva & Volunteer Wing */}
-        <Route path="/seva" element={<Seva />} />
-        <Route path="/volunteer" element={<Seva />} />
-
-        {/* Events, Expos & Mahaadhiveshan */}
-        <Route path="/events" element={<Events />} />
-        <Route path="/expo" element={<Events />} />
-        <Route path="/mahaadhiveshan" element={<Events />} />
-
-        {/* Knowledge Base, Schemes & Toolkit */}
-        <Route path="/knowledge" element={<Knowledge />} />
-        <Route path="/schemes" element={<Knowledge />} />
       </Route>
 
       {/* ----------------- Authentication Routes ----------------- */}
@@ -97,7 +99,8 @@ export default function AppRoutes() {
 
       {/* ----------------- Member Dashboard Routes ----------------- */}
       <Route element={<ProtectedRoute allowedRoles={['user', 'admin']} />}>
-        <Route path="/dashboard/*" element={<Dashboard />}>
+        <Route path="/dashboard" element={<Dashboard />}>
+          <Route index element={<MembershipModule />} />
           <Route path="profile" element={<ProfileManagement />} />
           <Route path="events" element={<EventModule />} />
           <Route path="membership" element={<MembershipModule />} />
