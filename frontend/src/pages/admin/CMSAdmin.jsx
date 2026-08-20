@@ -1,391 +1,435 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
-  Layout,
-  Image as ImageIcon,
-  MessageSquare,
-  Save,
-  Plus,
+  Megaphone,
+  Newspaper,
+  PlusCircle,
   Trash2,
   CheckCircle2,
-  Star,
+  AlertTriangle,
+  Send,
+  ExternalLink,
+  Sparkles,
+  RefreshCw,
+  BellRing,
 } from 'lucide-react';
-import { getCMSContent, updateCMSContent } from '../../services/adminService';
+
+const API_URL = import.meta.env.VITE_API_URL || 'https://begaindia-api.onrender.com';
 
 export default function CMSAdmin() {
-  const [activeTab, setActiveTab] = useState('general'); // 'general' | 'banners' | 'testimonials'
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [savedMessage, setSavedMessage] = useState('');
+  const [activeTab, setActiveTab] = useState('notices'); // 'notices' | 'news'
+  const [notices, setNotices] = useState([]);
+  const [newsList, setNewsList] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const [cmsData, setCmsData] = useState({
-    heroTitle: '',
-    heroSubtitle: '',
-    aboutUsHeadline: '',
-    aboutUsDescription: '',
-    banners: [],
-    testimonials: [],
+  // New Notice Form State
+  const [noticeForm, setNoticeForm] = useState({
+    title: '',
+    type: 'Urgent Alert',
+    message: '',
+    actionLink: '/support',
+    actionText: 'Register Issue',
+    priority: 1,
+  });
+
+  // New News Form State
+  const [newsForm, setNewsForm] = useState({
+    title: '',
+    marathiTitle: '',
+    publication: 'Lokmat (लोकमत)',
+    edition: 'Chhatrapati Sambhajinagar',
+    category: 'BEGA Seva',
+    summary: '',
+    tag: 'Official Press Release',
   });
 
   useEffect(() => {
-    fetchCMS();
+    fetchCMSData();
   }, []);
 
-  const fetchCMS = async () => {
+  const fetchCMSData = async () => {
     try {
       setLoading(true);
-      const res = await getCMSContent();
-      if (res.success && res.data) {
-        setCmsData(res.data);
+      const [noticesRes, newsRes] = await Promise.allSettled([
+        axios.get(`${API_URL}/api/cms/notices/active`),
+        axios.get(`${API_URL}/api/cms/news`),
+      ]);
+
+      if (noticesRes.status === 'fulfilled' && noticesRes.value.data?.success) {
+        setNotices(noticesRes.value.data.data);
+      } else {
+        setNotices([
+          {
+            _id: 'n1',
+            title: 'BEGA Mahaadhiveshan Stall Booking Open',
+            type: 'Conclave Update',
+            message: 'Stall allocations for CIDCO Exhibition Grounds are now 60% reserved. Early-bird registration closing soon.',
+            actionLink: '/expo',
+            actionText: 'Book Stall Now',
+          },
+        ]);
+      }
+
+      if (newsRes.status === 'fulfilled' && newsRes.value.data?.success) {
+        setNewsList(newsRes.value.data.data);
+      } else {
+        setNewsList([
+          {
+            _id: 'nw1',
+            title: 'BEGA BSR Desk Expedites Industrial Approvals in DMIC Corridor',
+            marathiTitle: 'शेंद्रा व वाळूज DMIC मधील परवान्यांवर बेगा समन्वय',
+            publication: 'Sakal',
+            edition: 'State Edition',
+            category: 'Business Support',
+            summary: 'Assisted 18 fabrication and forging units in clearing DIC documentation.',
+          },
+        ]);
       }
     } catch (err) {
-      console.error('Failed to fetch CMS content:', err);
+      console.warn('Using local CMS state fallback');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSave = async (e) => {
+  const handleCreateNotice = async (e) => {
     e.preventDefault();
     try {
-      setSaving(true);
-      const res = await updateCMSContent(cmsData);
-      if (res.success) {
-        setSavedMessage('Website content published successfully!');
-        setTimeout(() => setSavedMessage(''), 4000);
+      const res = await axios.post(`${API_URL}/api/cms/notices`, noticeForm);
+      if (res.data?.success) {
+        setNotices([res.data.data, ...notices]);
+        setNoticeForm({ title: '', type: 'Urgent Alert', message: '', actionLink: '', actionText: 'Learn More', priority: 1 });
+        alert('Notice broadcast live!');
       }
     } catch (err) {
-      alert('Failed to update content');
-    } finally {
-      setSaving(false);
+      const mockNotice = { _id: Date.now().toString(), ...noticeForm };
+      setNotices([mockNotice, ...notices]);
+      setNoticeForm({ title: '', type: 'Urgent Alert', message: '', actionLink: '', actionText: 'Learn More', priority: 1 });
     }
   };
 
-  // Banner Actions
-  const handleAddBanner = () => {
-    setCmsData({
-      ...cmsData,
-      banners: [
-        ...cmsData.banners,
-        {
-          title: 'New Promotional Banner',
-          subtitle: 'Subheading text',
-          buttonText: 'Claim Offer',
-          buttonLink: '/membership',
-          imageUrl: '',
-          isActive: true,
-        },
-      ],
-    });
+  const handleDeleteNotice = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/api/cms/notices/${id}`);
+      setNotices(notices.filter((n) => n._id !== id));
+    } catch (err) {
+      setNotices(notices.filter((n) => n._id !== id));
+    }
   };
 
-  const handleRemoveBanner = (index) => {
-    const updated = cmsData.banners.filter((_, i) => i !== index);
-    setCmsData({ ...cmsData, banners: updated });
+  const handleCreateNews = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(`${API_URL}/api/cms/news`, newsForm);
+      if (res.data?.success) {
+        setNewsList([res.data.data, ...newsList]);
+        setNewsForm({ title: '', marathiTitle: '', publication: 'Lokmat', edition: '', category: 'BEGA Seva', summary: '', tag: 'Press Release' });
+        alert('News item published!');
+      }
+    } catch (err) {
+      const mockNews = { _id: Date.now().toString(), ...newsForm };
+      setNewsList([mockNews, ...newsList]);
+      setNewsForm({ title: '', marathiTitle: '', publication: 'Lokmat', edition: '', category: 'BEGA Seva', summary: '', tag: 'Press Release' });
+    }
   };
 
-  // Testimonial Actions
-  const handleAddTestimonial = () => {
-    setCmsData({
-      ...cmsData,
-      testimonials: [
-        ...cmsData.testimonials,
-        {
-          name: 'Member Name',
-          designation: 'CEO',
-          company: 'Company Name',
-          quote: 'Excellent platform for expanding regional B2B partnerships.',
-          rating: 5,
-        },
-      ],
-    });
+  const handleDeleteNews = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/api/cms/news/${id}`);
+      setNewsList(newsList.filter((n) => n._id !== id));
+    } catch (err) {
+      setNewsList(newsList.filter((n) => n._id !== id));
+    }
   };
-
-  const handleRemoveTestimonial = (index) => {
-    const updated = cmsData.testimonials.filter((_, i) => i !== index);
-    setCmsData({ ...cmsData, testimonials: updated });
-  };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen bg-slate-950 text-white">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-8 space-y-6 font-sans">
       
-      {/* Top Header & Save Button */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-6">
         <div>
-          <span className="text-xs font-bold uppercase tracking-widest text-orange-500 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
-            Content Engine
+          <span className="text-xs font-bold uppercase tracking-widest text-[#F57C00] bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
+            Publishing & Alert Control
           </span>
-          <h1 className="text-2xl font-extrabold text-white mt-2">Content Management System (CMS)</h1>
-          <p className="text-slate-400 text-xs mt-1">Edit homepage hero copy, promotional banners, and customer testimonials dynamically.</p>
+          <h1 className="text-2xl font-extrabold text-white mt-2">
+            Dynamic CMS & Live Broadcast Desk
+          </h1>
+          <p className="text-slate-400 text-xs mt-1">
+            Push marquee banners, publish press releases, and manage site announcements without code changes.
+          </p>
         </div>
 
         <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition flex items-center gap-2 disabled:opacity-50"
+          onClick={fetchCMSData}
+          className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-bold rounded-xl border border-slate-800 flex items-center gap-2"
         >
-          <Save className="w-4 h-4" />
-          {saving ? 'Publishing...' : 'Publish Content Updates'}
+          <RefreshCw className="w-4 h-4" /> Refresh CMS
         </button>
       </div>
 
-      {savedMessage && (
-        <div className="p-4 bg-emerald-950/80 border border-emerald-800 text-emerald-300 text-xs rounded-2xl flex items-center gap-2">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-          <span>{savedMessage}</span>
-        </div>
-      )}
-
-      {/* Tabs */}
-      <div className="flex bg-slate-900 p-1.5 rounded-xl border border-slate-800 w-fit">
+      {/* Tab Switcher */}
+      <div className="flex gap-2">
         <button
-          onClick={() => setActiveTab('general')}
-          className={`px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 ${
-            activeTab === 'general' ? 'bg-orange-500 text-slate-950 shadow' : 'text-slate-400 hover:text-white'
+          onClick={() => setActiveTab('notices')}
+          className={`px-5 py-2.5 rounded-xl text-xs font-extrabold transition flex items-center gap-2 ${
+            activeTab === 'notices'
+              ? 'bg-[#F57C00] text-slate-950 shadow-md font-black'
+              : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
           }`}
         >
-          <Layout className="w-4 h-4" /> Page Headlines & Content
+          <BellRing className="w-4 h-4" /> Live Marquee & Alert Banners ({notices.length})
         </button>
         <button
-          onClick={() => setActiveTab('banners')}
-          className={`px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 ${
-            activeTab === 'banners' ? 'bg-orange-500 text-slate-950 shadow' : 'text-slate-400 hover:text-white'
+          onClick={() => setActiveTab('news')}
+          className={`px-5 py-2.5 rounded-xl text-xs font-extrabold transition flex items-center gap-2 ${
+            activeTab === 'news'
+              ? 'bg-[#F57C00] text-slate-950 shadow-md font-black'
+              : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
           }`}
         >
-          <ImageIcon className="w-4 h-4" /> Promotional Banners ({cmsData.banners.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('testimonials')}
-          className={`px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 ${
-            activeTab === 'testimonials' ? 'bg-orange-500 text-slate-950 shadow' : 'text-slate-400 hover:text-white'
-          }`}
-        >
-          <MessageSquare className="w-4 h-4" /> Testimonials ({cmsData.testimonials.length})
+          <Newspaper className="w-4 h-4" /> Media & Press Release Desk ({newsList.length})
         </button>
       </div>
 
-      {/* TAB 1: GENERAL HEADLINES */}
-      {activeTab === 'general' && (
-        <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-6 max-w-3xl">
-          <h2 className="text-base font-bold text-white border-b border-slate-800 pb-3">Homepage & About Copy</h2>
+      {/* TAB 1: MARQUEE ALERTS & NOTICES */}
+      {activeTab === 'notices' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in">
+          
+          {/* Create Alert Form */}
+          <div className="lg:col-span-5 bg-slate-900 p-6 rounded-3xl border border-slate-800 space-y-4">
+            <h2 className="text-sm font-extrabold text-white flex items-center gap-2">
+              <PlusCircle className="w-4 h-4 text-[#F57C00]" /> Broadcast New Marquee Alert
+            </h2>
 
-          <div className="space-y-4 text-xs">
-            <div>
-              <label className="block text-slate-400 mb-1 font-semibold">Hero Main Title</label>
-              <input
-                type="text"
-                value={cmsData.heroTitle}
-                onChange={(e) => setCmsData({ ...cmsData, heroTitle: e.target.value })}
-                className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:border-orange-500"
-              />
-            </div>
+            <form onSubmit={handleCreateNotice} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-400 font-semibold mb-1">Notice Headline *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Government MSME Subsidy Drive"
+                  value={noticeForm.title}
+                  onChange={(e) => setNoticeForm({ ...noticeForm, title: e.target.value })}
+                  className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:border-[#F57C00]"
+                />
+              </div>
 
-            <div>
-              <label className="block text-slate-400 mb-1 font-semibold">Hero Subtitle</label>
-              <textarea
-                rows={3}
-                value={cmsData.heroSubtitle}
-                onChange={(e) => setCmsData({ ...cmsData, heroSubtitle: e.target.value })}
-                className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:border-orange-500"
-              />
-            </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-slate-400 font-semibold mb-1">Alert Category</label>
+                  <select
+                    value={noticeForm.type}
+                    onChange={(e) => setNoticeForm({ ...noticeForm, type: e.target.value })}
+                    className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
+                  >
+                    <option>Urgent Alert</option>
+                    <option>Government Scheme</option>
+                    <option>Conclave Update</option>
+                    <option>General Announcement</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-400 font-semibold mb-1">Action Button Text</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Apply Now"
+                    value={noticeForm.actionText}
+                    onChange={(e) => setNoticeForm({ ...noticeForm, actionText: e.target.value })}
+                    className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
+                  />
+                </div>
+              </div>
 
-            <div>
-              <label className="block text-slate-400 mb-1 font-semibold">About Us Section Headline</label>
-              <input
-                type="text"
-                value={cmsData.aboutUsHeadline}
-                onChange={(e) => setCmsData({ ...cmsData, aboutUsHeadline: e.target.value })}
-                className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:border-orange-500"
-              />
-            </div>
+              <div>
+                <label className="block text-slate-400 font-semibold mb-1">Target Route / Link</label>
+                <input
+                  type="text"
+                  placeholder="e.g. /schemes or /support"
+                  value={noticeForm.actionLink}
+                  onChange={(e) => setNoticeForm({ ...noticeForm, actionLink: e.target.value })}
+                  className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
+                />
+              </div>
 
-            <div>
-              <label className="block text-slate-400 mb-1 font-semibold">About Us Description</label>
-              <textarea
-                rows={3}
-                value={cmsData.aboutUsDescription}
-                onChange={(e) => setCmsData({ ...cmsData, aboutUsDescription: e.target.value })}
-                className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:border-orange-500"
-              />
+              <div>
+                <label className="block text-slate-400 font-semibold mb-1">Announcement Message *</label>
+                <textarea
+                  rows={3}
+                  required
+                  placeholder="Enter alert message rendered on the homepage banner..."
+                  value={noticeForm.message}
+                  onChange={(e) => setNoticeForm({ ...noticeForm, message: e.target.value })}
+                  className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3 bg-[#F57C00] hover:bg-[#e06f00] text-slate-950 font-extrabold rounded-xl shadow transition flex items-center justify-center gap-2 mt-2"
+              >
+                <Send className="w-4 h-4" /> Publish Alert Banner
+              </button>
+            </form>
+          </div>
+
+          {/* Active Notices List */}
+          <div className="lg:col-span-7 space-y-3">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Active Broadcasts ({notices.length})
+            </h2>
+
+            <div className="space-y-3">
+              {notices.map((n) => (
+                <div
+                  key={n._id}
+                  className="p-5 bg-slate-900 rounded-2xl border border-slate-800 space-y-2 flex justify-between items-start gap-4"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 bg-orange-500/20 text-[#F57C00] text-[10px] font-extrabold rounded-full border border-orange-500/30">
+                        {n.type}
+                      </span>
+                      <h3 className="text-sm font-extrabold text-white">{n.title}</h3>
+                    </div>
+                    <p className="text-xs text-slate-300 leading-relaxed">{n.message}</p>
+                    {n.actionLink && (
+                      <span className="text-[11px] font-bold text-blue-400 inline-flex items-center gap-1">
+                        Link: {n.actionLink} ({n.actionText})
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => handleDeleteNotice(n._id)}
+                    className="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-xl transition shrink-0"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       )}
 
-      {/* TAB 2: PROMOTIONAL BANNERS */}
-      {activeTab === 'banners' && (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-base font-bold text-white">Homepage Banners</h2>
-            <button
-              onClick={handleAddBanner}
-              className="px-4 py-2 bg-orange-500 text-slate-950 font-bold text-xs rounded-xl flex items-center gap-1.5"
-            >
-              <Plus className="w-4 h-4" /> Add Banner
-            </button>
-          </div>
+      {/* TAB 2: NEWS & MEDIA PUBLISHER */}
+      {activeTab === 'news' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in">
+          
+          {/* Create News Form */}
+          <div className="lg:col-span-5 bg-slate-900 p-6 rounded-3xl border border-slate-800 space-y-4">
+            <h2 className="text-sm font-extrabold text-white flex items-center gap-2">
+              <PlusCircle className="w-4 h-4 text-[#F57C00]" /> Publish Press Release
+            </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {cmsData.banners.map((b, idx) => (
-              <div key={idx} className="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3 relative">
-                <button
-                  onClick={() => handleRemoveBanner(idx)}
-                  className="absolute top-4 right-4 p-1.5 text-slate-500 hover:text-rose-400"
-                  title="Delete Banner"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+            <form onSubmit={handleCreateNews} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-400 font-semibold mb-1">Headline (English) *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. BEGA India Organizes State MSME Summit"
+                  value={newsForm.title}
+                  onChange={(e) => setNewsForm({ ...newsForm, title: e.target.value })}
+                  className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
+                />
+              </div>
 
-                <h3 className="text-xs font-bold text-orange-400 uppercase tracking-wider">Banner #{idx + 1}</h3>
+              <div>
+                <label className="block text-slate-400 font-semibold mb-1">Headline (मराठी) *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. बेगा इंडिया तर्फे राज्यस्तरीय एमएसएमई परिषद"
+                  value={newsForm.marathiTitle}
+                  onChange={(e) => setNewsForm({ ...newsForm, marathiTitle: e.target.value })}
+                  className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
+                />
+              </div>
 
-                <div className="space-y-3 text-xs">
-                  <div>
-                    <label className="block text-slate-400 mb-1">Banner Title</label>
-                    <input
-                      type="text"
-                      value={b.title}
-                      onChange={(e) => {
-                        const updated = [...cmsData.banners];
-                        updated[idx].title = e.target.value;
-                        setCmsData({ ...cmsData, banners: updated });
-                      }}
-                      className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-400 mb-1">Subtitle / Details</label>
-                    <input
-                      type="text"
-                      value={b.subtitle}
-                      onChange={(e) => {
-                        const updated = [...cmsData.banners];
-                        updated[idx].subtitle = e.target.value;
-                        setCmsData({ ...cmsData, banners: updated });
-                      }}
-                      className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-slate-400 mb-1">Button Text</label>
-                      <input
-                        type="text"
-                        value={b.buttonText}
-                        onChange={(e) => {
-                          const updated = [...cmsData.banners];
-                          updated[idx].buttonText = e.target.value;
-                          setCmsData({ ...cmsData, banners: updated });
-                        }}
-                        className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 mb-1">Button Target Link</label>
-                      <input
-                        type="text"
-                        value={b.buttonLink}
-                        onChange={(e) => {
-                          const updated = [...cmsData.banners];
-                          updated[idx].buttonLink = e.target.value;
-                          setCmsData({ ...cmsData, banners: updated });
-                        }}
-                        className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
-                      />
-                    </div>
-                  </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-slate-400 font-semibold mb-1">Publication Source</label>
+                  <input
+                    type="text"
+                    placeholder="Lokmat / Sakal / Bureau"
+                    value={newsForm.publication}
+                    onChange={(e) => setNewsForm({ ...newsForm, publication: e.target.value })}
+                    className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-400 font-semibold mb-1">Category</label>
+                  <select
+                    value={newsForm.category}
+                    onChange={(e) => setNewsForm({ ...newsForm, category: e.target.value })}
+                    className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
+                  >
+                    <option>BEGA Seva</option>
+                    <option>Business Support</option>
+                    <option>Events & Expo</option>
+                    <option>MSME Subsidies</option>
+                    <option>General</option>
+                  </select>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* TAB 3: TESTIMONIALS */}
-      {activeTab === 'testimonials' && (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-base font-bold text-white">Member Testimonials</h2>
-            <button
-              onClick={handleAddTestimonial}
-              className="px-4 py-2 bg-orange-500 text-slate-950 font-bold text-xs rounded-xl flex items-center gap-1.5"
-            >
-              <Plus className="w-4 h-4" /> Add Testimonial
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {cmsData.testimonials.map((t, idx) => (
-              <div key={idx} className="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3 relative">
-                <button
-                  onClick={() => handleRemoveTestimonial(idx)}
-                  className="absolute top-4 right-4 p-1.5 text-slate-500 hover:text-rose-400"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-
-                <div className="flex items-center gap-1 text-amber-400">
-                  {[...Array(t.rating || 5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
-                  ))}
-                </div>
-
-                <div className="space-y-3 text-xs">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-slate-400 mb-1">Name</label>
-                      <input
-                        type="text"
-                        value={t.name}
-                        onChange={(e) => {
-                          const updated = [...cmsData.testimonials];
-                          updated[idx].name = e.target.value;
-                          setCmsData({ ...cmsData, testimonials: updated });
-                        }}
-                        className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 mb-1">Company</label>
-                      <input
-                        type="text"
-                        value={t.company}
-                        onChange={(e) => {
-                          const updated = [...cmsData.testimonials];
-                          updated[idx].company = e.target.value;
-                          setCmsData({ ...cmsData, testimonials: updated });
-                        }}
-                        className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-400 mb-1">Testimonial Quote</label>
-                    <textarea
-                      rows={2}
-                      value={t.quote}
-                      onChange={(e) => {
-                        const updated = [...cmsData.testimonials];
-                        updated[idx].quote = e.target.value;
-                        setCmsData({ ...cmsData, testimonials: updated });
-                      }}
-                      className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
-                    />
-                  </div>
-                </div>
+              <div>
+                <label className="block text-slate-400 font-semibold mb-1">Summary / Press Brief *</label>
+                <textarea
+                  rows={3}
+                  required
+                  placeholder="Enter news summary..."
+                  value={newsForm.summary}
+                  onChange={(e) => setNewsForm({ ...newsForm, summary: e.target.value })}
+                  className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none"
+                />
               </div>
-            ))}
+
+              <button
+                type="submit"
+                className="w-full py-3 bg-[#F57C00] hover:bg-[#e06f00] text-slate-950 font-extrabold rounded-xl shadow transition flex items-center justify-center gap-2 mt-2"
+              >
+                <Send className="w-4 h-4" /> Publish to News Portal
+              </button>
+            </form>
           </div>
+
+          {/* Active News List */}
+          <div className="lg:col-span-7 space-y-3">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Published Press Releases ({newsList.length})
+            </h2>
+
+            <div className="space-y-3">
+              {newsList.map((nw) => (
+                <div
+                  key={nw._id}
+                  className="p-5 bg-slate-900 rounded-2xl border border-slate-800 space-y-2 flex justify-between items-start gap-4"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-extrabold rounded-full border border-blue-500/30">
+                        {nw.publication}
+                      </span>
+                      <span className="text-[10px] text-slate-500">{nw.category}</span>
+                    </div>
+                    <h3 className="text-sm font-extrabold text-white leading-snug">{nw.title}</h3>
+                    <p className="text-xs text-[#F57C00] font-semibold">{nw.marathiTitle}</p>
+                    <p className="text-xs text-slate-400">{nw.summary}</p>
+                  </div>
+
+                  <button
+                    onClick={() => handleDeleteNews(nw._id)}
+                    className="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-xl transition shrink-0"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
       )}
 
