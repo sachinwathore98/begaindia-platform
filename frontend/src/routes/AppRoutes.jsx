@@ -19,6 +19,7 @@ import VerifyMember from '../pages/public/VerifyMember';
 import Leadership from '../pages/public/Leadership';
 import Policies from '../pages/public/Policies';
 import Objectives from '../pages/public/Objectives';
+import Expo from '../pages/public/Expo';
 
 // Auth Pages
 import Login from '../pages/auth/Login';
@@ -62,6 +63,8 @@ export default function AppRoutes() {
         <Route path="/refund-policy" element={<Policies />} />
         <Route path="/objectives" element={<Objectives />} />
         <Route path="/why-bega" element={<Objectives />} />
+        <Route path="/expo" element={<Expo />} />
+        <Route path="/mahaadhiveshan" element={<Expo />} />
 
         {/* Membership Onboarding & Helpdesk */}
         <Route path="/join" element={<Join />} />
