@@ -21,6 +21,7 @@ import Policies from '../pages/public/Policies';
 import Objectives from '../pages/public/Objectives';
 import Expo from '../pages/public/Expo';
 import Sponsorship from '../pages/public/Sponsorship';
+import NewsAndMedia from '../pages/public/NewsAndMedia';
 
 // Auth Pages
 import Login from '../pages/auth/Login';
@@ -67,6 +68,9 @@ export default function AppRoutes() {
         <Route path="/expo" element={<Expo />} />
         <Route path="/mahaadhiveshan" element={<Expo />} />
         <Route path="/sponsorship" element={<Sponsorship />} />
+        <Route path="/news" element={<NewsAndMedia />} />
+        <Route path="/media" element={<NewsAndMedia />} />
+        <Route path="/success-stories" element={<NewsAndMedia />} />
 
         {/* Membership Onboarding & Helpdesk */}
         <Route path="/join" element={<Join />} />
