@@ -43,8 +43,20 @@ export default function BusinessDirectory() {
         ...(selectedCategory !== 'All' && { category: selectedCategory }),
         ...(selectedCity && { district: selectedCity }),
       });
-      const res = await axios.get(`${API_BASE}/api/directory/search?${params.toString()}`);
-      return res.data?.data || [];
+
+      try {
+        // Primary route: /api/business
+        const res = await axios.get(`${API_BASE}/api/business?${params.toString()}`);
+        return res.data?.data || [];
+      } catch (err) {
+        // Fallback route if backend uses /api/directory/search
+        try {
+          const resFallback = await axios.get(`${API_BASE}/api/directory/search?${params.toString()}`);
+          return resFallback.data?.data || [];
+        } catch {
+          return [];
+        }
+      }
     },
   });
 
