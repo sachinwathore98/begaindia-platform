@@ -1,6 +1,8 @@
+// src/pages/public/Home.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
+import HeroSlider from '../../components/home/HeroSlider';
 import {
   TrendingUp,
   ShieldCheck,
@@ -190,7 +192,7 @@ const BENEFIT_TABS = [
 const DIRECTORY_CATEGORIES = [
   { name: 'Manufacturing & Industrial', count: '1,420+ Units', icon: Building2, color: 'text-blue-700 bg-blue-50 border-blue-100' },
   { name: 'Digital & IT Solutions', count: '850+ Agencies', icon: Zap, color: 'text-amber-700 bg-amber-50 border-amber-100' },
-  { name: 'Agro & Food Processing', count: '940+ Hubs', icon: Globe2, color: 'text-emerald-700 bg-emerald-50 border-emerald-100' },
+  { name: 'Agro & Food Processing', count: '940+ Hubs', icon: Globe2, color: 'text-emerald-700 bg-emerald-700/10 border-emerald-100' },
   { name: 'Heavy Engineering & Auto', count: '620+ Plants', icon: Briefcase, color: 'text-rose-700 bg-rose-50 border-rose-100' },
 ];
 
@@ -228,13 +230,13 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 2. DYNAMIC 2-COLUMN SPLIT HERO SECTION WITH GRAPHIC CARD */}
-      <section className="relative px-4 sm:px-8 max-w-7xl mx-auto">
-        <div className="absolute top-1/3 left-1/3 w-[500px] h-[300px] bg-gradient-to-tr from-blue-200/40 via-orange-100/30 to-transparent blur-[120px] pointer-events-none -z-0"></div>
+      {/* 2. HERO SLIDER (ASSETS 1-4) RIGHT BELOW NAVBAR */}
+      <HeroSlider />
 
+      {/* 3. DYNAMIC 2-COLUMN SPLIT HERO SECTION */}
+      <section className="relative px-4 sm:px-8 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
           
-          {/* Left Column: Heading, Value Prop, CTAs */}
           <div className="lg:col-span-7 space-y-6 text-left">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#0A3D91] text-xs font-black uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5 text-[#F57C00]" /> Business Empowerment & Growth Network
@@ -272,7 +274,6 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Micro Stats Bar */}
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-200/80 text-left">
               <div>
                 <p className="text-xl font-black text-[#0A3D91]">36</p>
@@ -289,10 +290,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right Column: Visual Interactive Graphic Component */}
           <div className="lg:col-span-5 flex justify-center">
             <div className="w-full max-w-sm bg-gradient-to-br from-slate-900 via-[#0A3D91] to-slate-950 text-white rounded-3xl p-6 sm:p-7 shadow-2xl border-2 border-amber-400/40 relative overflow-hidden space-y-5">
-              
               <div className="absolute top-0 right-0 w-36 h-36 bg-[#F57C00]/20 rounded-full blur-2xl pointer-events-none"></div>
               
               <div className="flex justify-between items-center border-b border-white/10 pb-3">
@@ -355,7 +354,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. QUICK ACCESS PORTAL TILES */}
+      {/* 4. QUICK PORTALS TILES */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm space-y-3">
           <div className="flex justify-between items-center px-1">
@@ -385,7 +384,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. INTERACTIVE VALUE MATRIX */}
+      {/* 5. INTERACTIVE VALUE MATRIX */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 space-y-8">
         <div className="text-center space-y-2 max-w-2xl mx-auto">
           <span className="px-3.5 py-1 bg-blue-50 border border-blue-200 text-[#0A3D91] text-xs font-black rounded-full uppercase tracking-wider">
@@ -399,7 +398,6 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Tab Buttons */}
         <div className="flex flex-wrap justify-center gap-2">
           {BENEFIT_TABS.map((tab) => {
             const Icon = tab.icon;
@@ -421,7 +419,6 @@ export default function Home() {
           })}
         </div>
 
-        {/* Tab Display Panel */}
         <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-lg grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 space-y-4">
             <span className="px-2.5 py-0.5 bg-orange-50 text-[#F57C00] border border-orange-200 rounded-full text-[10px] font-black uppercase tracking-wider">
@@ -477,7 +474,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. MEMBERSHIP TIERS */}
+      {/* 6. MEMBERSHIP TIERS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 space-y-8">
         <div className="text-center space-y-2 max-w-2xl mx-auto">
           <span className="px-3.5 py-1 bg-orange-50 border border-orange-200 text-[#F57C00] text-xs font-black rounded-full uppercase tracking-wider">
@@ -541,7 +538,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. VERIFIED DIRECTORY PREVIEW */}
+      {/* 7. VERIFIED DIRECTORY PREVIEW */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 space-y-6">
         <div className="bg-white border border-slate-200/90 p-6 sm:p-10 rounded-3xl space-y-6 shadow-sm">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-100 pb-5">
@@ -579,7 +576,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. BEGA SEVA: ONE MONTH ONE VILLAGE BLUEPRINT */}
+      {/* 8. BEGA SEVA: ONE MONTH ONE VILLAGE BLUEPRINT */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="bg-gradient-to-br from-[#0A3D91] via-blue-900 to-slate-950 text-white rounded-3xl p-8 sm:p-12 shadow-xl space-y-8">
           <div className="max-w-3xl space-y-3">
@@ -629,7 +626,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. FINAL ENROLLMENT CALL TO ACTION */}
+      {/* 9. FINAL ENROLLMENT CALL TO ACTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 pb-4">
         <div className="bg-slate-900 text-white rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-xl">
           <div className="max-w-2xl mx-auto space-y-2">
