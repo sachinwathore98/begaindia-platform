@@ -192,7 +192,7 @@ const BENEFIT_TABS = [
 const DIRECTORY_CATEGORIES = [
   { name: 'Manufacturing & Industrial', count: '1,420+ Units', icon: Building2, color: 'text-blue-700 bg-blue-50 border-blue-100' },
   { name: 'Digital & IT Solutions', count: '850+ Agencies', icon: Zap, color: 'text-amber-700 bg-amber-50 border-amber-100' },
-  { name: 'Agro & Food Processing', count: '940+ Hubs', icon: Globe2, color: 'text-emerald-700 bg-emerald-700/10 border-emerald-100' },
+  { name: 'Agro & Food Processing', count: '940+ Hubs', icon: Globe2, color: 'text-emerald-700 bg-emerald-50 border-emerald-100' },
   { name: 'Heavy Engineering & Auto', count: '620+ Plants', icon: Briefcase, color: 'text-rose-700 bg-rose-50 border-rose-100' },
 ];
 
@@ -211,10 +211,10 @@ export default function Home() {
   const TabIcon = selectedTab.icon;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-[#F57C00] selection:text-white space-y-16 py-6 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-[#F57C00] selection:text-white space-y-16 pb-12 overflow-x-hidden">
       
-      {/* 1. SLIM TICKER BROADCAST */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
+      {/* 1. SLIM TICKER BROADCAST (Attached directly below navbar) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-3">
         <div className="bg-white border border-slate-200/90 shadow-xs rounded-2xl py-2 px-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5 overflow-hidden">
             <span className="px-2 py-0.5 rounded-full bg-[#F57C00] text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shrink-0 animate-pulse">
@@ -230,11 +230,11 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 2. HERO SLIDER (ASSETS 1-4) RIGHT BELOW NAVBAR */}
+      {/* 2. HERO SLIDER (ASSETS 1-4) ATTACHED DIRECTLY BELOW TICKER */}
       <HeroSlider />
 
       {/* 3. DYNAMIC 2-COLUMN SPLIT HERO SECTION */}
-      <section className="relative px-4 sm:px-8 max-w-7xl mx-auto">
+      <section className="relative px-4 sm:px-8 max-w-7xl mx-auto pt-2">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
           
           <div className="lg:col-span-7 space-y-6 text-left">

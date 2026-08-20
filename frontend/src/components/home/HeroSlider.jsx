@@ -17,7 +17,6 @@ const slides = [
 export default function HeroSlider() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Auto-advance slides every 5 seconds
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
@@ -34,10 +33,10 @@ export default function HeroSlider() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 my-2">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 mt-2 mb-6">
       <div className="relative w-full rounded-2xl overflow-hidden shadow-md border border-slate-200/90 bg-white group flex items-center justify-center">
         
-        {/* Slides Track with Natural Height Wrapping */}
+        {/* Slides Track */}
         <div className="relative w-full flex items-center justify-center">
           {slides.map((slide, index) => (
             <div
