@@ -1,3 +1,4 @@
+// src/routes/AppRoutes.jsx
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
@@ -8,7 +9,7 @@ import PublicLayout from '../components/layout/PublicLayout';
 import Home from '../pages/public/Home';
 import About from '../pages/public/About';
 import Membership from '../pages/public/Membership';
-import Directory from '../pages/public/Directory';
+import Directory from '../pages/public/BusinessDirectory';
 import Events from '../pages/public/Events';
 import Contact from '../pages/public/Contact';
 import Join from '../pages/public/Join';
@@ -28,18 +29,17 @@ import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 import Unauthorized from '../pages/auth/Unauthorized';
 
-// Route Guards
+// Protected Route Guard
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 
-// Member Portal
+// Member Dashboard Main View
 import Dashboard from '../pages/Dashboard';
 import ProfileManagement from '../pages/dashboard/ProfileManagement';
 import EventModule from '../pages/dashboard/EventModule';
 import MembershipModule from '../pages/dashboard/MembershipModule';
 import NotificationModule from '../pages/dashboard/NotificationModule';
-import B2BInbox from '../pages/dashboard/B2BInbox';
 
-// Admin Portal
+// Admin Panel Pages
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import DirectoryAndEventsAdmin from '../pages/admin/DirectoryAndEventsAdmin';
 import RevenueAdmin from '../pages/admin/RevenueAdmin';
@@ -80,24 +80,23 @@ export default function AppRoutes() {
         <Route path="/refund-policy" element={<Policies />} />
       </Route>
 
-      {/* Auth */}
+      {/* Auth Routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
-      {/* Member Dashboard Sub-Routes */}
-      <Route element={<ProtectedRoute allowedRoles={['user', 'admin', 'premium_member']} />}>
+      {/* Member Dashboard Sub-routes */}
+      <Route element={<ProtectedRoute allowedRoles={['user', 'admin']} />}>
         <Route path="/dashboard" element={<Dashboard />}>
-          <Route index element={<MembershipModule />} />
+          <Route index element={<EventModule />} />
           <Route path="profile" element={<ProfileManagement />} />
           <Route path="events" element={<EventModule />} />
-          <Route path="inbox" element={<B2BInbox />} />
           <Route path="membership" element={<MembershipModule />} />
           <Route path="notifications" element={<NotificationModule />} />
         </Route>
       </Route>
 
-      {/* Admin Panel Sub-Routes */}
+      {/* Admin Panel Routes */}
       <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/directory" element={<DirectoryAndEventsAdmin />} />
