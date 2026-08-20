@@ -3,6 +3,10 @@ import { createPaymentOrder, verifyPaymentSignature } from '../controllers/payme
 
 const router = express.Router();
 
+router.post('/create-order', createPaymentOrder);
+router.post('/verify-payment', verifyPaymentSignature);
+
+// Maintain backwards compatibility aliases if needed
 router.post('/order', createPaymentOrder);
 router.post('/verify', verifyPaymentSignature);
 

@@ -14,6 +14,7 @@ import adminRoutes from './routes/adminRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 
+
 dotenv.config();
 
 // Connect to MongoDB Database
