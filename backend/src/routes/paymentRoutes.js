@@ -1,13 +1,9 @@
 import express from 'express';
-import { createPaymentOrder, verifyPaymentSignature } from '../controllers/paymentController.js';
+import { createOrder, verifyPayment } from '../controllers/paymentController.js';
 
 const router = express.Router();
 
-router.post('/create-order', createPaymentOrder);
-router.post('/verify-payment', verifyPaymentSignature);
-
-// Maintain backwards compatibility aliases if needed
-router.post('/order', createPaymentOrder);
-router.post('/verify', verifyPaymentSignature);
+router.post('/create-order', createOrder);
+router.post('/verify-payment', verifyPayment);
 
 export default router;

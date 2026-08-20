@@ -1,140 +1,162 @@
-import crypto from 'crypto';
 import Razorpay from 'razorpay';
-import Membership from '../models/Membership.js';
+import crypto from 'crypto';
+import User from '../models/User.js';
+import Business from '../models/Business.js';
+import { sendMembershipEmail } from '../utils/notificationService.js';
 
 const getRazorpayInstance = () => {
-  const key_id = process.env.RAZORPAY_KEY_ID;
-  const key_secret = process.env.RAZORPAY_KEY_SECRET;
-
-  if (!key_id || !key_secret) {
-    throw new Error('Razorpay credentials missing in environment variables');
-  }
-
-  return new Razorpay({ key_id, key_secret });
-};
-
-const PLAN_FEES = {
-  'Basic Membership': 1199,
-  'Business Membership': 2999,
-  'Lifetime Membership': 11000,
-  'Executive Membership': 21000,
+  return new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_TOrMfwOx0P9Mma',
+    key_secret: process.env.RAZORPAY_KEY_SECRET || 'ofxzo06srPJ61SzICLbtscS5',
+  });
 };
 
 // @desc    Create Razorpay Order
 // @route   POST /api/payment/create-order
-// @access  Public / Applicant
-export const createPaymentOrder = async (req, res, next) => {
+// @access  Public
+export const createOrder = async (req, res, next) => {
   try {
-    const { amount, currency = 'INR', membershipPlan, receipt } = req.body;
+    const { amount, membershipPlan } = req.body;
 
-    // Calculate amount in paise (min 100 paise = 1 INR)
-    let calculatedAmount = amount ? Number(amount) * 100 : (PLAN_FEES[membershipPlan] || 1199) * 100;
-
-    if (!calculatedAmount || calculatedAmount < 100) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid amount. Minimum payable amount is 100 paise (₹1.00).',
-      });
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ success: false, message: 'Invalid payment amount.' });
     }
 
-    const razorpay = getRazorpayInstance();
+    const instance = getRazorpayInstance();
     const options = {
-      amount: Math.round(calculatedAmount),
-      currency,
-      receipt: receipt || `rcpt_${Date.now()}`,
-      notes: {
-        membershipPlan: membershipPlan || 'Standard',
-      },
+      amount: Math.round(Number(amount) * 100), // Razorpay requires paise
+      currency: 'INR',
+      receipt: `BEGA-RCPT-${Date.now()}`,
+      notes: { membershipPlan: membershipPlan || 'Business Membership' },
     };
 
-    const order = await razorpay.orders.create(options);
-
+    const order = await instance.orders.create(options);
     return res.status(200).json({
       success: true,
-      order_id: order.id,
+      orderId: order.id,
       amount: order.amount,
       currency: order.currency,
-      key_id: process.env.RAZORPAY_KEY_ID,
+      keyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_TOrMfwOx0P9Mma',
     });
   } catch (error) {
-    console.error('Razorpay Order Creation Error:', error);
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to create Razorpay order',
-    });
+    console.error('Razorpay Order Error:', error);
+    return next(error);
   }
 };
 
-// @desc    Verify Razorpay Signature & Activate Membership
+// @desc    Verify Razorpay Payment Signature & Activate Member
 // @route   POST /api/payment/verify-payment
-// @access  Public / Applicant
-export const verifyPaymentSignature = async (req, res, next) => {
+// @access  Public
+export const verifyPayment = async (req, res, next) => {
   try {
     const {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      applicationData,
+      formData,
     } = req.body;
 
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing required payment verification fields.',
-      });
+    // Cryptographic signature check
+    const secret = process.env.RAZORPAY_KEY_SECRET || 'ofxzo06srPJ61SzICLbtscS5';
+    const hmac = crypto.createHmac('sha256', secret);
+    hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+    const generatedSignature = hmac.digest('hex');
+
+    if (generatedSignature !== razorpay_signature) {
+      return res.status(400).json({ success: false, message: 'Payment signature verification failed.' });
     }
 
-    const secret = process.env.RAZORPAY_KEY_SECRET;
-    const body = `${razorpay_order_id}|${razorpay_payment_id}`;
+    const {
+      fullName,
+      email,
+      mobile,
+      password,
+      district,
+      taluka,
+      address,
+      membershipType,
+      businessName,
+      category,
+      businessType,
+      gstNumber,
+      description,
+    } = formData;
 
-    // HMAC-SHA256 verification
-    const expectedSignature = crypto
-      .createHmac('sha256', secret)
-      .update(body.toString())
-      .digest('hex');
+    const cleanEmail = email ? email.trim().toLowerCase() : '';
+    const cleanMobile = mobile ? mobile.trim() : '';
 
-    const isAuthentic = expectedSignature === razorpay_signature;
+    let user = await User.findOne({ $or: [{ email: cleanEmail }, { mobile: cleanMobile }] });
+    const year = new Date().getFullYear();
+    const applicationNumber = `BEGA-${year}-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    if (!isAuthentic) {
-      return res.status(400).json({
-        success: false,
-        message: 'Payment verification failed: Signature mismatch.',
-      });
-    }
-
-    // Process database record if applicationData is passed
-    let memberRecord = null;
-    if (applicationData) {
-      const year = new Date().getFullYear();
-      const randomSuffix = Math.floor(100000 + Math.random() * 900000);
-      const applicationNumber = `BEGA-${year}-${randomSuffix}`;
-      const invoiceNumber = `INV-${year}-${Math.floor(10000 + Math.random() * 90000)}`;
-
-      memberRecord = await Membership.create({
-        ...applicationData,
+    if (!user) {
+      user = await User.create({
+        name: fullName.trim(),
+        email: cleanEmail,
+        mobile: cleanMobile,
+        password: password || 'BegaMember@2026',
+        role: 'user',
         applicationNumber,
-        membershipStatus: 'Active',
-        paymentDetails: {
-          razorpayOrderId: razorpay_order_id,
-          razorpayPaymentId: razorpay_payment_id,
-          amountPaid: (PLAN_FEES[applicationData.membershipPlan] || 1199),
-          invoiceNumber,
-          paidAt: new Date(),
-          paymentStatus: 'Success',
+        district: district || 'Chhatrapati Sambhajinagar',
+        taluka: taluka || 'Aurangabad',
+        address: address || '',
+        isVerified: true,
+        membership: {
+          plan: `${membershipType || 'Business'} Membership`,
+          status: 'Active',
+          startDate: new Date(),
+          expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+          paymentId: razorpay_payment_id,
+          orderId: razorpay_order_id,
         },
       });
+
+      await Business.create({
+        user: user._id,
+        companyName: businessName?.trim() || `${fullName.trim()} Enterprises`,
+        category: category || 'Manufacturing & Industrial',
+        businessType: businessType || 'Proprietorship',
+        gstNumber: gstNumber ? gstNumber.trim().toUpperCase() : '',
+        description: description || 'Registered BEGA India Member Business',
+        mobile: cleanMobile,
+        email: cleanEmail,
+        district: district || 'Chhatrapati Sambhajinagar',
+        taluka: taluka || 'Aurangabad',
+        address: address || '',
+        status: 'Approved',
+        isFeatured: membershipType === 'Lifetime' || membershipType === 'Executive',
+      });
+    } else {
+      user.membership.status = 'Active';
+      user.membership.plan = `${membershipType || 'Business'} Membership`;
+      user.membership.paymentId = razorpay_payment_id;
+      user.membership.orderId = razorpay_order_id;
+      await user.save();
     }
+
+    sendMembershipEmail({
+      toEmail: cleanEmail,
+      fullName: user.name,
+      companyName: businessName || `${user.name} Enterprises`,
+      applicationNumber: user.applicationNumber,
+      membershipPlan: user.membership.plan,
+    }).catch((e) => console.error('Email dispatch error:', e));
 
     return res.status(200).json({
       success: true,
-      message: 'Payment verified and captured successfully.',
-      member: memberRecord,
+      message: 'Payment verified and membership activated!',
+      applicationNumber: user.applicationNumber,
+      paymentId: razorpay_payment_id,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        applicationNumber: user.applicationNumber,
+        membership: user.membership,
+      },
     });
   } catch (error) {
-    console.error('Razorpay Signature Verification Error:', error);
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Error verifying signature',
-    });
+    console.error('Payment Verification Error:', error);
+    return next(error);
   }
 };
