@@ -6,12 +6,8 @@ import {
   Users,
   Building2,
   DollarSign,
-  Calendar,
   ShieldCheck,
-  TrendingUp,
   AlertCircle,
-  ArrowUpRight,
-  Layers,
   FileText,
 } from 'lucide-react';
 
@@ -26,7 +22,6 @@ export default function AdminDashboard() {
     totalEvents: 3,
     pendingRequests: 0,
   });
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAdminStats = async () => {
@@ -40,8 +35,6 @@ export default function AdminDashboard() {
         }
       } catch (err) {
         console.error('Failed to load admin stats', err);
-      } finally {
-        setLoading(false);
       }
     };
     fetchAdminStats();
@@ -77,7 +70,7 @@ export default function AdminDashboard() {
             <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#0A3D91] flex items-center justify-center font-black">
               <Users className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">+12% this mo</span>
+            <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Live Sync</span>
           </div>
           <div>
             <p className="text-2xl sm:text-3xl font-black text-slate-900">{stats.totalUsers}</p>
