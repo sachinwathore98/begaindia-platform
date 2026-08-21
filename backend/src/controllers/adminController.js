@@ -10,7 +10,6 @@ export const getAdminStats = async (req, res, next) => {
     const activeMembers = await User.countDocuments({ 'membership.status': 'Active' });
     const pendingRequests = await Business.countDocuments({ status: 'Pending' });
 
-    // Aggregate Revenue from Active Memberships
     const revenueAggregate = await User.aggregate([
       { $match: { 'membership.status': 'Active' } },
       {
@@ -19,8 +18,8 @@ export const getAdminStats = async (req, res, next) => {
           totalRevenue: {
             $sum: {
               $cond: [
-                { $eq: ['$membership.plan', 'Corporate Membership'] }, 9999,
-                { $cond: [{ $eq: ['$membership.plan', 'Premium Membership'] }, 2999, 999] }
+                { $eq: ['$membership.plan', 'Lifetime Membership'] }, 9999,
+                { $cond: [{ $eq: ['$membership.plan', 'Business Membership'] }, 2499, 999] }
               ]
             }
           }
@@ -29,9 +28,8 @@ export const getAdminStats = async (req, res, next) => {
     ]);
 
     const totalRevenue = revenueAggregate.length > 0 ? revenueAggregate[0].totalRevenue : 0;
-    const totalEvents = 3; // Static or dynamic count from Event model
+    const totalEvents = 3;
 
-    // Monthly Membership Growth Chart Data (Last 6 Months Simulation/Aggregation)
     const membershipGrowth = [
       { month: 'Mar', users: 120, revenue: 15000 },
       { month: 'Apr', users: 180, revenue: 28000 },
@@ -75,14 +73,9 @@ export const getAllUsers = async (req, res, next) => {
       ];
     }
 
-    if (role) {
-      query.role = role;
-    }
-
-    if (status) {
-      if (status === 'Blocked') query.isBlocked = true;
-      if (status === 'Active') query['membership.status'] = 'Active';
-    }
+    if (role) query.role = role;
+    if (status === 'Blocked') query.isBlocked = true;
+    if (status === 'Active') query['membership.status'] = 'Active';
 
     const users = await User.find(query).sort({ createdAt: -1 });
 
@@ -90,88 +83,6 @@ export const getAllUsers = async (req, res, next) => {
       success: true,
       count: users.length,
       data: users,
-    });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-// @desc    Admin Add New User
-// @route   POST /api/admin/users
-// @access  Private/Admin
-export const addUser = async (req, res, next) => {
-  try {
-    const { name, email, mobile, password, role, companyName } = req.body;
-
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ success: false, message: 'User with this email already exists' });
-    }
-
-    const user = await User.create({
-      name,
-      email,
-      mobile,
-      password: password || 'BegaIndia@2026',
-      role: role || 'user',
-      companyName,
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: 'User created successfully by Admin',
-      data: user,
-    });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-// @desc    Admin Edit User Details
-// @route   PUT /api/admin/users/:id
-// @access  Private/Admin
-export const updateUser = async (req, res, next) => {
-  try {
-    const { name, email, mobile, companyName, role } = req.body;
-
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { name, email, mobile, companyName, role },
-      { new: true, runValidators: true }
-    );
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: 'User details updated successfully',
-      data: user,
-    });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-// @desc    Toggle Block/Unblock User
-// @route   PUT /api/admin/users/:id/block
-// @access  Private/Admin
-export const toggleBlockUser = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.params.id);
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    user.isBlocked = !user.isBlocked;
-    await user.save();
-
-    return res.status(200).json({
-      success: true,
-      message: `User ${user.isBlocked ? 'Blocked' : 'Unblocked'} successfully`,
-      isBlocked: user.isBlocked,
     });
   } catch (error) {
     return next(error);
@@ -193,7 +104,7 @@ export const approveMembership = async (req, res, next) => {
     const days = durationDays || 365;
 
     user.membership = {
-      plan: planName || 'Premium Membership',
+      plan: planName || 'Business Membership',
       status: 'Active',
       startDate: new Date(),
       expiryDate: new Date(Date.now() + days * 24 * 60 * 60 * 1000),
@@ -211,24 +122,37 @@ export const approveMembership = async (req, res, next) => {
   }
 };
 
+// @desc    Toggle Block/Unblock User
+// @route   PUT /api/admin/users/:id/block
+// @access  Private/Admin
+export const toggleBlockUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    user.isBlocked = !user.isBlocked;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `User ${user.isBlocked ? 'Blocked' : 'Unblocked'} successfully`,
+      isBlocked: user.isBlocked,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 // @desc    Delete User
 // @route   DELETE /api/admin/users/:id
 // @access  Private/Admin
 export const deleteUser = async (req, res, next) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    // Clean associated business profile if any
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     await Business.findOneAndDelete({ user: req.params.id });
 
-    return res.status(200).json({
-      success: true,
-      message: 'User and associated data deleted successfully',
-    });
+    return res.status(200).json({ success: true, message: 'User and associated data deleted' });
   } catch (error) {
     return next(error);
   }

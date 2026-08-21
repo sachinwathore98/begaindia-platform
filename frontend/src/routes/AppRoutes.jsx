@@ -41,6 +41,7 @@ import NotificationModule from '../pages/dashboard/NotificationModule';
 
 // Admin Panel Pages
 import AdminDashboard from '../pages/admin/AdminDashboard';
+import AdminUsers from '../pages/admin/AdminUsers'; // <-- Dedicated User Management Page
 import DirectoryAndEventsAdmin from '../pages/admin/DirectoryAndEventsAdmin';
 import RevenueAdmin from '../pages/admin/RevenueAdmin';
 import CMSAdmin from '../pages/admin/CMSAdmin';
@@ -99,6 +100,7 @@ export default function AppRoutes() {
       {/* Admin Panel Routes */}
       <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<AdminUsers />} /> {/* <-- Added Route */}
         <Route path="/admin/directory" element={<DirectoryAndEventsAdmin />} />
         <Route path="/admin/revenue" element={<RevenueAdmin />} />
         <Route path="/admin/cms" element={<CMSAdmin />} />
