@@ -89,6 +89,64 @@ export const getAllUsers = async (req, res, next) => {
   }
 };
 
+// @desc    Admin Add New User
+// @route   POST /api/admin/users
+// @access  Private/Admin
+export const addUser = async (req, res, next) => {
+  try {
+    const { name, email, mobile, password, role, companyName } = req.body;
+
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ success: false, message: 'User with this email already exists' });
+    }
+
+    const user = await User.create({
+      name,
+      email,
+      mobile,
+      password: password || 'BegaIndia@2026',
+      role: role || 'user',
+      companyName,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'User created successfully by Admin',
+      data: user,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// @desc    Admin Edit User Details
+// @route   PUT /api/admin/users/:id
+// @access  Private/Admin
+export const updateUser = async (req, res, next) => {
+  try {
+    const { name, email, mobile, companyName, role } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { name, email, mobile, companyName, role },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'User details updated successfully',
+      data: user,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 // @desc    Approve / Override User Membership Tier
 // @route   PUT /api/admin/users/:id/approve-membership
 // @access  Private/Admin
