@@ -53,6 +53,9 @@ const generateSupportTicketId = () => {
   return `BSR-${year}-${randomDigits}`;
 };
 
+// @desc    Create new BSR ticket
+// @route   POST /api/support/ticket
+// @access  Public
 export const createSupportTicket = async (req, res, next) => {
   try {
     const { fullName, membershipNumber, businessName, mobile, email, district, taluka, problemCategory, description } = req.body;
@@ -90,6 +93,9 @@ export const createSupportTicket = async (req, res, next) => {
   }
 };
 
+// @desc    Get status of single ticket by ID
+// @route   GET /api/support/ticket/:ticketId
+// @access  Public
 export const getTicketStatus = async (req, res, next) => {
   try {
     const { ticketId } = req.params;
@@ -102,6 +108,9 @@ export const getTicketStatus = async (req, res, next) => {
   }
 };
 
+// @desc    Update ticket status and remarks
+// @route   PUT /api/support/ticket/:ticketId
+// @access  Private/Admin
 export const updateTicketStatus = async (req, res, next) => {
   try {
     const { ticketId } = req.params;
@@ -121,6 +130,9 @@ export const updateTicketStatus = async (req, res, next) => {
   }
 };
 
+// @desc    Get all tickets for Admin triage
+// @route   GET /api/support/tickets/all
+// @access  Private/Admin
 export const getAllTickets = async (req, res, next) => {
   try {
     const tickets = await SupportTicket.find().sort({ createdAt: -1 });
