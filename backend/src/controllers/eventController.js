@@ -1,3 +1,4 @@
+// backend/src/controllers/eventController.js
 import Event from '../models/Event.js';
 
 // Seed Initial Signature Events if database is empty
