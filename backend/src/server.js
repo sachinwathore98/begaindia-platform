@@ -14,6 +14,8 @@ import paymentRoutes from './routes/paymentRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
+import careerRoutes from './routes/careerRoutes.js';
+import mentorRoutes from './routes/mentorRoutes.js';
 
 dotenv.config();
 
@@ -92,6 +94,8 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/career', careerRoutes);
+app.use('/api/mentors', mentorRoutes);
 
 // 404 Handler
 app.use((req, res, next) => {

@@ -1,6 +1,23 @@
+// backend/src/controllers/supportController.js
 import mongoose from 'mongoose';
 
-// Support Ticket Schema definition
+const SUPPORT_DESKS = [
+  'Business Growth Desk',
+  'MSME & Startup Desk',
+  'Government Scheme Desk',
+  'GST & Tax Awareness Desk',
+  'Legal Awareness Desk',
+  'Employer Support Desk',
+  'Payment Delay Support Desk',
+  'Digital Business Desk',
+  'Cyber Awareness Desk',
+  'Women Entrepreneur Desk',
+  'Youth Entrepreneur Desk',
+  'Business Networking Desk',
+  'Training & Skill Development Desk',
+  'Market Linkage Desk',
+];
+
 const supportTicketSchema = new mongoose.Schema(
   {
     ticketId: { type: String, required: true, unique: true },
@@ -14,15 +31,7 @@ const supportTicketSchema = new mongoose.Schema(
     problemCategory: {
       type: String,
       required: true,
-      enum: [
-        'Government / Administrative Issue',
-        'Licence / Registration / NOC Issue',
-        'GST / Taxation / Compliance Guidance',
-        'Employee / Employer / Workplace Dispute',
-        'Payment Delay / Commercial Recovery',
-        'Cyber Fraud / Digital Payment Scam',
-        'Other Genuine Business Concern',
-      ],
+      enum: SUPPORT_DESKS,
     },
     description: { type: String, required: true },
     status: {
@@ -38,29 +47,15 @@ const supportTicketSchema = new mongoose.Schema(
 
 const SupportTicket = mongoose.models.SupportTicket || mongoose.model('SupportTicket', supportTicketSchema);
 
-// Helper to generate Support Request ID (BSR-YEAR-RANDOM)
 const generateSupportTicketId = () => {
   const year = new Date().getFullYear();
   const randomDigits = Math.floor(100000 + Math.random() * 900000);
   return `BSR-${year}-${randomDigits}`;
 };
 
-// @desc    Submit a Business Support / Grievance Request
-// @route   POST /api/support/tickets
-// @access  Public / Member
 export const createSupportTicket = async (req, res, next) => {
   try {
-    const {
-      fullName,
-      membershipNumber,
-      businessName,
-      mobile,
-      email,
-      district,
-      taluka,
-      problemCategory,
-      description,
-    } = req.body;
+    const { fullName, membershipNumber, businessName, mobile, email, district, taluka, problemCategory, description } = req.body;
 
     if (!fullName || !businessName || !mobile || !email || !problemCategory || !description) {
       return res.status(400).json({ success: false, message: 'Please provide all required fields.' });
@@ -95,33 +90,18 @@ export const createSupportTicket = async (req, res, next) => {
   }
 };
 
-// @desc    Track Support Ticket by Ticket ID
-// @route   GET /api/support/tickets/:ticketId
-// @access  Public
 export const getTicketStatus = async (req, res, next) => {
   try {
     const { ticketId } = req.params;
-
     const ticket = await SupportTicket.findOne({ ticketId: ticketId.trim().toUpperCase() });
-    if (!ticket) {
-      return res.status(404).json({
-        success: false,
-        message: 'No support ticket found with this Request ID. Please verify and try again.',
-      });
-    }
+    if (!ticket) return res.status(404).json({ success: false, message: 'No support ticket found with this Request ID.' });
 
-    return res.status(200).json({
-      success: true,
-      data: ticket,
-    });
+    return res.status(200).json({ success: true, data: ticket });
   } catch (error) {
     return next(error);
   }
 };
 
-// @desc    Admin: Update Ticket Status & Assign Expert
-// @route   PUT /api/support/tickets/:ticketId/status
-// @access  Private / Admin
 export const updateTicketStatus = async (req, res, next) => {
   try {
     const { ticketId } = req.params;
@@ -133,31 +113,18 @@ export const updateTicketStatus = async (req, res, next) => {
       { new: true }
     );
 
-    if (!ticket) {
-      return res.status(404).json({ success: false, message: 'Support ticket not found.' });
-    }
+    if (!ticket) return res.status(404).json({ success: false, message: 'Support ticket not found.' });
 
-    return res.status(200).json({
-      success: true,
-      message: 'Ticket status and assignment updated successfully.',
-      data: ticket,
-    });
+    return res.status(200).json({ success: true, message: 'Ticket status and assignment updated successfully.', data: ticket });
   } catch (error) {
     return next(error);
   }
 };
 
-// @desc    Admin: Get All Support Tickets
-// @route   GET /api/support/tickets/all
-// @access  Private / Admin
 export const getAllTickets = async (req, res, next) => {
   try {
     const tickets = await SupportTicket.find().sort({ createdAt: -1 });
-    return res.status(200).json({
-      success: true,
-      count: tickets.length,
-      data: tickets,
-    });
+    return res.status(200).json({ success: true, count: tickets.length, data: tickets });
   } catch (error) {
     return next(error);
   }

@@ -23,6 +23,7 @@ import Objectives from '../pages/public/Objectives';
 import Expo from '../pages/public/Expo';
 import Sponsorship from '../pages/public/Sponsorship';
 import NewsAndMedia from '../pages/public/NewsAndMedia';
+import CareerConnect from '../pages/public/CareerConnect';
 
 // Auth Pages
 import Login from '../pages/auth/Login';
@@ -79,6 +80,8 @@ export default function AppRoutes() {
         <Route path="/privacy" element={<Policies />} />
         <Route path="/code-of-conduct" element={<Policies />} />
         <Route path="/refund-policy" element={<Policies />} />
+        <Route path="/career" element={<CareerConnect />} />
+        <Route path="/jobs" element={<CareerConnect />} />
       </Route>
 
       {/* Auth Routes */}

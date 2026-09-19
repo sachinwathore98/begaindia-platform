@@ -1,4 +1,4 @@
-// src/pages/public/Home.jsx
+// frontend/src/pages/public/Home.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
@@ -27,102 +27,122 @@ import {
   CheckCircle2,
   Flame,
   MapPin,
+  UserCheck,
 } from 'lucide-react';
 
 const LIVE_NOTICES = [
   '⚡ BEGA Business Expo 2026: 500+ Exhibitors & 15,000+ Trade Delegates at CIDCO Grounds',
-  '📢 MSME Capital Subsidies: Fast-track PMEGP, CGTMSE & Maharashtra PSI application window open',
+  '📢 BEGA Job & Career Connect: Connect employers, job seekers & professionals across Maharashtra',
   '🌱 One Month – One Village: 350+ native trees planted & 85 student kits distributed this month',
-  '🛡️ BSR Support Desk: 18 Industrial clearances and payment default disputes resolved in 14 days',
+  '🛡️ 14 Business Support Desks: Real-time guidance for receivables, GST compliance & administrative hurdles',
 ];
 
 const QUICK_PORTALS = [
   { label: 'Join BEGA', path: '/join', icon: Sparkles, color: 'bg-orange-50 text-[#F57C00] border-orange-200 hover:bg-orange-100' },
   { label: 'Membership Plans', path: '/membership', icon: Award, color: 'bg-blue-50 text-[#0A3D91] border-blue-200 hover:bg-blue-100' },
   { label: 'Business Directory', path: '/directory', icon: Building2, color: 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100' },
-  { label: 'Grievance Desk', path: '/support', icon: LifeBuoy, color: 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100' },
+  { label: 'Career Connect', path: '/career', icon: Briefcase, color: 'bg-cyan-50 text-cyan-800 border-cyan-200 hover:bg-cyan-100' },
+  { label: 'Mentor-Mentee', path: '/mentorship', icon: UserCheck, color: 'bg-violet-50 text-violet-800 border-violet-200 hover:bg-violet-100' },
+  { label: 'BSR Grievance Desk', path: '/support', icon: LifeBuoy, color: 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100' },
   { label: 'BEGA Seva (CSR)', path: '/seva', icon: Trees, color: 'bg-amber-50 text-amber-900 border-amber-200 hover:bg-amber-100' },
   { label: 'Business Expo', path: '/expo', icon: Store, color: 'bg-purple-50 text-purple-800 border-purple-200 hover:bg-purple-100' },
-  { label: 'Events & Meets', path: '/events', icon: Calendar, color: 'bg-indigo-50 text-indigo-800 border-indigo-200 hover:bg-indigo-100' },
-  { label: 'Schemes & Guides', path: '/knowledge', icon: BookOpen, color: 'bg-teal-50 text-teal-900 border-teal-200 hover:bg-teal-100' },
 ];
 
 const MEMBERSHIP_PLANS = [
   {
-    id: 'Basic',
-    name: 'Basic Membership',
-    price: '₹999',
+    id: 'Plan-1',
+    name: 'BEGA Basic Membership',
+    price: '₹2,100',
     period: '/year',
     popular: false,
-    badge: 'Starter Pass',
-    tagline: 'Essential digital identity verification & state-wide business network entry.',
+    badge: 'Plan 1',
+    tagline: 'Foundation membership with ID Card and official BEGA T-Shirt.',
     benefits: [
-      'Official Member Digital ID Badge with QR Verification',
-      'Entry to District-Level B2B Networking & Trade Meets',
-      'Regular MSME Subsidy, Taxation & Regulatory Alerts',
-      'Standard Access to BSR Grievance Redressal Desk',
-      'Discounted Entry Passes for Seminars & Masterclasses',
+      'Official BEGA Membership & Verification Status',
+      'Official BEGA Branded T-Shirt',
+      'Identity Card with QR Verification',
+      'Member Networking Opportunities Across Districts',
+      'Entry to Eligible BEGA Programs and Activities',
     ],
     cta: 'Select Basic Plan',
     btnClass: 'bg-slate-900 hover:bg-slate-800 text-white',
     cardClass: 'border-slate-200 bg-white hover:shadow-md',
   },
   {
-    id: 'Business',
-    name: 'Business Membership',
-    price: '₹2,499',
+    id: 'Plan-2',
+    name: 'Membership with Monthly Booklet',
+    price: '₹5,000',
+    period: '/year',
+    popular: false,
+    badge: 'Plan 2',
+    tagline: 'Continuous business knowledge, regular updates, and print booklet.',
+    benefits: [
+      'All Basic Membership Benefits Included',
+      'BEGA Monthly Knowledge & Business Booklet',
+      'Regular Organisational & Regulatory Updates',
+      'Business and Knowledge Information Briefs',
+      'Additional Regional Networking Opportunities',
+      'Priority Access to Eligible Programs',
+    ],
+    cta: 'Select Booklet Plan',
+    btnClass: 'bg-[#0A3D91] hover:bg-[#083278] text-white font-extrabold',
+    cardClass: 'border-slate-200 bg-white hover:shadow-md',
+  },
+  {
+    id: 'Plan-3',
+    name: 'Membership with Directory',
+    price: '₹11,000',
     period: '/year',
     popular: true,
-    badge: 'Most Popular & Best ROI',
-    tagline: 'High-visibility directory placement, active B2B matchmaking & priority dispute routing.',
+    badge: 'Plan 3 • Most Popular',
+    tagline: 'Verified directory inclusion, dedicated company profile & B2B visibility.',
     benefits: [
-      'Verified Listing in the State Business Directory with Catalog',
-      'Direct B2B Referral Lead Matchmaker & Buyer Linkages',
-      'Priority Legal & CA Guidance for Delayed Payments (MSME SAMADHAAN)',
-      'VIP Delegate Conclave Pass & Priority Expo Stall Allotment',
-      'Eligibility for District & State Business Excellence Awards',
-      'Direct Participation in "One Month – One Village" CSR Drives',
+      'All Basic Membership Benefits Included',
+      'BEGA Monthly Business Booklet Subscription',
+      'Verified BEGA Directory Inclusion',
+      'Business & Member Profile Listing',
+      'Business Visibility and Promotion Opportunities',
+      'Direct Buyer-Seller Linkage & Referrals',
     ],
-    cta: 'Join as Business Member',
+    cta: 'Get Directory Listing',
     btnClass: 'bg-gradient-to-r from-[#F57C00] to-amber-500 hover:from-[#e06f00] hover:to-amber-600 text-white font-black shadow-lg shadow-orange-500/20',
     cardClass: 'border-2 border-[#F57C00] bg-gradient-to-b from-orange-50/40 via-white to-white ring-4 ring-orange-500/10 shadow-2xl scale-[1.02] md:-translate-y-2',
   },
   {
-    id: 'Lifetime',
-    name: 'Lifetime Membership',
-    price: '₹9,999',
-    period: 'one-time',
-    popular: false,
-    badge: 'Permanent Status',
-    tagline: 'Permanent directory verification, executive leadership circles & VIP conclave privileges.',
+    id: 'Plan-4',
+    name: 'State Core Committee',
+    price: '₹21,000',
+    period: 'Subject to Selection',
+    badge: 'Plan 4 • Leadership',
+    tagline: 'State-level leadership, policy participation, and developmental oversight.',
     benefits: [
-      'Permanent Lifetime Verified Badge on Digital Directory',
-      'VIP Stage Access & Delegate Entry for All State Conventions',
-      'Highest Priority Fast-Track Case Escalation in Grievance Cell',
-      'Executive Invitation to Annual Business Leaders Roundtables',
-      'Featured Corporate Profile in State Annual Business Report',
+      'All Basic Membership Benefits Included',
+      'State-Level Organisational Participation',
+      'Leadership & Entrepreneur Development Platforms',
+      'State Programmes and High-Level Networking',
+      'Committee Responsibility (Subject to 9-step selection & approval)',
     ],
-    cta: 'Claim Lifetime Status',
-    btnClass: 'bg-[#0A3D91] hover:bg-[#083278] text-white font-extrabold shadow-md',
-    cardClass: 'border-slate-200 bg-white hover:shadow-md',
+    cta: 'Apply for State Committee',
+    btnClass: 'bg-blue-900 hover:bg-blue-800 text-white font-extrabold',
+    cardClass: 'border-blue-200 bg-blue-50/30 hover:shadow-md',
   },
   {
-    id: 'Executive',
-    name: 'Executive Membership',
-    price: 'By Nomination',
-    period: 'Term Based',
-    popular: false,
-    badge: 'Leadership Role',
-    tagline: 'Committee leadership, taluka/district governance, policy advocacy & social oversight.',
+    id: 'Plan-5',
+    name: 'Central Core Committee',
+    price: '₹51,000',
+    period: 'Subject to Selection',
+    badge: 'Plan 5 • National Council',
+    tagline: 'Central governance, national expansion, and high-level representation.',
     benefits: [
-      'Official Committee Appointment Credentials & Authority',
-      'Voting Rights and Agenda Formulation in Leadership Councils',
-      'Direct Coordination with Local Administration & Government Desks',
-      'Leadership Oversight for Taluka-Level BEGA Seva Village Drives',
+      'All Basic Membership Benefits Included',
+      'Central-Level Organisational Participation',
+      'National Networking with Industry Pioneers',
+      'Strategic Leadership & National Policy Formulation',
+      'Committee Responsibility (Subject to 9-step selection & approval)',
     ],
-    cta: 'Apply for Executive Role',
-    btnClass: 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-extrabold',
-    cardClass: 'border-amber-200 bg-amber-50/30 hover:shadow-md',
+    cta: 'Apply for Central Committee',
+    btnClass: 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-black',
+    cardClass: 'border-2 border-amber-300 bg-amber-50/30 hover:shadow-md',
   },
 ];
 
@@ -134,28 +154,28 @@ const BENEFIT_TABS = [
     badge: 'Revenue Expansion',
     heading: 'Expand Your Supplier & Buyer Pipeline Across 36 Districts',
     description:
-      'BEGA India provides a verified B2B matchmaker engine. Connect your tools, forged components, agricultural produce, or IT services directly with bulk procurement teams without middleman commissions.',
+      'BEGA India provides a verified B2B matchmaker engine. Connect your tools, components, agricultural produce, or professional services directly with procurement teams without intermediary commissions.',
     points: [
       'Verified digital directory placement with clickable catalog links',
       'Priority matchmaking at quarterly regional buyer-seller meets',
-      'Exclusive access to the annual BEGA Business Expo with 15,000+ trade buyers',
+      'Exclusive participation in the annual BEGA Business Expo with 15,000+ trade delegates',
     ],
-    highlight: 'Over ₹18 Crore in business contracts facilitated in regional clusters.',
+    highlight: 'Over ₹18 Crore in business connections facilitated across regional clusters.',
   },
   {
     id: 'protection',
-    title: 'Legal & Dispute Redressal',
+    title: '14 Business Support Desks',
     icon: ShieldCheck,
     badge: 'BSR Cell',
-    heading: 'Institutional Defense Against Payment Defaults & Undue Pressure',
+    heading: 'Institutional Defense Against Payment Defaults & Procedural Hurdles',
     description:
-      'Never fight bureaucratic delays or vendor payment defaults alone. The BEGA Business Support Request (BSR) Cell assigns dedicated Advocates and Chartered Accountants to represent your interests.',
+      'Never fight bureaucratic delays or vendor payment defaults alone. The BEGA Business Support Request (BSR) Cell coordinates initial guidance, documentation reviews, and professional expert referrals.',
     points: [
-      'Fast-track legal representation under MSME SAMADHAAN (45-day payment recovery)',
-      'Guidance on false workplace complaints, labor disputes, and contract arbitration',
-      'Direct representation before local municipal bodies, DIC, and licensing authorities',
+      'Dedicated Payment Delay Support Desk (Documentation & commercial remedies)',
+      'Employer Support Desk for employee conflicts, workplace discipline & false allegations',
+      'Government Scheme & GST Tax Awareness Desks for seamless statutory adherence',
     ],
-    highlight: '100% legal & constitutional dispute resolution process.',
+    highlight: 'Lawful, documented, and constitutional dispute resolution processes.',
   },
   {
     id: 'subsidies',
@@ -164,28 +184,28 @@ const BENEFIT_TABS = [
     badge: 'Capital Unlocking',
     heading: 'Claim Central & Maharashtra State Industrial Subsidies',
     description:
-      'Our dedicated government scheme liaison desk helps micro and small businesses claim capital subsidies, interest concessions, and collateral-free banking credit.',
+      'Our dedicated government scheme awareness desk helps micro and small businesses understand capital subsidies, credit facilities, and collateral-free banking support.',
     points: [
-      'PMEGP 15%–35% capital subsidy facilitation on new manufacturing & service units',
-      'CGTMSE collateral-free credit guarantees up to ₹5 Crore with SIDBI partner banks',
-      'Maharashtra Package Scheme of Incentives (PSI): Gross SGST refunds & power tariff waivers',
+      'PMEGP & PMMY (MUDRA) credit awareness for manufacturing & service enterprises',
+      'CGTMSE credit guarantee awareness and collateral-free loan navigation',
+      'Maharashtra Industrial Policy incentives: SGST refunds and electricity duty concessions',
     ],
-    highlight: '₹4.2 Crore+ in state subsidies already facilitated for member units.',
+    highlight: 'Comprehensive guidance on central and state government incentive portals.',
   },
   {
     id: 'training',
     title: 'Training & Recognition',
     icon: Award,
     badge: 'Skill & Prestige',
-    heading: 'Executive Masterclasses, Digital Automation & State Awards',
+    heading: 'Executive Masterclasses, Digital Adoption & State Awards',
     description:
-      'Upskill your business operations with hands-on masterclasses covering digital funnels, automated invoicing, export logistics, and compete for prestigious state awards.',
+      'Upskill your business operations with hands-on masterclasses covering digital marketing, sales systems, export processes, and compete for prestigious BEGA Business Awards.',
     points: [
-      'Hands-on training in digital marketing funnels, GST compliance, and HR systems',
-      'Eligibility for annual Taluka, District, and Maharashtra State Business Excellence Awards',
-      'Networking with industry pioneers and venture leaders at annual conclaves',
+      'Structured training in sales, team management, customer handling, and digital tools',
+      'Eligibility for annual Taluka, District, Regional, State, and Central BEGA Awards',
+      'Mentor-Mentee connections pairing seasoned veterans with emerging founders',
     ],
-    highlight: 'Official credential badges and state-wide press release recognition.',
+    highlight: 'Recognised credentials, member digital badges, and press visibility.',
   },
 ];
 
@@ -213,7 +233,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-[#F57C00] selection:text-white space-y-16 pb-12 overflow-x-hidden">
       
-      {/* 1. SLIM TICKER BROADCAST (Attached directly below navbar) */}
+      {/* 1. SLIM TICKER BROADCAST */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-3">
         <div className="bg-white border border-slate-200/90 shadow-xs rounded-2xl py-2 px-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5 overflow-hidden">
@@ -230,7 +250,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 2. HERO SLIDER (ASSETS 1-4) ATTACHED DIRECTLY BELOW TICKER */}
+      {/* 2. HERO SLIDER */}
       <HeroSlider />
 
       {/* 3. DYNAMIC 2-COLUMN SPLIT HERO SECTION */}
@@ -239,18 +259,18 @@ export default function Home() {
           
           <div className="lg:col-span-7 space-y-6 text-left">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#0A3D91] text-xs font-black uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-[#F57C00]" /> Business Empowerment & Growth Network
+              <Sparkles className="w-3.5 h-3.5 text-[#F57C00]" /> CONNECT • LEARN • COLLABORATE • GROW
             </div>
 
             <h1 className="text-3xl sm:text-5xl font-black text-slate-900 leading-[1.12] tracking-tight">
-              Protecting Your Rights.<br />
+              Business Empowerment.<br />
               <span className="bg-gradient-to-r from-[#0A3D91] via-blue-700 to-[#F57C00] bg-clip-text text-transparent">
-                Accelerating Business Growth Across Maharashtra.
+                Building Growth. Creating Success.
               </span>
             </h1>
 
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium max-w-xl">
-              Connect with 15,000+ verified manufacturers, traders, and MSMEs across 36 districts. Get verified digital credentials, claim government subsidies, and fast-track commercial dispute resolution.
+              An organized Section 8 business platform connecting entrepreneurs, traders, manufacturers, MSMEs, startups, and self-employed professionals across Maharashtra and India.
             </p>
 
             <div className="flex flex-wrap items-center gap-3 pt-1">
@@ -270,22 +290,22 @@ export default function Home() {
                 to="/support"
                 className="px-4 py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs rounded-xl transition flex items-center gap-1.5"
               >
-                <LifeBuoy className="w-4 h-4 text-rose-600" /> BSR Helpdesk
+                <LifeBuoy className="w-4 h-4 text-rose-600" /> BSR 14 Desks
               </Link>
             </div>
 
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-200/80 text-left">
               <div>
                 <p className="text-xl font-black text-[#0A3D91]">36</p>
-                <p className="text-[10px] text-slate-500 font-bold uppercase">Districts Active</p>
+                <p className="text-[10px] text-slate-500 font-bold uppercase">Districts Reached</p>
               </div>
               <div>
                 <p className="text-xl font-black text-[#F57C00]">15,000+</p>
                 <p className="text-[10px] text-slate-500 font-bold uppercase">Enterprise Pool</p>
               </div>
               <div>
-                <p className="text-xl font-black text-emerald-700">₹4.2 Cr+</p>
-                <p className="text-[10px] text-slate-500 font-bold uppercase">Subsidies Claimed</p>
+                <p className="text-xl font-black text-emerald-700">14 Desks</p>
+                <p className="text-[10px] text-slate-500 font-bold uppercase">Business Support</p>
               </div>
             </div>
           </div>
@@ -301,7 +321,7 @@ export default function Home() {
                   </div>
                   <div>
                     <h3 className="text-xs font-black uppercase tracking-wider text-white">BEGA INDIA</h3>
-                    <p className="text-[9px] text-amber-300 font-semibold">Verified Enterprise Pass</p>
+                    <p className="text-[9px] text-amber-300 font-semibold">Verified Member Pass</p>
                   </div>
                 </div>
                 <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] font-black rounded-full border border-emerald-400/30">
@@ -326,7 +346,7 @@ export default function Home() {
                   </div>
                   <div>
                     <span className="text-slate-400 block font-bold text-[8px] uppercase">Plan Level</span>
-                    <span className="font-bold text-white">Business Membership</span>
+                    <span className="font-bold text-white">Plan 3: Directory Member</span>
                   </div>
                 </div>
                 <div className="bg-white p-1.5 rounded-xl shadow shrink-0">
@@ -339,7 +359,7 @@ export default function Home() {
                   to="/join"
                   className="w-full py-2 bg-gradient-to-r from-[#F57C00] to-amber-500 text-slate-950 text-center font-black text-[11px] rounded-xl shadow transition"
                 >
-                  Get Your Digital ID
+                  Get Digital ID
                 </Link>
                 <Link
                   to="/directory"
@@ -394,7 +414,7 @@ export default function Home() {
             Why Business Owners Choose BEGA India
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 font-medium">
-            Explore the actionable commercial solutions provided to registered enterprises.
+            Explore actionable commercial solutions, support desks, and market linkages.
           </p>
         </div>
 
@@ -459,7 +479,7 @@ export default function Home() {
                 <TabIcon className="w-5 h-5" />
               </div>
               <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[9px] font-bold rounded-full">
-                VERIFIED STATUS
+                SECTION 8 ACCREDITED
               </span>
             </div>
             <div className="space-y-1">
@@ -468,57 +488,51 @@ export default function Home() {
             </div>
             <div className="p-3 bg-white/10 rounded-xl flex justify-between items-center text-xs font-bold text-amber-300">
               <span>All 36 Districts</span>
-              <span>100% Redressal</span>
+              <span>14 Support Desks</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 6. MEMBERSHIP TIERS */}
+      {/* 6. OFFICIAL MEMBERSHIP TIERS (SECTION 9 OF PDF) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 space-y-8">
         <div className="text-center space-y-2 max-w-2xl mx-auto">
           <span className="px-3.5 py-1 bg-orange-50 border border-orange-200 text-[#F57C00] text-xs font-black rounded-full uppercase tracking-wider">
-            Membership Architecture
+            Official Membership Architecture
           </span>
           <h2 className="text-2xl sm:text-4xl font-black text-slate-900">
-            Choose the Right Membership Plan
+            Choose Your BEGA India Membership Plan
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 font-medium">
-            Instant digital ID verification, marketing exposure, government scheme guidance, and dedicated dispute redressal.
+            From basic identity verification to monthly knowledge booklets, directory inclusion, and leadership committees.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5 items-stretch">
           {MEMBERSHIP_PLANS.map((plan) => (
             <div
               key={plan.id}
-              className={`p-6 sm:p-7 rounded-3xl border transition-all flex flex-col justify-between space-y-6 ${plan.cardClass}`}
+              className={`p-6 rounded-3xl border transition-all flex flex-col justify-between space-y-6 ${plan.cardClass}`}
             >
               <div className="space-y-4">
-                <span
-                  className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${
-                    plan.popular
-                      ? 'bg-orange-100 text-[#F57C00] border-orange-200'
-                      : 'bg-slate-100 text-slate-600 border-slate-200'
-                  }`}
-                >
+                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border bg-slate-100 text-slate-700 border-slate-200 block text-center">
                   {plan.badge}
                 </span>
 
-                <div className="space-y-1">
-                  <h3 className="text-lg font-black text-slate-900">{plan.name}</h3>
-                  <div className="flex items-baseline gap-1 pt-1">
-                    <span className="text-3xl font-black text-slate-900">{plan.price}</span>
-                    <span className="text-xs text-slate-500 font-bold">{plan.period}</span>
+                <div className="space-y-1 text-center">
+                  <h3 className="text-sm font-black text-slate-900 leading-snug">{plan.name}</h3>
+                  <div className="flex items-baseline justify-center gap-1 pt-1">
+                    <span className="text-2xl font-black text-slate-900">{plan.price}</span>
+                    <span className="text-[10px] text-slate-500 font-bold">{plan.period}</span>
                   </div>
-                  <p className="text-xs text-slate-600 pt-1 leading-relaxed font-medium">{plan.tagline}</p>
+                  <p className="text-[11px] text-slate-500 pt-1 leading-relaxed">{plan.tagline}</p>
                 </div>
 
-                <div className="space-y-2 pt-4 border-t border-slate-100 text-xs">
-                  <p className="font-extrabold text-slate-800 uppercase text-[10px]">What is Included:</p>
-                  <ul className="space-y-2 text-slate-700">
+                <div className="space-y-2 pt-3 border-t border-slate-100 text-xs">
+                  <p className="font-extrabold text-slate-800 uppercase text-[9px]">Included Privileges:</p>
+                  <ul className="space-y-2 text-slate-600">
                     {plan.benefits.map((b, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-[11px] leading-snug">
+                      <li key={idx} className="flex items-start gap-1.5 text-[10.5px] leading-tight">
                         <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                         <span>{b}</span>
                       </li>
@@ -529,12 +543,17 @@ export default function Home() {
 
               <Link
                 to="/join"
-                className={`w-full py-3.5 rounded-xl text-xs text-center shadow transition block font-bold ${plan.btnClass}`}
+                className={`w-full py-3 rounded-xl text-xs text-center shadow transition block font-bold ${plan.btnClass}`}
               >
                 {plan.cta}
               </Link>
             </div>
           ))}
+        </div>
+
+        {/* Section 10 & 11 Disclaimer */}
+        <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-2xl text-[11px] text-amber-900 text-center max-w-3xl mx-auto leading-relaxed">
+          <strong>Membership Philosophy Note (Sections 10 & 11):</strong> Membership fee is not a position fee. Committee and Executive leadership roles are subject to the formal 9-step selection workflow (Application, Eligibility Check, Verification, Interview, Selection, Approval, and Appointment).
         </div>
       </section>
 
@@ -634,7 +653,7 @@ export default function Home() {
               Ready to Accelerate Your Enterprise?
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 font-medium">
-              Join over 15,000 business leaders, manufacturers, and startups across Maharashtra today. Receive your verified Digital ID card and directory placement immediately.
+              Join business leaders, manufacturers, traders, and startups across Maharashtra today. Receive your verified Digital ID card and directory placement immediately.
             </p>
           </div>
 

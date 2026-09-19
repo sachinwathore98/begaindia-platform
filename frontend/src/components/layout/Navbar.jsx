@@ -1,4 +1,4 @@
-// src/components/layout/Navbar.jsx
+// frontend/src/components/layout/Navbar.jsx
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
@@ -51,7 +51,6 @@ export default function Navbar() {
               if (fallback) fallback.style.display = 'flex';
             }}
           />
-          {/* Fallback Icon Box if logo.png is missing */}
           <div
             className="w-11 h-11 bg-gradient-to-tr from-[#0A3D91] via-blue-700 to-[#F57C00] rounded-xl text-white font-black text-xl shadow-md shrink-0 items-center justify-center"
             style={{ display: 'none' }}
@@ -69,63 +68,16 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Nav Links */}
-        <div className="hidden lg:flex items-center gap-6 text-[13px] font-bold text-slate-700">
-          <Link
-            to="/"
-            className={`transition hover:text-[#0A3D91] ${
-              isActive('/') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''
-            }`}
-          >
-            Home
-          </Link>
-          <Link
-            to="/about"
-            className={`transition hover:text-[#0A3D91] ${
-              isActive('/about') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''
-            }`}
-          >
-            About Us
-          </Link>
-          <Link
-            to="/membership"
-            className={`transition hover:text-[#0A3D91] ${
-              isActive('/membership') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''
-            }`}
-          >
-            Membership
-          </Link>
-          <Link
-            to="/directory"
-            className={`transition hover:text-[#0A3D91] ${
-              isActive('/directory') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''
-            }`}
-          >
-            Business Directory
-          </Link>
-          <Link
-            to="/seva"
-            className={`transition hover:text-[#0A3D91] ${
-              isActive('/seva') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''
-            }`}
-          >
-            BEGA Seva
-          </Link>
-          <Link
-            to="/expo"
-            className={`transition hover:text-[#0A3D91] ${
-              isActive('/expo') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''
-            }`}
-          >
-            Expo & Conclave
-          </Link>
-          <Link
-            to="/events"
-            className={`transition hover:text-[#0A3D91] ${
-              isActive('/events') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''
-            }`}
-          >
-            Events
-          </Link>
+        <div className="hidden lg:flex items-center gap-5 text-[13px] font-bold text-slate-700">
+          <Link to="/" className={`transition hover:text-[#0A3D91] ${isActive('/') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''}`}>Home</Link>
+          <Link to="/about" className={`transition hover:text-[#0A3D91] ${isActive('/about') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''}`}>About</Link>
+          <Link to="/membership" className={`transition hover:text-[#0A3D91] ${isActive('/membership') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''}`}>Membership</Link>
+          <Link to="/directory" className={`transition hover:text-[#0A3D91] ${isActive('/directory') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''}`}>Directory</Link>
+          <Link to="/career" className={`transition hover:text-[#0A3D91] ${isActive('/career') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''}`}>Careers</Link>
+          <Link to="/mentorship" className={`transition hover:text-[#0A3D91] ${isActive('/mentorship') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''}`}>Mentorship</Link>
+          <Link to="/seva" className={`transition hover:text-[#0A3D91] ${isActive('/seva') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''}`}>BEGA Seva</Link>
+          <Link to="/expo" className={`transition hover:text-[#0A3D91] ${isActive('/expo') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''}`}>Expo</Link>
+          <Link to="/events" className={`transition hover:text-[#0A3D91] ${isActive('/events') ? 'text-[#0A3D91] font-black border-b-2 border-[#0A3D91] pb-0.5' : ''}`}>Events</Link>
         </div>
 
         {/* Action CTAs */}
@@ -134,7 +86,7 @@ export default function Navbar() {
             to="/support"
             className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold rounded-xl transition flex items-center gap-1.5"
           >
-            <LifeBuoy className="w-3.5 h-3.5 text-rose-600" /> BSR Desk
+            <LifeBuoy className="w-3.5 h-3.5 text-rose-600" /> BSR 14 Desks
           </Link>
           <Link
             to="/join"
@@ -150,7 +102,7 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Mobile Hamburger Button */}
+        {/* Mobile Hamburger */}
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="lg:hidden p-2 text-slate-700 hover:text-slate-900 rounded-lg focus:outline-none"
@@ -176,7 +128,7 @@ export default function Navbar() {
               onClick={() => setIsOpen(false)}
               className="py-3 bg-rose-50 text-rose-700 border border-rose-200 font-black text-center rounded-xl"
             >
-              SUPPORT DESK
+              14 BSR DESKS
             </Link>
           </div>
 
@@ -186,6 +138,8 @@ export default function Navbar() {
             <Link to="/objectives" onClick={() => setIsOpen(false)} className="block py-1 hover:text-[#0A3D91]">28 Core Objectives</Link>
             <Link to="/membership" onClick={() => setIsOpen(false)} className="block py-1 hover:text-[#0A3D91]">Membership Plans</Link>
             <Link to="/directory" onClick={() => setIsOpen(false)} className="block py-1 hover:text-[#0A3D91]">Business Directory</Link>
+            <Link to="/career" onClick={() => setIsOpen(false)} className="block py-1 hover:text-[#0A3D91]">Job & Career Connect</Link>
+            <Link to="/mentorship" onClick={() => setIsOpen(false)} className="block py-1 hover:text-[#0A3D91]">Mentor-Mentee Program</Link>
             <Link to="/support" onClick={() => setIsOpen(false)} className="block py-1 hover:text-[#0A3D91]">Business Support (BSR)</Link>
             <Link to="/seva" onClick={() => setIsOpen(false)} className="block py-1 hover:text-[#0A3D91]">BEGA Seva (CSR)</Link>
             <Link to="/expo" onClick={() => setIsOpen(false)} className="block py-1 hover:text-[#0A3D91]">Expo & Conclave</Link>

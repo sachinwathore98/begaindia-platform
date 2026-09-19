@@ -1,3 +1,4 @@
+// backend/src/controllers/adminController.js
 import User from '../models/User.js';
 import Business from '../models/Business.js';
 
@@ -17,26 +18,32 @@ export const getAdminStats = async (req, res, next) => {
           _id: null,
           totalRevenue: {
             $sum: {
-              $cond: [
-                { $eq: ['$membership.plan', 'Lifetime Membership'] }, 9999,
-                { $cond: [{ $eq: ['$membership.plan', 'Business Membership'] }, 2499, 999] }
-              ]
-            }
-          }
-        }
-      }
+              $switch: {
+                branches: [
+                  { case: { $eq: ['$membership.plan', 'BEGA Central Core Committee'] }, then: 51000 },
+                  { case: { $eq: ['$membership.plan', 'BEGA State Core Committee'] }, then: 21000 },
+                  { case: { $eq: ['$membership.plan', 'BEGA Membership with Directory'] }, then: 11000 },
+                  { case: { $eq: ['$membership.plan', 'BEGA Membership with Monthly Booklet'] }, then: 5000 },
+                  { case: { $eq: ['$membership.plan', 'BEGA Basic Membership'] }, then: 2100 },
+                ],
+                default: 2100,
+              },
+            },
+          },
+        },
+      },
     ]);
 
     const totalRevenue = revenueAggregate.length > 0 ? revenueAggregate[0].totalRevenue : 0;
     const totalEvents = 3;
 
     const membershipGrowth = [
-      { month: 'Mar', users: 120, revenue: 15000 },
-      { month: 'Apr', users: 180, revenue: 28000 },
-      { month: 'May', users: 250, revenue: 42000 },
-      { month: 'Jun', users: 310, revenue: 59000 },
-      { month: 'Jul', users: 420, revenue: 84000 },
-      { month: 'Aug', users: totalUsers || 530, revenue: totalRevenue || 112000 },
+      { month: 'Mar', users: 120, revenue: 45000 },
+      { month: 'Apr', users: 180, revenue: 88000 },
+      { month: 'May', users: 250, revenue: 142000 },
+      { month: 'Jun', users: 310, revenue: 210000 },
+      { month: 'Jul', users: 420, revenue: 320000 },
+      { month: 'Aug', users: totalUsers || 530, revenue: totalRevenue || 450000 },
     ];
 
     return res.status(200).json({
@@ -162,7 +169,7 @@ export const approveMembership = async (req, res, next) => {
     const days = durationDays || 365;
 
     user.membership = {
-      plan: planName || 'Business Membership',
+      plan: planName || 'BEGA Membership with Directory',
       status: 'Active',
       startDate: new Date(),
       expiryDate: new Date(Date.now() + days * 24 * 60 * 60 * 1000),

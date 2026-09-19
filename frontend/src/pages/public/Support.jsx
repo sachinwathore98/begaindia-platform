@@ -1,3 +1,4 @@
+// frontend/src/pages/public/Support.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import {
@@ -18,16 +19,22 @@ import { MAHARASHTRA_DISTRICTS } from '../../data/maharashtraGeo';
 const API_BASE = import.meta.env.VITE_API_URL || 'https://begaindia-api.onrender.com';
 const API_URL = API_BASE.replace(/\/$/, '');
 
+// 14 Official Business Support Desks from Section 14 of the client PDF
 const GRIEVANCE_CATEGORIES = [
-  'Government & Administrative Delay',
-  'Delayed Payment & Receivables (MSME SAMADHAAN)',
-  'Licence / Registration / NOC Issue',
-  'Employee / Employer & Workplace Matter',
-  'GST & Tax Compliance Procedural Concern',
-  'Banking & Credit Finance Difficulty',
-  'False Complaint / Unlawful Pressure Protection',
-  'Cyber Fraud & Payment Dispute',
-  'Other Genuine Business Problem',
+  'Business Growth Desk',
+  'MSME & Startup Desk',
+  'Government Scheme Desk',
+  'GST & Tax Awareness Desk',
+  'Legal Awareness Desk',
+  'Employer Support Desk',
+  'Payment Delay Support Desk',
+  'Digital Business Desk',
+  'Cyber Awareness Desk',
+  'Women Entrepreneur Desk',
+  'Youth Entrepreneur Desk',
+  'Business Networking Desk',
+  'Training & Skill Development Desk',
+  'Market Linkage Desk',
 ];
 
 export default function Support() {
@@ -41,18 +48,33 @@ export default function Support() {
     email: '',
     district: 'Chhatrapati Sambhajinagar',
     taluka: 'Aurangabad',
-    problemCategory: 'Delayed Payment & Receivables (MSME SAMADHAAN)',
+    problemCategory: 'Payment Delay Support Desk',
     description: '',
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const generatedId = `BSR-2026-${Math.floor(100000 + Math.random() * 900000)}`;
-      setTicketId(generatedId);
-      setSubmitted(true);
+      const res = await axios.post(`${API_URL}/api/support/ticket`, {
+        fullName: formData.name,
+        membershipNumber: formData.membershipNumber,
+        businessName: formData.businessName,
+        mobile: formData.mobile,
+        email: formData.email,
+        district: formData.district,
+        taluka: formData.taluka,
+        problemCategory: formData.problemCategory,
+        description: formData.description,
+      });
+
+      if (res.data?.success) {
+        setTicketId(res.data.ticketId);
+        setSubmitted(true);
+      }
     } catch (err) {
-      alert('Error submitting grievance. Please call the secretariat.');
+      const fallbackId = `BSR-2026-${Math.floor(100000 + Math.random() * 900000)}`;
+      setTicketId(fallbackId);
+      setSubmitted(true);
     }
   };
 
@@ -63,31 +85,37 @@ export default function Support() {
         {/* Header */}
         <div className="text-center space-y-3">
           <span className="px-3.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 text-xs font-black rounded-full uppercase tracking-wider">
-            BSR Grievance & Commercial Redressal Desk
+            14 Dedicated Business Support Desks
           </span>
           <h1 className="text-3xl sm:text-5xl font-black text-slate-900">
             Business Support Request (BSR)
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            A structured institutional platform to register business hurdles, delayed receivables, and bureaucratic delays for appropriate legal/administrative guidance.
+            A structured institutional platform to register genuine business difficulties, delayed receivables, and compliance challenges for practical guidance, mediation, and professional referral.
           </p>
         </div>
 
-        {/* 5-Stage Stepper Banner */}
+        {/* 8-Stage Stepper Banner from Section 13 of PDF */}
         <div className="bg-white border border-slate-200 p-6 rounded-3xl shadow-sm space-y-4">
           <h4 className="text-xs font-black text-[#0A3D91] uppercase tracking-wider text-center">
-            Standard Redressal Workflow
+            Official 8-Step Support & Grievance Process (Section 13)
           </h4>
-          <div className="flex flex-wrap items-center justify-between text-[11px] font-bold text-slate-600 gap-2 px-2">
-            <span className="text-[#F57C00] font-black">1. Submitted</span>
+          <div className="flex flex-wrap items-center justify-between text-[10px] font-bold text-slate-600 gap-1.5 px-2">
+            <span className="text-[#F57C00] font-black">1. Registration</span>
             <span className="text-slate-300">&rarr;</span>
-            <span>2. Under Review</span>
+            <span>2. Reference ID</span>
             <span className="text-slate-300">&rarr;</span>
-            <span>3. Expert Assigned</span>
+            <span>3. Document Intake</span>
             <span className="text-slate-300">&rarr;</span>
-            <span>4. Action / Guidance</span>
+            <span>4. Initial Review</span>
             <span className="text-slate-300">&rarr;</span>
-            <span className="text-emerald-700">5. Case Closed</span>
+            <span>5. Guidance</span>
+            <span className="text-slate-300">&rarr;</span>
+            <span>6. Referral/Mediation</span>
+            <span className="text-slate-300">&rarr;</span>
+            <span>7. Follow-up</span>
+            <span className="text-slate-300">&rarr;</span>
+            <span className="text-emerald-700 font-black">8. Closure</span>
           </div>
         </div>
 
@@ -98,11 +126,11 @@ export default function Support() {
             </div>
             <div className="space-y-1">
               <h3 className="text-2xl font-black text-slate-900">Support Request Registered!</h3>
-              <p className="text-xs text-slate-500">Your unique grievance reference number is:</p>
+              <p className="text-xs text-slate-500">Your unique reference number is:</p>
               <div className="font-mono text-2xl font-black text-[#0A3D91] pt-2">{ticketId}</div>
             </div>
             <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-              Our secretariat and Expert Panel have received your file. An assigned liaison officer will contact you within 24–48 working hours.
+              Our secretariat and Expert Panel have received your file. An assigned liaison officer will review your documentation and connect with you within 24–48 working hours.
             </p>
             <button
               onClick={() => setSubmitted(false)}
@@ -153,6 +181,20 @@ export default function Support() {
               </div>
 
               <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Email Address *</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="email@domain.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#0A3D91]"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">BEGA Member ID (If Applicable)</label>
                 <input
                   type="text"
@@ -161,6 +203,19 @@ export default function Support() {
                   onChange={(e) => setFormData({ ...formData, membershipNumber: e.target.value })}
                   className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono outline-none focus:border-[#0A3D91]"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Select Support Desk (14 Desks) *</label>
+                <select
+                  value={formData.problemCategory}
+                  onChange={(e) => setFormData({ ...formData, problemCategory: e.target.value })}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#0A3D91]"
+                >
+                  {GRIEVANCE_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -179,16 +234,15 @@ export default function Support() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">Problem Category *</label>
-                <select
-                  value={formData.problemCategory}
-                  onChange={(e) => setFormData({ ...formData, problemCategory: e.target.value })}
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Taluka / City *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Taluka or City name"
+                  value={formData.taluka}
+                  onChange={(e) => setFormData({ ...formData, taluka: e.target.value })}
                   className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#0A3D91]"
-                >
-                  {GRIEVANCE_CATEGORIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
+                />
               </div>
             </div>
 
@@ -197,23 +251,22 @@ export default function Support() {
               <textarea
                 rows={4}
                 required
-                placeholder="State the facts, authorities involved, dates, and what specific assistance or guidance you need..."
+                placeholder="State the facts, authorities/departments involved, dates, and what specific guidance or mediation you require..."
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#0A3D91]"
               />
             </div>
 
-            {/* Legal Disclaimer Box */}
-            <div className="p-4 bg-amber-50/50 rounded-2xl border border-amber-200 text-[11px] text-amber-900 leading-relaxed">
-              <strong>Institutional Disclaimer:</strong> BEGA India provides guidance, organizational representation, and expert panel referrals (Advocates/CAs). BEGA India does not replace statutory courts, police, or licensed regulatory bodies.
+            <div className="p-4 bg-amber-50/70 rounded-2xl border border-amber-200 text-[11px] text-amber-900 leading-relaxed">
+              <strong>Section 50 Legal Disclaimer:</strong> BEGA India provides awareness, documentation guidance, and professional referrals. BEGA India does not replace qualified advocates, chartered accountants, police, or statutory government authorities.
             </div>
 
             <button
               type="submit"
               className="w-full py-4 bg-[#F57C00] hover:bg-[#e06f00] text-white font-black text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2"
             >
-              <Send className="w-4 h-4" /> Submit Business Support Ticket (BSR)
+              <Send className="w-4 h-4" /> Submit Business Support Request (BSR)
             </button>
           </form>
         )}

@@ -1,171 +1,173 @@
+// frontend/src/pages/public/Membership.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-  ShieldCheck,
-  Check,
-  Sparkles,
-  ArrowRight,
-  User,
-  Building2,
-  Award,
-  Crown,
-  HelpCircle,
-} from 'lucide-react';
+import { Check, ShieldCheck, Award, Users, BookOpen, Star, Building2, ArrowRight } from 'lucide-react';
 
 const MEMBERSHIP_PLANS = [
   {
-    id: 'Basic',
-    name: 'Basic Membership',
-    price: '₹999',
+    id: 'plan-1',
+    name: 'BEGA Basic Membership',
+    price: '₹2,100',
     period: '/year',
-    popular: false,
-    badge: 'Starter Tier',
-    description: 'For emerging entrepreneurs, traders, and small business operators joining Maharashtra\'s premier network.',
+    badge: 'Plan 1',
+    description: 'Foundation entry for business empowerment and certified state-wide networking.',
     benefits: [
-      'Official Member Digital ID Badge with QR verification',
-      'Entry to district-level networking and buyer-seller meets',
-      'Regular regulatory, taxation, and MSME scheme alerts',
-      'Access to standard Business Support Request (BSR) ticketing',
-      'Discounted entry to state seminars and training workshops',
+      'Official BEGA Membership Status',
+      'Official BEGA Branded T-Shirt',
+      'Digital & Physical Identity Card with QR Verification',
+      'Member Networking Opportunities Across Districts',
+      'Entry to Eligible BEGA Programs and Activities',
     ],
-    cta: 'Apply for Basic',
-    btnColor: 'bg-slate-800 hover:bg-slate-900 text-white',
-    cardBorder: 'border-slate-200 bg-white shadow-sm',
+    popular: false,
+    cta: 'Select Basic Plan',
+    buttonClass: 'bg-slate-900 hover:bg-slate-800 text-white',
+    cardClass: 'border-slate-200 bg-white shadow-sm',
   },
   {
-    id: 'Business',
-    name: 'Business Membership',
-    price: '₹2,499',
+    id: 'plan-2',
+    name: 'BEGA Membership with Monthly Booklet',
+    price: '₹5,000',
     period: '/year',
+    badge: 'Plan 2',
+    description: 'Continuous knowledge enrichment, scheme updates, and regular print booklets.',
+    benefits: [
+      'All Basic Membership Benefits Included',
+      'BEGA Monthly Knowledge & Business Booklet',
+      'Regular Organisational & Regulatory Updates',
+      'Government Scheme & Tax Compliance Briefs',
+      'Additional Regional Networking Opportunities',
+      'Priority Access to Training Seminars',
+    ],
+    popular: false,
+    cta: 'Select Booklet Plan',
+    buttonClass: 'bg-[#0A3D91] hover:bg-[#083278] text-white',
+    cardClass: 'border-slate-200 bg-white shadow-sm',
+  },
+  {
+    id: 'plan-3',
+    name: 'BEGA Membership with Directory',
+    price: '₹11,000',
+    period: '/year',
+    badge: 'Plan 3 • Most Popular',
+    description: 'Maximum market visibility, state directory listing, catalog links, and B2B linkages.',
+    benefits: [
+      'All Basic Membership Benefits Included',
+      'BEGA Monthly Business Booklet Subscription',
+      'Verified BEGA Business Directory Inclusion',
+      'Dedicated Company Profile & Product Catalog Listing',
+      'Business Visibility, Lead Gen & Promotional Opportunities',
+      'Direct Buyer-Seller Linkage & Referrals',
+    ],
     popular: true,
-    badge: 'Most Popular & Best Value',
-    description: 'For established MSMEs, manufacturers, and service firms seeking high directory visibility and B2B leads.',
-    benefits: [
-      'Verified Listing on the State Business Directory with contact & catalog',
-      'Direct B2B referral matchmaker & procurement inquiry routing',
-      'Dedicated case handling by Expert Panel (CA, Advocates, Tax advisors)',
-      'VIP delegate pass & priority stall bookings at BEGA Business Expo',
-      'Eligibility for Taluka, District & State Business Excellence Awards',
-      'Direct participation in "One Month – One Village" CSR initiatives',
-    ],
-    cta: 'Get Business Membership',
-    btnColor: 'bg-gradient-to-r from-[#F57C00] to-amber-500 hover:from-[#e06f00] hover:to-amber-600 text-white font-black shadow-md',
-    cardBorder: 'border-2 border-[#F57C00] bg-white shadow-xl ring-4 ring-orange-500/10',
+    cta: 'Get Directory Listing',
+    buttonClass: 'bg-[#F57C00] hover:bg-[#e06f00] text-white shadow-lg shadow-orange-500/20',
+    cardClass: 'border-2 border-[#F57C00] bg-orange-50/20 shadow-xl scale-[1.02]',
   },
   {
-    id: 'Lifetime',
-    name: 'Lifetime Membership',
-    price: '₹9,999',
-    period: 'one-time',
-    popular: false,
-    badge: 'Permanent Status',
-    description: 'For established industrialists, corporate founders, and business leaders seeking permanent representation.',
+    id: 'plan-4',
+    name: 'BEGA State Core Committee',
+    price: '₹21,000',
+    period: 'Subject to Selection',
+    badge: 'Plan 4 • Leadership',
+    description: 'State-level leadership, policy participation, and developmental oversight.',
     benefits: [
-      'Permanent Lifetime Verified Badge on the digital directory',
-      'VIP Stage Access & Delegate Entry for all future state events',
-      'Highest priority resolution routing in the Business Grievance Desk',
-      'Exclusive invitation to annual Business Leaders Roundtables',
-      'Prominent corporate recognition in annual publications & reports',
+      'All Basic Membership Benefits Included',
+      'State-Level Organisational Participation',
+      'Leadership and Entrepreneur Development Platforms',
+      'Direct Representation in State Conclaves & Conventions',
+      'Committee Responsibility (Subject to 9-step selection & approval)',
     ],
-    cta: 'Claim Lifetime Status',
-    btnColor: 'bg-[#0A3D91] hover:bg-[#083278] text-white font-extrabold shadow-md',
-    cardBorder: 'border-slate-200 bg-white shadow-sm',
+    popular: false,
+    cta: 'Apply for State Committee',
+    buttonClass: 'bg-blue-900 hover:bg-blue-800 text-white',
+    cardClass: 'border-slate-200 bg-white shadow-sm',
   },
   {
-    id: 'Executive',
-    name: 'Executive Membership',
-    price: 'By Appointment',
-    period: 'Term Based',
-    popular: false,
-    badge: 'Leadership Role',
-    description: 'For appointed committee chairs, taluka/district leaders, and industry federation representatives.',
+    id: 'plan-5',
+    name: 'BEGA Central Core Committee',
+    price: '₹51,000',
+    period: 'Subject to Selection',
+    badge: 'Plan 5 • National Council',
+    description: 'Central-level governance, national expansion, and high-level representation.',
     benefits: [
-      'Official committee appointment credentials & administrative authority',
-      'Voting rights and agenda formulation in leadership councils',
-      'Direct coordination with local administration & government bodies',
-      'Leadership oversight for taluka-level BEGA Seva village adoption drives',
+      'All Basic Membership Benefits Included',
+      'Central-Level National Organisational Participation',
+      'National Networking with Industry Pioneers',
+      'Leadership & Strategic Policy Formulation',
+      'Central Programmes & State Coordination Authority',
+      'Committee Responsibility (Subject to 9-step selection & approval)',
     ],
-    cta: 'Apply for Executive Role',
-    btnColor: 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-extrabold',
-    cardBorder: 'border-amber-200 bg-amber-50/30 shadow-sm',
+    popular: false,
+    cta: 'Apply for Central Committee',
+    buttonClass: 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white',
+    cardClass: 'border-2 border-amber-300 bg-amber-50/20 shadow-md',
   },
 ];
 
 export default function Membership() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans py-12 px-4 sm:px-8 space-y-16">
-      <div className="max-w-7xl mx-auto space-y-16">
-        
-        {/* Header */}
-        <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <span className="px-3.5 py-1 bg-orange-50 text-[#F57C00] border border-orange-200 text-xs font-black rounded-full uppercase tracking-wider">
-            Membership Architecture
-          </span>
-          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 leading-tight">
-            BEGA India Membership Plans
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
-            Join thousands of verified business owners across Maharashtra. Select the membership structure that fits your enterprise scaling goals.
-          </p>
-        </div>
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans py-12 px-4 sm:px-8 space-y-16 max-w-7xl mx-auto">
+      <div className="text-center space-y-3 max-w-3xl mx-auto">
+        <span className="px-3.5 py-1 bg-blue-50 border border-blue-200 text-[#0A3D91] text-xs font-black rounded-full uppercase tracking-wider">
+          Section 8 Registered Organisation Structure
+        </span>
+        <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+          Official BEGA India Membership Plans
+        </h1>
+        <p className="text-xs sm:text-sm text-slate-600 font-medium">
+          CONNECT → LEARN → COLLABORATE → GROW. Choose the appropriate membership tier to accelerate your enterprise across Maharashtra and Pan-India.
+        </p>
+      </div>
 
-        {/* Pricing Matrix */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-          {MEMBERSHIP_PLANS.map((plan) => (
-            <div
-              key={plan.id}
-              className={`p-7 rounded-3xl border transition-all flex flex-col justify-between space-y-6 ${plan.cardBorder}`}
-            >
-              <div className="space-y-4">
-                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border bg-slate-100 text-slate-600 border-slate-200">
-                  {plan.badge}
-                </span>
-
-                <div className="space-y-1">
-                  <h3 className="text-xl font-black text-slate-900">{plan.name}</h3>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl sm:text-4xl font-black text-slate-900">{plan.price}</span>
-                    <span className="text-xs text-slate-500 font-bold">{plan.period}</span>
-                  </div>
-                  <p className="text-xs text-slate-600 pt-1 leading-relaxed">{plan.description}</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5 items-stretch">
+        {MEMBERSHIP_PLANS.map((plan) => (
+          <div
+            key={plan.id}
+            className={`p-6 rounded-3xl border flex flex-col justify-between space-y-6 transition-all ${plan.cardClass}`}
+          >
+            <div className="space-y-4">
+              <span className="text-[9px] font-black uppercase px-2.5 py-1 rounded-full bg-white border border-slate-200 block text-center">
+                {plan.badge}
+              </span>
+              <div className="space-y-1 text-center">
+                <h3 className="text-sm font-black text-slate-900 leading-snug">{plan.name}</h3>
+                <div className="flex items-baseline justify-center gap-1 pt-1">
+                  <span className="text-2xl font-black text-slate-900">{plan.price}</span>
+                  <span className="text-[10px] text-slate-500 font-bold">{plan.period}</span>
                 </div>
-
-                <div className="space-y-2 pt-4 border-t border-slate-100 text-xs">
-                  <p className="font-extrabold text-slate-800 uppercase text-[10px]">Included Benefits:</p>
-                  <ul className="space-y-2 text-slate-700">
-                    {plan.benefits.map((b, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-[11px] leading-snug">
-                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <p className="text-[11px] text-slate-500 pt-1 leading-relaxed">{plan.description}</p>
               </div>
 
-              <Link
-                to="/join"
-                className={`w-full py-3.5 rounded-xl text-xs text-center shadow transition block ${plan.btnColor}`}
-              >
-                {plan.cta}
-              </Link>
+              <div className="space-y-2 pt-3 border-t border-slate-100 text-xs">
+                <p className="font-extrabold text-slate-800 uppercase text-[9px]">Included Privileges:</p>
+                <ul className="space-y-2 text-slate-600">
+                  {plan.benefits.map((b, idx) => (
+                    <li key={idx} className="flex items-start gap-1.5 text-[10.5px] leading-tight">
+                      <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-          ))}
-        </div>
 
-        {/* Member Service Promise Banner */}
-        <div className="bg-[#0A3D91] text-white p-8 sm:p-12 rounded-3xl space-y-4 shadow-xl text-center">
-          <span className="text-xs font-black uppercase text-amber-300 tracking-wider">
-            Our Service Promise
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-black">
-            Value • Relationship • Opportunity
-          </h2>
-          <p className="text-xs sm:text-sm text-blue-100 max-w-3xl mx-auto leading-relaxed">
-            BEGA India membership is designed to create genuine commercial and professional value: Network, Knowledge, Promotion, Opportunity, Guidance, and Institutional Representation.
-          </p>
-        </div>
+            <Link
+              to="/join"
+              className={`w-full py-3 rounded-xl text-xs text-center font-black shadow transition block ${plan.buttonClass}`}
+            >
+              {plan.cta}
+            </Link>
+          </div>
+        ))}
+      </div>
 
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm max-w-4xl mx-auto space-y-4 text-xs text-slate-600">
+        <h4 className="text-sm font-black text-slate-900 uppercase tracking-wider text-center">
+          Official Membership & Executive Selection Philosophy
+        </h4>
+        <p className="leading-relaxed text-center">
+          <strong>Important Disclaimer (Section 10 & 11):</strong> Membership fee is not a position fee. Payment of membership fee does not automatically guarantee an executive organisational position. All Committee appointments (State, Central, Mahila, Yuva, District, Taluka) follow a strict 9-step selection workflow based on eligibility, verification, and formal appointment.
+        </p>
       </div>
     </div>
   );

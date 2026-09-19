@@ -1,4 +1,4 @@
-// src/components/layout/Footer.jsx
+// frontend/src/components/layout/Footer.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, Mail, MapPin } from 'lucide-react';
@@ -26,7 +26,7 @@ export default function Footer() {
             </div>
 
             <p className="text-xs leading-relaxed text-slate-400 max-w-sm">
-              A professional, development-oriented association connecting business growth, legal protection, B2B matchmaking, and grassroots social transformation across Maharashtra.
+              Section 8 Company established to empower, connect, and support entrepreneurs, MSMEs, traders, manufacturers, startups, and self-employed professionals across Maharashtra and India.
             </p>
 
             <div className="text-xs font-black text-amber-400 tracking-widest uppercase pt-1">
@@ -47,7 +47,6 @@ export default function Footer() {
                 </svg>
               </a>
 
-              {/* Facebook */}
               <a
                 href="https://www.facebook.com/profile.php?id=61592545237370"
                 target="_blank"
@@ -60,7 +59,6 @@ export default function Footer() {
                 </svg>
               </a>
 
-              {/* WhatsApp */}
               <a
                 href="https://wa.me/917387877820"
                 target="_blank"
@@ -83,7 +81,8 @@ export default function Footer() {
               <li><Link to="/objectives" className="hover:text-white transition">28 Core Objectives</Link></li>
               <li><Link to="/membership" className="hover:text-white transition">Membership Plans</Link></li>
               <li><Link to="/directory" className="hover:text-white transition">Business Directory</Link></li>
-              <li><Link to="/support" className="hover:text-white transition">Business Support Cell</Link></li>
+              <li><Link to="/career" className="hover:text-white transition">Job & Career Connect</Link></li>
+              <li><Link to="/mentorship" className="hover:text-white transition">Mentor-Mentee Wing</Link></li>
             </ul>
           </div>
 
@@ -91,7 +90,8 @@ export default function Footer() {
           <div className="space-y-3 text-xs">
             <h4 className="text-sm font-extrabold text-white uppercase tracking-wider">Programs & Wings</h4>
             <ul className="space-y-2 text-slate-400">
-              <li><Link to="/seva" className="hover:text-white transition">BEGA Seva (Social Wing)</Link></li>
+              <li><Link to="/support" className="hover:text-white transition">14 Business Support Desks</Link></li>
+              <li><Link to="/seva" className="hover:text-white transition">BEGA Seva (CSR Wing)</Link></li>
               <li><Link to="/seva" className="hover:text-white transition">One Month – One Village</Link></li>
               <li><Link to="/expo" className="hover:text-white transition">BEGA Business Expo</Link></li>
               <li><Link to="/expo" className="hover:text-white transition">BEGA Mahaadhiveshan</Link></li>
@@ -123,11 +123,11 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] text-slate-500">
-          <p>&copy; {new Date().getFullYear()} BEGA INDIA. All Rights Reserved.</p>
+          <p>&copy; {new Date().getFullYear()} BEGA INDIA. All Rights Reserved. Legal Structure: Section 8 Company.</p>
           <div className="flex gap-6">
-            <Link to="/policies" className="hover:text-slate-300">Constitution</Link>
-            <Link to="/policies" className="hover:text-slate-300">Disclaimer</Link>
-            <Link to="/contact" className="hover:text-slate-300">Support Desk</Link>
+            <Link to="/policies" className="hover:text-slate-300">Constitution & Terms</Link>
+            <Link to="/policies" className="hover:text-slate-300">Discipline Policy</Link>
+            <Link to="/support" className="hover:text-slate-300">Support Desk</Link>
           </div>
         </div>
 

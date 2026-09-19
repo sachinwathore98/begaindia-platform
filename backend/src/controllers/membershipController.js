@@ -1,165 +1,104 @@
+// backend/src/controllers/membershipController.js
+import Membership from '../models/Membership.js';
+import ExecutiveApplication from '../models/ExecutiveApplication.js';
 import User from '../models/User.js';
-import Business from '../models/Business.js';
-import { sendMembershipEmail } from '../utils/notificationService.js';
 
-// Helper to generate unique Application Number
-const generateApplicationNumber = () => {
-  const year = new Date().getFullYear();
-  const randomDigits = Math.floor(100000 + Math.random() * 900000);
-  return `BEGA-${year}-${randomDigits}`;
-};
-
-// @desc    Submit Multi-Step Online Membership Application
-// @route   POST /api/membership/apply
-// @access  Public
-export const submitMembershipApplication = async (req, res, next) => {
-  try {
-    const {
-      fullName,
-      email,
-      mobile,
-      password,
-      district,
-      taluka,
-      address,
-      membershipType,
-      businessName,
-      category,
-      businessType,
-      gstNumber,
-      description,
-    } = req.body;
-
-    if (!fullName || !email || !mobile) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide full name, email, and mobile number.',
-      });
-    }
-
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanMobile = mobile.trim();
-
-    // Check existing application/user
-    const userExists = await User.findOne({ $or: [{ email: cleanEmail }, { mobile: cleanMobile }] });
-    if (userExists) {
-      return res.status(400).json({
-        success: false,
-        message: 'An application or account with this email or mobile number already exists.',
-      });
-    }
-
-    const applicationNumber = generateApplicationNumber();
-
-    // Create Member User Account
-    const user = await User.create({
-      name: fullName.trim(),
-      email: cleanEmail,
-      mobile: cleanMobile,
-      password: password || 'BegaMember@2026',
-      role: 'user',
-      applicationNumber,
-      district: district || 'Chhatrapati Sambhajinagar',
-      taluka: taluka || 'Aurangabad',
-      address: address || '',
-      isVerified: true,
-      membership: {
-        plan: `${membershipType || 'Business'} Membership`,
-        status: 'Active',
-        startDate: new Date(),
-        expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-      },
-    });
-
-    // Create Corresponding Business Profile
-    const business = await Business.create({
-      user: user._id,
-      companyName: businessName?.trim() || `${fullName.trim()} Enterprises`,
-      category: category || 'Manufacturing & Industrial',
-      businessType: businessType || 'Proprietorship',
-      gstNumber: gstNumber ? gstNumber.trim().toUpperCase() : '',
-      description: description || 'Registered BEGA India Member Business',
-      mobile: cleanMobile,
-      email: cleanEmail,
-      district: district || 'Chhatrapati Sambhajinagar',
-      taluka: taluka || 'Aurangabad',
-      address: address || '',
-      status: 'Approved',
-      isFeatured: membershipType === 'Lifetime' || membershipType === 'Executive',
-    });
-
-    // Dispatch automated confirmation email via Brevo
-    sendMembershipEmail({
-      toEmail: cleanEmail,
-      fullName: user.name,
-      companyName: business.companyName,
-      applicationNumber: user.applicationNumber,
-      membershipPlan: user.membership.plan,
-    }).catch((e) => console.error('Background email worker error:', e));
-
-    return res.status(201).json({
-      success: true,
-      message: 'Membership Application Submitted Successfully!',
-      applicationNumber,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        mobile: user.mobile,
-        applicationNumber: user.applicationNumber,
-        district: user.district,
-        taluka: user.taluka,
-        membership: user.membership,
-      },
-      business: {
-        id: business._id,
-        companyName: business.companyName,
-        category: business.category,
-      },
-    });
-  } catch (error) {
-    console.error('Membership Application Error:', error);
-    return next(error);
-  }
-};
-
-// @desc    Verify Member Digital ID via QR Scan
+// @desc    Verify Member Status by Application Number
 // @route   GET /api/membership/verify/:applicationNumber
 // @access  Public
-export const verifyMemberCard = async (req, res, next) => {
+export const verifyMemberStatus = async (req, res, next) => {
   try {
     const { applicationNumber } = req.params;
+    const user = await User.findOne({ applicationNumber: applicationNumber.trim().toUpperCase() })
+      .select('name companyName applicationNumber district taluka membership isVerified createdAt');
 
-    const user = await User.findOne({ applicationNumber: applicationNumber?.trim() }).select('-password');
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'Invalid Membership Card. Application record not found.',
-      });
+      return res.status(404).json({ success: false, message: 'No registered member found with this application number.' });
     }
-
-    const business = await Business.findOne({ user: user._id });
 
     return res.status(200).json({
       success: true,
-      valid: true,
-      member: {
-        name: user.name,
-        applicationNumber: user.applicationNumber,
-        membershipPlan: user.membership?.plan || 'Business Membership',
-        membershipStatus: user.membership?.status || 'Active',
-        district: user.district,
-        taluka: user.taluka,
-        companyName: business?.companyName || 'Individual Member',
-        category: business?.category || 'General',
-        validTill: user.membership?.expiryDate,
-      },
+      data: user,
     });
   } catch (error) {
     return next(error);
   }
 };
 
-// Alias export for backward compatibility
-export const verifyMembership = verifyMemberCard;
-export const applyMembership = submitMembershipApplication;
+// @desc    Submit Executive Karyakarini Application (9-Step Selection Process)
+// @route   POST /api/membership/executive-apply
+// @access  Private
+export const submitExecutiveApplication = async (req, res, next) => {
+  try {
+    const { fullName, email, mobile, businessName, committeeLevel, district, taluka, experienceYears, visionStatement } = req.body;
+
+    const existing = await ExecutiveApplication.findOne({ user: req.user.id, committeeLevel });
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'You have already submitted an application for this committee.' });
+    }
+
+    const application = await ExecutiveApplication.create({
+      user: req.user.id,
+      fullName: fullName || req.user.name,
+      email: email || req.user.email,
+      mobile: mobile || req.user.mobile,
+      businessName,
+      committeeLevel,
+      district,
+      taluka,
+      experienceYears,
+      visionStatement,
+      selectionStage: 'Eligibility Check',
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Executive Karyakarini application submitted successfully. Undergoing 9-step selection workflow.',
+      data: application,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// @desc    Get All Executive Applications (Admin Only)
+// @route   GET /api/membership/executive-applications
+// @access  Private/Admin
+export const getExecutiveApplications = async (req, res, next) => {
+  try {
+    const applications = await ExecutiveApplication.find().populate('user', 'name email mobile membership').sort({ createdAt: -1 });
+    return res.status(200).json({ success: true, count: applications.length, data: applications });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// @desc    Update Executive Selection Stage
+// @route   PUT /api/membership/executive-stage/:id
+// @access  Private/Admin
+export const updateExecutiveStage = async (req, res, next) => {
+  try {
+    const { selectionStage, officialRemarks } = req.body;
+    const application = await ExecutiveApplication.findByIdAndUpdate(
+      req.params.id,
+      { selectionStage, officialRemarks },
+      { new: true }
+    );
+
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'Application record not found.' });
+    }
+
+    if (selectionStage === 'Appointment') {
+      await User.findByIdAndUpdate(application.user, { role: 'executive' });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Application advanced to stage: ${selectionStage}`,
+      data: application,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};

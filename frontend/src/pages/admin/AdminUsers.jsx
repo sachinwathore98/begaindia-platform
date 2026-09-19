@@ -1,10 +1,18 @@
 // frontend/src/pages/admin/AdminUsers.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search, ShieldCheck, UserX, Trash2, CheckCircle2, User } from 'lucide-react';
+import { Search, ShieldCheck, UserX, Trash2, CheckCircle2, User, Award } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://begaindia-api.onrender.com';
 const API_URL = API_BASE.replace(/\/$/, '');
+
+const OFFICIAL_PLANS = [
+  'BEGA Basic Membership',
+  'BEGA Membership with Monthly Booklet',
+  'BEGA Membership with Directory',
+  'BEGA State Core Committee',
+  'BEGA Central Core Committee',
+];
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -48,8 +56,22 @@ export default function AdminUsers() {
     }
   };
 
+  const handleToggleBlock = async (userId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.put(`${API_URL}/api/admin/users/${userId}/block`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.data?.success) {
+        fetchUsers();
+      }
+    } catch (err) {
+      alert('Failed to toggle block status');
+    }
+  };
+
   const handleDeleteUser = async (userId) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    if (!window.confirm('Are you sure you want to delete this user and associated business profile?')) return;
     try {
       const token = localStorage.getItem('token');
       await axios.delete(`${API_URL}/api/admin/users/${userId}`, {
@@ -66,13 +88,13 @@ export default function AdminUsers() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
         <div>
           <h1 className="text-xl font-black text-slate-900">Member & User Accounts</h1>
-          <p className="text-xs text-slate-500 font-medium">Search, moderate, and upgrade member tiers across Maharashtra.</p>
+          <p className="text-xs text-slate-500 font-medium">Search, moderate, and upgrade members across 5 official plans.</p>
         </div>
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Search name, email..."
+            placeholder="Search name, email, company..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:border-[#0A3D91]"
@@ -87,7 +109,7 @@ export default function AdminUsers() {
               <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-extrabold uppercase text-[10px]">
                 <th className="p-4">Member Name</th>
                 <th className="p-4">Contact & District</th>
-                <th className="p-4">Membership Plan</th>
+                <th className="p-4">Official Plan</th>
                 <th className="p-4">Status</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
@@ -105,7 +127,7 @@ export default function AdminUsers() {
                   </td>
                   <td className="p-4">
                     <span className="font-bold text-[#0A3D91] bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
-                      {u.membership?.plan || 'Basic Membership'}
+                      {u.membership?.plan || 'BEGA Basic Membership'}
                     </span>
                   </td>
                   <td className="p-4">
@@ -116,12 +138,22 @@ export default function AdminUsers() {
                     </span>
                   </td>
                   <td className="p-4 text-right space-x-2">
-                    <button
-                      onClick={() => handleApproveMembership(u._id, 'Business Membership')}
-                      className="px-3 py-1.5 bg-[#F57C00] text-white font-bold rounded-lg shadow-xs hover:bg-[#e06f00] transition"
-                      title="Upgrade to Business Membership"
+                    <select
+                      onChange={(e) => handleApproveMembership(u._id, e.target.value)}
+                      value=""
+                      className="px-2.5 py-1.5 bg-slate-100 border border-slate-300 rounded-lg text-[11px] font-bold outline-none"
                     >
-                      Approve Business
+                      <option value="" disabled>Upgrade Plan...</option>
+                      {OFFICIAL_PLANS.map((plan) => (
+                        <option key={plan} value={plan}>{plan}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => handleToggleBlock(u._id)}
+                      className={`p-1.5 rounded-lg transition inline-flex items-center ${u.isBlocked ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-700'}`}
+                      title={u.isBlocked ? 'Unblock User' : 'Block User'}
+                    >
+                      <UserX className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteUser(u._id)}

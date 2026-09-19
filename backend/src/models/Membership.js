@@ -1,3 +1,4 @@
+// backend/src/models/Membership.js
 import mongoose from 'mongoose';
 
 const paymentSchema = new mongoose.Schema({
@@ -46,12 +47,13 @@ const membershipSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: [
-        'Basic Membership',
-        'Business Membership',
-        'Lifetime Membership',
-        'Executive Membership',
+        'BEGA Basic Membership',
+        'BEGA Membership with Monthly Booklet',
+        'BEGA Membership with Directory',
+        'BEGA State Core Committee',
+        'BEGA Central Core Committee',
       ],
-      default: 'Business Membership',
+      default: 'BEGA Membership with Directory',
     },
     membershipStatus: {
       type: String,
@@ -84,7 +86,7 @@ const membershipSchema = new mongoose.Schema(
     },
     validTill: {
       type: Date,
-      default: () => new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 Year Default
+      default: () => new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
     },
     paymentDetails: paymentSchema,
   },

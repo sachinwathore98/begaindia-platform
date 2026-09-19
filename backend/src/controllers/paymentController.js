@@ -1,3 +1,4 @@
+// backend/src/controllers/paymentController.js
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import User from '../models/User.js';
@@ -24,10 +25,10 @@ export const createOrder = async (req, res, next) => {
 
     const instance = getRazorpayInstance();
     const options = {
-      amount: Math.round(Number(amount) * 100), // Razorpay requires paise
+      amount: Math.round(Number(amount) * 100), // in paise
       currency: 'INR',
       receipt: `BEGA-RCPT-${Date.now()}`,
-      notes: { membershipPlan: membershipPlan || 'Business Membership' },
+      notes: { membershipPlan: membershipPlan || 'BEGA Membership with Directory' },
     };
 
     const order = await instance.orders.create(options);
@@ -56,7 +57,6 @@ export const verifyPayment = async (req, res, next) => {
       formData,
     } = req.body;
 
-    // Cryptographic signature check
     const secret = process.env.RAZORPAY_KEY_SECRET || 'ofxzo06srPJ61SzICLbtscS5';
     const hmac = crypto.createHmac('sha256', secret);
     hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
@@ -89,6 +89,8 @@ export const verifyPayment = async (req, res, next) => {
     const year = new Date().getFullYear();
     const applicationNumber = `BEGA-${year}-${Math.floor(100000 + Math.random() * 900000)}`;
 
+    const assignedPlan = membershipType || 'BEGA Membership with Directory';
+
     if (!user) {
       user = await User.create({
         name: fullName.trim(),
@@ -102,7 +104,7 @@ export const verifyPayment = async (req, res, next) => {
         address: address || '',
         isVerified: true,
         membership: {
-          plan: `${membershipType || 'Business'} Membership`,
+          plan: assignedPlan,
           status: 'Active',
           startDate: new Date(),
           expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
@@ -124,11 +126,11 @@ export const verifyPayment = async (req, res, next) => {
         taluka: taluka || 'Aurangabad',
         address: address || '',
         status: 'Approved',
-        isFeatured: membershipType === 'Lifetime' || membershipType === 'Executive',
+        isFeatured: assignedPlan.includes('Directory') || assignedPlan.includes('Committee'),
       });
     } else {
       user.membership.status = 'Active';
-      user.membership.plan = `${membershipType || 'Business'} Membership`;
+      user.membership.plan = assignedPlan;
       user.membership.paymentId = razorpay_payment_id;
       user.membership.orderId = razorpay_order_id;
       await user.save();
