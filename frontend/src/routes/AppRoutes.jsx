@@ -1,13 +1,15 @@
-// src/routes/AppRoutes.jsx
+// frontend/src/routes/AppRoutes.jsx
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Layouts
 import PublicLayout from '../components/layout/PublicLayout';
+import AdminLayout from '../components/layout/AdminLayout';
 
 // Public Pages
 import Home from '../pages/public/Home';
 import About from '../pages/public/About';
+import Objectives from '../pages/public/Objectives';
 import Membership from '../pages/public/Membership';
 import Directory from '../pages/public/BusinessDirectory';
 import Events from '../pages/public/Events';
@@ -19,7 +21,6 @@ import Knowledge from '../pages/public/Knowledge';
 import VerifyMember from '../pages/public/VerifyMember';
 import Leadership from '../pages/public/Leadership';
 import Policies from '../pages/public/Policies';
-import Objectives from '../pages/public/Objectives';
 import Expo from '../pages/public/Expo';
 import Sponsorship from '../pages/public/Sponsorship';
 import NewsAndMedia from '../pages/public/NewsAndMedia';
@@ -34,7 +35,7 @@ import Unauthorized from '../pages/auth/Unauthorized';
 // Protected Route Guard
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 
-// Member Dashboard Main View
+// Member Dashboard Main View & Sub-Modules
 import Dashboard from '../pages/Dashboard';
 import ProfileManagement from '../pages/dashboard/ProfileManagement';
 import EventModule from '../pages/dashboard/EventModule';
@@ -42,9 +43,9 @@ import MembershipModule from '../pages/dashboard/MembershipModule';
 import NotificationModule from '../pages/dashboard/NotificationModule';
 
 // Admin Panel Pages
-import AdminExecutives from '../pages/admin/AdminExecutives';
 import AdminDashboard from '../pages/admin/AdminDashboard';
-import AdminUsers from '../pages/admin/AdminUsers'; // <-- Dedicated User Management Page
+import AdminUsers from '../pages/admin/AdminUsers';
+import AdminExecutives from '../pages/admin/AdminExecutives';
 import DirectoryAndEventsAdmin from '../pages/admin/DirectoryAndEventsAdmin';
 import RevenueAdmin from '../pages/admin/RevenueAdmin';
 import CMSAdmin from '../pages/admin/CMSAdmin';
@@ -53,7 +54,7 @@ import SupportAdmin from '../pages/admin/SupportAdmin';
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Public Pages */}
+      {/* 1. Public Pages */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -87,34 +88,36 @@ export default function AppRoutes() {
         <Route path="/jobs" element={<CareerConnect />} />
       </Route>
 
-      {/* Auth Routes */}
+      {/* 2. Auth Routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
-      {/* Member Dashboard Sub-routes */}
-      <Route element={<ProtectedRoute allowedRoles={['user', 'admin']} />}>
+      {/* 3. Member Dashboard Protected Routes */}
+      <Route element={<ProtectedRoute allowedRoles={['user', 'admin', 'executive']} />}>
         <Route path="/dashboard" element={<Dashboard />}>
-          <Route index element={<EventModule />} />
+          <Route index element={<MembershipModule />} />
+          <Route path="membership" element={<MembershipModule />} />
           <Route path="profile" element={<ProfileManagement />} />
           <Route path="events" element={<EventModule />} />
-          <Route path="membership" element={<MembershipModule />} />
           <Route path="notifications" element={<NotificationModule />} />
         </Route>
       </Route>
 
-      {/* Admin Panel Routes */}
+      {/* 4. Admin Panel Protected Routes (Wrapped in AdminLayout) */}
       <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-        <Route path="executives" element={<AdminExecutives />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/users" element={<AdminUsers />} /> {/* <-- Added Route */}
-        <Route path="/admin/directory" element={<DirectoryAndEventsAdmin />} />
-        <Route path="/admin/revenue" element={<RevenueAdmin />} />
-        <Route path="/admin/cms" element={<CMSAdmin />} />
-        <Route path="/admin/support" element={<SupportAdmin />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="executives" element={<AdminExecutives />} />
+          <Route path="directory" element={<DirectoryAndEventsAdmin />} />
+          <Route path="revenue" element={<RevenueAdmin />} />
+          <Route path="cms" element={<CMSAdmin />} />
+          <Route path="support" element={<SupportAdmin />} />
+        </Route>
       </Route>
 
-      {/* Fallback */}
+      {/* 5. Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
