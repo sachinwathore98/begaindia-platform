@@ -1,3 +1,4 @@
+// backend/src/server.js
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -9,6 +10,7 @@ import { connectDB } from './config/db.js';
 // Route Imports
 import authRoutes from './routes/authRoutes.js';
 import businessRoutes from './routes/businessRoutes.js';
+import directoryRoutes from './routes/directoryRoutes.js'; // <-- Added import
 import membershipRoutes from './routes/membershipRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
@@ -16,6 +18,7 @@ import notificationRoutes from './routes/notificationRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import careerRoutes from './routes/careerRoutes.js';
 import mentorRoutes from './routes/mentorRoutes.js';
+import supportRoutes from './routes/supportRoutes.js'; // <-- Added support routes if applicable
 
 dotenv.config();
 
@@ -88,14 +91,28 @@ app.get('/api/health', (req, res) => {
 // API Routes Mounted
 app.use('/api/membership', membershipRoutes);
 app.use('/api/auth', authRoutes);
+
+// Support both /api/directory and /api/directories
+app.use('/api/directory', directoryRoutes);
+app.use('/api/directories', directoryRoutes);
+
+// Support both /api/business and /api/businesses
 app.use('/api/business', businessRoutes);
+app.use('/api/businesses', businessRoutes);
+
 app.use('/api/payment', paymentRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/career', careerRoutes);
+app.use('/api/mentor', mentorRoutes);
 app.use('/api/mentors', mentorRoutes);
+
+// Optional: support desk route alias if support routes file is present
+if (supportRoutes) {
+  app.use('/api/support', supportRoutes);
+}
 
 // 404 Handler
 app.use((req, res, next) => {
