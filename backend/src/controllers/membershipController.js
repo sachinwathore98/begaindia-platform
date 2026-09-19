@@ -65,7 +65,9 @@ export const submitMembershipApplication = async (req, res, next) => {
 // @access  Private
 export const getMembershipDetails = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).select('membership name email mobile applicationNumber district');
+    const user = await User.findById(req.user.id).select(
+      'membership name email mobile applicationNumber district'
+    );
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
@@ -84,16 +86,17 @@ export const getMembershipDetails = async (req, res, next) => {
   }
 };
 
-// @desc    Verify Member Status by Application Number (QR / Public check)
+// @desc    Verify Member Card / QR Code (Matches route import: verifyMemberCard)
 // @route   GET /api/membership/verify/:applicationNumber
 // @access  Public
-export const verifyMemberStatus = async (req, res, next) => {
+export const verifyMemberCard = async (req, res, next) => {
   try {
     const { applicationNumber } = req.params;
     const cleanAppNum = applicationNumber.trim().toUpperCase();
 
-    let user = await User.findOne({ applicationNumber: cleanAppNum })
-      .select('name companyName applicationNumber district taluka membership isVerified createdAt');
+    let user = await User.findOne({ applicationNumber: cleanAppNum }).select(
+      'name companyName applicationNumber district taluka membership isVerified createdAt'
+    );
 
     if (!user) {
       const record = await Membership.findOne({ applicationNumber: cleanAppNum });
@@ -115,6 +118,9 @@ export const verifyMemberStatus = async (req, res, next) => {
   }
 };
 
+// Export verifyMemberStatus as an alias so both route naming conventions are satisfied
+export const verifyMemberStatus = verifyMemberCard;
+
 // @desc    Submit Executive Karyakarini Application (9-Step Selection Process)
 // @route   POST /api/membership/executive-apply
 // @access  Private
@@ -132,7 +138,10 @@ export const submitExecutiveApplication = async (req, res, next) => {
       visionStatement,
     } = req.body;
 
-    const existing = await ExecutiveApplication.findOne({ user: req.user.id, committeeLevel });
+    const existing = await ExecutiveApplication.findOne({
+      user: req.user.id,
+      committeeLevel,
+    });
     if (existing) {
       return res.status(400).json({
         success: false,
@@ -150,13 +159,15 @@ export const submitExecutiveApplication = async (req, res, next) => {
       district: district || req.user.district,
       taluka: taluka || req.user.taluka,
       experienceYears: Number(experienceYears) || 0,
-      visionStatement: visionStatement || 'Committed to business growth and community empowerment.',
+      visionStatement:
+        visionStatement || 'Committed to business growth and community empowerment.',
       selectionStage: 'Eligibility Check',
     });
 
     return res.status(201).json({
       success: true,
-      message: 'Executive Karyakarini application submitted successfully. Undergoing 9-step selection workflow.',
+      message:
+        'Executive Karyakarini application submitted successfully. Undergoing 9-step selection workflow.',
       data: application,
     });
   } catch (error) {
