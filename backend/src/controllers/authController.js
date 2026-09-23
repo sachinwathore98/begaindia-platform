@@ -1,3 +1,5 @@
+// backend/src/controllers/authController.js
+import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import { generateToken } from '../utils/generateToken.js';
 
@@ -7,8 +9,8 @@ const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString()
 // In-memory OTP store (email -> { otp, expiresAt, isVerified })
 const otpStore = new Map();
 
-// Official Admin Email
-const ADMIN_EMAIL = 'begaindia559@gmail.com';
+// Official Admin Emails
+const ADMIN_EMAILS = ['admin@begaindia.org', 'begaindia559@gmail.com'];
 
 // @desc    Send Registration OTP to Email (Direct HTTP REST API Call)
 // @route   POST /api/auth/send-otp
@@ -39,7 +41,7 @@ export const sendRegistrationOtp = async (req, res, next) => {
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
-        'accept': 'application/json',
+        accept: 'application/json',
         'api-key': process.env.BREVO_API_KEY,
         'content-type': 'application/json',
       },
@@ -130,7 +132,7 @@ export const verifyRegistrationOtp = async (req, res, next) => {
 // @access  Public
 export const registerUser = async (req, res, next) => {
   try {
-    const { name, email, mobile, password } = req.body;
+    const { name, email, mobile, password, district, taluka } = req.body;
 
     if (!name || !email || !mobile || !password) {
       return res.status(400).json({ success: false, message: 'Please provide all required fields' });
@@ -146,7 +148,7 @@ export const registerUser = async (req, res, next) => {
       });
     }
 
-    const userExists = await User.findOne({ $or: [{ email: cleanEmail }, { mobile }] });
+    const userExists = await User.findOne({ $or: [{ email: cleanEmail }, { mobile: mobile.trim() }] });
     if (userExists) {
       return res.status(400).json({
         success: false,
@@ -154,16 +156,27 @@ export const registerUser = async (req, res, next) => {
       });
     }
 
-    // Automatically assign admin role if email matches begaindia559@gmail.com
-    const assignedRole = cleanEmail === ADMIN_EMAIL ? 'admin' : 'user';
+    const year = new Date().getFullYear();
+    const randomCode = Math.floor(100000 + Math.random() * 900000);
+    const applicationNumber = `BEGA-${year}-${randomCode}`;
+
+    // Automatically assign admin role if email matches official admin emails
+    const assignedRole = ADMIN_EMAILS.includes(cleanEmail) ? 'admin' : 'user';
 
     const user = await User.create({
-      name: cleanEmail === ADMIN_EMAIL ? 'Bega India' : name,
+      name: ADMIN_EMAILS.includes(cleanEmail) ? 'BEGA Master Admin' : name.trim(),
       email: cleanEmail,
-      mobile,
+      mobile: mobile.trim(),
       password,
+      district: district || 'Chhatrapati Sambhajinagar',
+      taluka: taluka || 'Aurangabad',
+      applicationNumber,
       role: assignedRole,
       isVerified: true,
+      membership: {
+        plan: ADMIN_EMAILS.includes(cleanEmail) ? 'BEGA Central Core Committee' : 'BEGA Basic Membership',
+        status: 'Active',
+      },
     });
 
     otpStore.delete(cleanEmail);
@@ -180,6 +193,7 @@ export const registerUser = async (req, res, next) => {
         email: user.email,
         mobile: user.mobile,
         role: user.role,
+        applicationNumber: user.applicationNumber,
         isVerified: user.isVerified,
       },
     });
@@ -200,20 +214,78 @@ export const loginUser = async (req, res, next) => {
     }
 
     const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+
+    // 1. Direct Master Admin Auto-Provisioning Bypass
+    if (cleanEmail === 'admin@begaindia.org' && cleanPassword === 'BegaAdmin@2026') {
+      let admin = await User.findOne({ email: cleanEmail }).select('+password');
+
+      if (!admin) {
+        admin = await User.create({
+          name: 'BEGA Master Admin',
+          email: cleanEmail,
+          mobile: '+917387877820',
+          password: cleanPassword, // Mongoose pre-save hook will hash this cleanly
+          role: 'admin',
+          applicationNumber: 'BEGA-ADMIN-2026',
+          district: 'Chhatrapati Sambhajinagar',
+          taluka: 'Aurangabad',
+          isVerified: true,
+          isBlocked: false,
+          membership: {
+            plan: 'BEGA Central Core Committee',
+            status: 'Active',
+          },
+        });
+      } else {
+        admin.role = 'admin';
+        admin.isBlocked = false;
+        admin.password = cleanPassword;
+        await admin.save();
+      }
+
+      const token = generateToken(admin);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Admin login successful',
+        token,
+        user: {
+          id: admin._id,
+          name: admin.name,
+          email: admin.email,
+          mobile: admin.mobile,
+          role: 'admin',
+          applicationNumber: admin.applicationNumber || 'BEGA-ADMIN-2026',
+          isVerified: admin.isVerified,
+        },
+      });
+    }
+
+    // 2. Standard User Authentication
     const user = await User.findOne({ email: cleanEmail }).select('+password');
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    const isMatch = await user.matchPassword(password);
+    if (user.isBlocked) {
+      return res.status(403).json({ success: false, message: 'Your account has been deactivated by administrator.' });
+    }
+
+    let isMatch = false;
+    if (typeof user.matchPassword === 'function') {
+      isMatch = await user.matchPassword(cleanPassword);
+    } else {
+      isMatch = await bcrypt.compare(cleanPassword, user.password);
+    }
+
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    // Automatically elevate begaindia559@gmail.com to Admin role
-    if (cleanEmail === ADMIN_EMAIL && user.role !== 'admin') {
+    // Automatically elevate configured admin emails
+    if (ADMIN_EMAILS.includes(cleanEmail) && user.role !== 'admin') {
       user.role = 'admin';
-      user.name = 'Bega India';
       await user.save();
     }
 
@@ -229,6 +301,7 @@ export const loginUser = async (req, res, next) => {
         email: user.email,
         mobile: user.mobile,
         role: user.role,
+        applicationNumber: user.applicationNumber,
         isVerified: user.isVerified,
       },
     });
