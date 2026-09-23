@@ -1,4 +1,8 @@
 // backend/src/seedAdmin.js
+import dns from 'node:dns';
+// Force Node.js to use Google DNS so local ISP cannot block MongoDB SRV lookups
+dns.setServers(['8.8.8.8', '8.8.4.4']);
+
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
@@ -7,42 +11,55 @@ import Business from './models/Business.js';
 
 dotenv.config();
 
+const MONGO_URI =
+  process.env.MONGO_URI ||
+  'mongodb+srv://begaindia559_db_user:Begaindia%40123@cluster0.gyla7wc.mongodb.net/begaindia?retryWrites=true&w=majority&appName=Cluster0';
+
 const seedDatabase = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    console.log('Connecting to MongoDB Atlas...');
+    await mongoose.connect(MONGO_URI);
     console.log('MongoDB Connected for Seeding...');
 
-    // 1. Seed Master SuperAdmin
     const adminEmail = 'admin@begaindia.org';
-    let adminUser = await User.findOne({ email: adminEmail });
+    const plainPassword = 'BegaAdmin@2026';
 
-    if (!adminUser) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash('BegaAdmin@2026', salt);
+    // Hash the password once
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(plainPassword, salt);
 
-      adminUser = await User.create({
-        name: 'BEGA Master Admin',
-        email: adminEmail,
-        mobile: '+917387877820',
-        password: hashedPassword,
-        role: 'admin',
-        applicationNumber: 'BEGA-ADMIN-2026',
-        district: 'Chhatrapati Sambhajinagar',
-        taluka: 'Aurangabad',
-        isVerified: true,
-        membership: {
-          plan: 'Executive Board',
-          status: 'Active',
+    // Upsert admin user bypassing the Mongoose pre-save double-hash hook
+    await User.findOneAndUpdate(
+      { email: adminEmail },
+      {
+        $set: {
+          name: 'BEGA Master Admin',
+          email: adminEmail,
+          mobile: '+917387877820',
+          password: hashedPassword,
+          role: 'admin',
+          applicationNumber: 'BEGA-ADMIN-2026',
+          district: 'Chhatrapati Sambhajinagar',
+          taluka: 'Aurangabad',
+          isVerified: true,
+          isBlocked: false,
+          membership: {
+            plan: 'BEGA Central Core Committee',
+            status: 'Active',
+          },
         },
-      });
-      console.log('Master Admin Created: admin@begaindia.org / BegaAdmin@2026');
-    } else {
-      adminUser.role = 'admin';
-      await adminUser.save();
-      console.log('Master Admin Account Verified');
-    }
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
 
-    // 2. Seed Initial Verified Business Directory Entries
+    console.log('\n========================================');
+    console.log('Master Admin Account Ready:');
+    console.log(`Email:    ${adminEmail}`);
+    console.log(`Password: ${plainPassword}`);
+    console.log('========================================\n');
+
+    // Seed Initial Directory Entries
+    const adminUser = await User.findOne({ email: adminEmail });
     const sampleBusinesses = [
       {
         companyName: 'SW Multimedia Group',
